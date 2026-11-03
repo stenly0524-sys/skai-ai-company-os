@@ -8,6 +8,7 @@ const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
 let projectCache=[],roleConversations=new Map();
+const orchestrationStatuses={draft:'待 CEO 核准分工',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
  toastTimer=setTimeout(()=>{toast.hidden=true},4000);
@@ -92,6 +93,79 @@ async function loadTasks(){
  renderList($('taskList'),data.tasks||[],'目前尚未建立任務。',t=>
   listItem(t.title,t.brief,el('span','quiet-pill',statuses[t.status]||t.status)));
 }
+async function loadOrchestrations(){
+ const list=$('orchestrationList'),selector=$('orchestrationTask');
+ if(workspaceMode()==='local'){
+  selector.replaceChildren(new Option('請切換至已部署的雲端後端',''));
+  renderList(list,[],'AI 跨部門協作需要真實後端、PostgreSQL 與 AI API；本機模式不會模擬 AI 工作。',()=>null);
+  return;
+ }
+ const [tasksResult,runsResult]=await Promise.all([api('/tasks'),api('/orchestrations')]);
+ const runs=runsResult.runs||[],eligible=(tasksResult.tasks||[]).filter(t=>t.status==='approved'&&!runs.some(r=>r.task_id===t.id));
+ const old=selector.value;selector.replaceChildren(new Option('選擇已核准、未建立計畫的任務',''));
+ for(const task of eligible)selector.add(new Option(task.title,task.id));
+ selector.value=eligible.some(t=>t.id===old)?old:'';
+ renderList(list,runs,'目前沒有跨部門協作計畫。請先建立任務並完成 CEO 核准。',run=>{
+  const container=el('div','orchestration-entry');
+  const status=orchestrationStatuses[run.plan_status]||run.plan_status;
+  const info=listItem(run.task_title,run.summary||'幕僚長計畫',el('span','quiet-pill',status));
+  const detail=el('div','orchestration-detail');
+  const report=el('div','orchestration-report');
+  const actions=el('div','inline-actions');
+  const draw=async()=>{
+   const data=await api('/orchestrations/'+encodeURIComponent(run.id));
+   const current=data.run,steps=data.steps||[];
+   detail.replaceChildren(el('p','helper','分工：'+steps.length+' 個部門 · 目前狀態：'+(orchestrationStatuses[current.plan_status]||current.plan_status)));
+   for(const step of steps){
+    const member=EMPLOYEES.find(e=>e.id===step.role_id);
+    const description=el('p','helper',(member?.name||step.role_id)+' · '+(step.status||'pending')+' · '+step.instruction);
+    detail.append(description);
+    if(step.result){const result=el('p','orchestration-result',step.result);detail.append(result);}
+    if(step.last_error)detail.append(el('p','helper','錯誤：'+step.last_error));
+   }
+   if(current.consolidated_report){
+    const toggle=el('button','outline-btn','查看完整報告');toggle.type='button';
+    const full=el('pre','orchestration-result',current.consolidated_report);full.hidden=true;
+    toggle.addEventListener('click',()=>{full.hidden=!full.hidden;toggle.textContent=full.hidden?'查看完整報告':'收合完整報告';});
+    detail.append(toggle,full);
+   }
+   actions.replaceChildren();
+   const stepAction=(label,endpoint,confirmText)=>{
+    const button=el('button','outline-btn',label);button.type='button';
+    button.addEventListener('click',async()=>{
+     if(!confirm(confirmText))return;
+     button.disabled=true;
+     try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/'+endpoint,{method:'POST'});await draw();showToast('已保存：'+label);await Promise.all([loadTasks(),loadDashboard()]);}
+     catch(e){showToast('未完成：'+e.message);button.disabled=false;}
+    });
+    actions.append(button);
+   };
+   if(current.plan_status==='draft')stepAction('CEO 核准分工','approve','確認核准 AI 幕僚長的部門分工？尚未執行分析。');
+   if(['ready','running','failed','paused'].includes(current.plan_status)){
+    stepAction('執行下一部門分析','advance','此操作將呼叫一次真實 AI API，可能產生費用。確定執行？');
+    stepAction('恢復中斷步驟','recover','只在步驟中斷超過兩分鐘時使用。確認標記為待重試？');
+   }
+   if(current.plan_status==='review')stepAction('CEO 驗收結案','complete','已閱讀工作成果，確認僅將內部分析任務標記結案？');
+  };
+  const view=el('button','outline-btn','查看分工／執行');view.type='button';let open=false;
+  view.addEventListener('click',async()=>{
+   open=!open;detail.hidden=!open;actions.hidden=!open;view.textContent=open?'收合分工':'查看分工／執行';
+   if(open){try{await draw()}catch(e){showToast('讀取失敗：'+e.message);}}
+  });
+  detail.hidden=true;actions.hidden=true;container.append(info,view,detail,actions,report);return container;
+ });
+}
+$('orchestrationForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('AI 協作僅適用已部署的雲端後端');
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const taskId=$('orchestrationTask').value;if(!taskId)return;
+ if(!confirm('將呼叫真實 AI API，由幕僚長產生分工計畫，可能產生費用。是否繼續？'))return;
+ button.disabled=true;
+ try{await api('/orchestrations/plan',{method:'POST',body:{task_id:taskId}});showToast('分工計畫已儲存，請由 CEO 核准');await loadOrchestrations();}
+ catch(e){showToast('建立計畫失敗：'+e.message);}
+ finally{button.disabled=false;}
+});
 async function loadApprovals(){
  const data=await api('/approvals');
  renderList($('approvalList'),data.approvals||[],'目前沒有待審批事項。',a=>{
@@ -129,10 +203,11 @@ async function refreshPage(page){
  if(page==='projects')await loadProjects();
  if(page==='tasks'){await loadProjects();await loadTasks();}
  if(page==='approvals')await loadApprovals();
+ if(page==='orchestrations')await loadOrchestrations();
  if(page==='notifications')await loadNotifications();
 }
 async function refreshAll(){
- await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications()]);
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
 }
 $('projectForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
@@ -210,5 +285,5 @@ $('importWorkspace').addEventListener('change',async e=>{
  finally{e.target.value='';}
 });
 const initialPage=location.hash.slice(1);
-if(['home','employees','projects','tasks','approvals','notifications'].includes(initialPage))showPage(initialPage);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
 startSession();
