@@ -73,3 +73,32 @@ test('offline workspace never fabricates AI response',async({page})=>{
  await page.locator('#chatPreviewForm [type="submit"]').click();
  await expect(page.locator('#chatHistory')).toContainText('此功能需要雲端 AI 後端');
 });
+
+test('CEO cloud chat restores saved chief-of-staff messages after page reload (mock API)',async({page})=>{
+ const conversationId='11111111-1111-4111-8111-111111111111';
+ await page.route('**/api/**',async route=>{
+  const url=new URL(route.request().url()),path=url.pathname;
+  let body={};
+  if(path==='/api/session')body={authenticated:true,csrf_token:'test-csrf-token'};
+  else if(path==='/api/dashboard')body={counts:{projects:0,active:0,pending:0}};
+  else if(path==='/api/projects')body={projects:[]};
+  else if(path==='/api/tasks')body={tasks:[]};
+  else if(path==='/api/approvals')body={approvals:[]};
+  else if(path==='/api/operations/notifications')body={notifications:[]};
+  else if(path==='/api/orchestrations')body={runs:[]};
+  else if(path==='/api/conversations')body={conversations:url.searchParams.get('role_id')==='chief_of_staff'?[{id:conversationId,role_id:'chief_of_staff'}]:[]};
+  else if(path==='/api/conversations/'+conversationId+'/messages')body={
+   conversation:{id:conversationId,role_id:'chief_of_staff'},
+   messages:[{speaker:'user',body:'請整理市場策略'},{speaker:'assistant',body:'已保存的市場策略建議'}],
+   truncated:false
+  };
+  else return route.fulfill({status:404,json:{error:'not_found'}});
+  return route.fulfill({status:200,json:body});
+ });
+ await page.goto('/');
+ await expect(page.locator('#connectionStatus')).toContainText('系統已登入');
+ await expect(page.locator('#chatHistory')).toContainText('已保存的市場策略建議');
+ await page.reload();
+ await expect(page.locator('#chatHistory')).toContainText('請整理市場策略');
+ await expect(page.locator('#chatHistory')).toContainText('已保存的市場策略建議');
+});
