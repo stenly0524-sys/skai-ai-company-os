@@ -7,7 +7,7 @@ import {el,listItem,renderList} from './ui.js';
 const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
-let projectCache=[],roleConversations=new Map();
+let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0;
 const orchestrationStatuses={draft:'待 CEO 核准分工',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
@@ -51,6 +51,7 @@ async function startSession(){
   const data=await api('/session');
   setCsrfToken(data.csrf_token);setConnection(true);
   await refreshAll();
+  await chooseChat(currentEmployee);
  }catch{
   setConnection(false);
  }
@@ -75,6 +76,7 @@ $('loginForm').addEventListener('submit',async event=>{
   $('ceoPassword').value='';$('loginDialog').close();
   showToast('CEO 已登入測試環境');
   await refreshAll();
+  await chooseChat(currentEmployee);
  }catch(e){$('loginError').textContent='登入失敗：'+e.message;}
  finally{button.disabled=false;}
 });
@@ -227,11 +229,43 @@ $('taskForm').addEventListener('submit',async event=>{
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
-function chooseChat(role){
+async function chooseChat(role){
  currentEmployee=role;
  $('chatRoleName').textContent=role.name;
  const history=$('chatHistory');history.replaceChildren();
- history.append(el('p','helper','對話對象：'+role.name+'。如需查閱歷史紀錄，請待對話歷史畫面整合。'));
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
 }
 $('employeeChat').addEventListener('click',()=>{
  dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
@@ -242,18 +276,20 @@ $('chatPreviewForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
  const input=$('chatText'),content=input.value.trim();if(!content)return;
  const button=event.currentTarget.querySelector('button[type=submit]');
- const role=currentEmployee.id,history=$('chatHistory');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
  history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
  const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
  try{
   const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
   if(data.conversation_id)roleConversations.set(role,data.conversation_id);
-  waiting.textContent=data.reply;
- }catch(e){waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
  finally{button.disabled=false;}
 });
 $('useLocal').addEventListener('click',async()=>{
  useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
  $('loginDialog').close();
  setConnection(true);
  await refreshAll();
@@ -261,6 +297,8 @@ $('useLocal').addEventListener('click',async()=>{
 });
 $('useCloud').addEventListener('click',async()=>{
  useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
  setCsrfToken(null);
  setConnection(false);
  await startSession();
