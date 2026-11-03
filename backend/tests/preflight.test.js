@@ -9,7 +9,7 @@ const valid={
  SKAI_ADMIN_TOKEN:'abcdefghijklmnopqrstuvwxyz_123456789',
  OPENAI_API_KEY:'sk-test-placeholder-from-test-not-valid',
  NODE_ENV:'production',
- PUBLIC_ORIGIN:'https://skai-staging.example.org',
+ PUBLIC_ORIGIN:'https://skai-staging.test',
  SKAI_DAILY_AI_CALL_LIMIT:'5'
 };
 test('staging preflight accepts valid non-secret shape without connecting',()=>{
