@@ -73,7 +73,11 @@ export function authRouter(db){
    res.json({authenticated:false});
   },
   async session(req,res){
-   res.json({authenticated:true,mode:'ceo_session',notice:'單一 CEO 測試帳號；正式環境需完整身分及權限管理。'});
+   try{
+    const csrf=random();
+    await db.query('UPDATE ceo_sessions SET csrf_hash=$1,last_seen_at=NOW() WHERE token_hash=$2',[HASH(csrf),req.ceoSession]);
+    res.json({authenticated:true,csrf_token:csrf,mode:'ceo_session',notice:'單一 CEO 測試帳號；正式環境需完整身分及權限管理。'});
+   }catch{res.status(503).json({error:'session_store_unavailable'})}
   }
  };
 }
