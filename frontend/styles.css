@@ -56,3 +56,15 @@
 .login-dialog h2{margin:20px 0 5px;font-size:23px}
 .login-dialog .stack-form{margin-bottom:5px}
 @media(max-width:720px){.data-item{padding:13px}.stack-form{gap:12px}.chat-history{max-height:250px}}
+
+.mode-toggle{border:1px solid #dce6f0;border-radius:10px;padding:8px 10px;background:#fff;white-space:nowrap}
+#localBackupTools{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+#localBackupTools label{cursor:pointer}
+@media(max-width:720px){
+ .top-actions{flex-wrap:wrap;justify-content:flex-end;max-width:190px}
+ .top-actions .mode-toggle{font-size:10px;padding:5px 7px}
+ .topbar h1{font-size:25px}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .top-actions{max-width:none;flex-wrap:nowrap}
+}
