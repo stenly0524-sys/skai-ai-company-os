@@ -47,4 +47,9 @@ jobs:
       - run: node tests/integration.mjs
       - run: node --check ../frontend/app.js
       - run: node --check ../frontend/employees.js
+      - run: node --check ../frontend/data.js
+      - run: node --check ../frontend/storage.js
+      - run: node --check ../frontend/api.js
+      - run: node --check ../frontend/ui.js
+      - run: node --check ../frontend/scene.js
       - run: node --test ../frontend/test.mjs
