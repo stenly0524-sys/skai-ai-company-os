@@ -198,6 +198,26 @@ async function loadDashboard(){
  $('projectLabel').textContent='資料庫紀錄';
  $('taskLabel').textContent='資料庫紀錄';
  $('approvalLabel').textContent='資料庫紀錄';
+ try{
+  if(workspaceMode()==='local'){
+   $('usageSummary').textContent='本機模式無雲端 AI API 用量。';
+   $('usageDetails').textContent='請切換雲端模式查看真實用量。';
+   return;
+  }
+  const usage=await api('/operations/usage');
+  const stats=usage.usage||{};
+  const used=Number(stats.reserved_calls)||0;
+  const success=Number(stats.completed_calls)||0;
+  const failed=Number(stats.failed_calls)||0;
+  const input=Number(stats.total_input_tokens)||0;
+  const output=Number(stats.total_output_tokens)||0;
+  $('usageDay').textContent='台灣時間 · '+usage.day;
+  $('usageSummary').textContent='今日已嘗試 '+used+' / '+usage.cap+' 次；剩餘 '+Math.max(0,usage.cap-used)+' 次';
+  $('usageDetails').textContent='成功 '+success+' 次 · 失敗 '+failed+' 次 · 輸入 '+input.toLocaleString()+' tokens · 輸出 '+output.toLocaleString()+' tokens。失敗請求也計入防護上限，非實際費用。';
+ }catch{
+  $('usageSummary').textContent='目前無法讀取 AI API 用量。';
+  $('usageDetails').textContent='其他公司資料不受影響。';
+ }
 }
 async function refreshPage(page){
  if(!isSignedIn)return;
