@@ -1,5 +1,5 @@
 import express from 'express';
-import { emitEvent, performChecks, taipeiParts,capFromEnv } from './operations.js';
+import { performChecks, taipeiParts,capFromEnv } from './operations.js';
 import { validUuid } from './security.js';
 export function operationsRouter(db){
  const api=express.Router();
