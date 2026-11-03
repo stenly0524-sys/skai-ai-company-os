@@ -8,10 +8,11 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "check": "node --check src/server.js && node --check src/orchestration.js && node --check src/planner.js && node --check src/ai.js && node --check scripts/migrate.js && node --check src/operations.js && node --check src/ops-router.js && node --check src/worker.js && node --check src/auth.js",
+    "check": "node --check src/server.js && node --check src/orchestration.js && node --check src/planner.js && node --check src/ai.js && node --check scripts/migrate.js && node --check src/operations.js && node --check src/ops-router.js && node --check src/worker.js && node --check src/auth.js && node --check tests/integration.mjs",
     "test": "node --test tests/*.test.js",
     "migrate": "node scripts/migrate.js",
-    "worker": "node src/worker.js"
+    "worker": "node src/worker.js",
+    "test:integration": "node tests/integration.mjs"
   },
   "dependencies": {
     "express": "^4.21.2",
