@@ -35,3 +35,24 @@
  .mobileitem.active{color:#5a83a9;background:#ecf2f9}
  .topbar .offline-chip{font-size:11px}
 }
+
+/* Authenticated data and form controls */
+.stack-form{display:grid;gap:14px;margin:20px 0 24px}
+.stack-form label{display:grid;gap:7px;font-size:13px;font-weight:650;color:#63788a}
+.stack-form input,.stack-form textarea,.stack-form select{width:100%;border:1px solid #dce5ee;background:#f7f9fb;color:#2c4052;border-radius:12px;padding:12px 13px;font-size:16px;min-height:44px}
+.stack-form textarea{min-height:90px;resize:vertical}
+.stack-form .primary-btn{justify-self:start}
+.data-list{display:grid;gap:10px;margin-top:14px}
+.data-item{padding:15px;border:1px solid #e1e9ef;background:#f9fbfd;border-radius:14px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:9px}
+.data-item>b{font-size:14px;flex:1 1 180px}
+.data-item .helper{flex-basis:100%;margin:0}
+.inline-actions{display:flex;gap:8px;flex-wrap:wrap}
+.outline-btn{background:#fff;border:1px solid #d3dfe8;border-radius:12px;color:#5d7186;font-size:13px;font-weight:700;padding:11px 17px}
+.text-btn{background:transparent;border:0;color:#6389ac;font-size:12px;padding:8px}
+.chat-history{display:grid;gap:10px;margin-top:10px;max-height:320px;overflow-y:auto}
+.chat-bubble{white-space:pre-wrap;overflow-wrap:anywhere;border-radius:15px;padding:12px 13px;line-height:1.65;font-size:14px;margin:0}
+.user-bubble{background:#e8f0fa;color:#375875;justify-self:end;max-width:92%}
+.ai-bubble{background:#f2f5f7;color:#445d72;justify-self:start;max-width:100%}
+.login-dialog h2{margin:20px 0 5px;font-size:23px}
+.login-dialog .stack-form{margin-bottom:5px}
+@media(max-width:720px){.data-item{padding:13px}.stack-form{gap:12px}.chat-history{max-height:250px}}
