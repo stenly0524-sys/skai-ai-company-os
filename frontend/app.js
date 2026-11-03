@@ -1,35 +1,18 @@
 import { EMPLOYEES, TASK_STATUS } from './data.js';
 import { api,workspaceMode,useLocalWorkspace,useCloudWorkspace,setCsrfToken } from './api.js';
 import { localCompany } from './storage.js';
+import {renderOffice} from './scene.js';
+import {el,listItem,renderList} from './ui.js';
 
 const $=id=>document.getElementById(id);
-const office=$('officePeople'),grid=$('employeeGrid'),dialog=$('employeeDialog'),toast=$('toast');
+const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
 let projectCache=[],roleConversations=new Map();
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
  toastTimer=setTimeout(()=>{toast.hidden=true},4000);
 }
-function el(tag,cls,text){
- const e=document.createElement(tag);
- if(cls)e.className=cls;
- if(text!==undefined)e.textContent=String(text);
- return e;
-}
-function employeeButton(employee,small=false){
- const button=el('button',small?'office-person':'employee-card');
- button.type='button';
- if(small){button.style.left=employee.x+'%';button.style.top=employee.y+'%';}
- else button.setAttribute('aria-label','查看 '+employee.name);
- const face=el('span','person-head',employee.symbol);
- face.style.background='linear-gradient(145deg,#fff,'+employee.color+')';
- const label=el(small?'span':'b',small?'person-label':'',employee.name);
- button.append(face,label);
- if(!small)button.append(el('small','',employee.title));
- button.addEventListener('click',()=>showEmployee(employee));
- return button;
-}
-for(const employee of EMPLOYEES){office.append(employeeButton(employee,true));grid.append(employeeButton(employee,false));}
+renderOffice(EMPLOYEES,{office:$('officePeople'),grid:$('employeeGrid'),onSelect:showEmployee});
 function showEmployee(employee){
  currentEmployee=employee;
  $('employeeTitle').textContent=employee.name;
@@ -95,21 +78,9 @@ $('loginForm').addEventListener('submit',async event=>{
  finally{button.disabled=false;}
 });
 const statuses=TASK_STATUS;
-function listItem(title,description,extra){
- const item=el('article','data-item');
- item.append(el('b','',title));
- if(description)item.append(el('p','helper',description));
- if(extra)item.append(extra);
- return item;
-}
-function renderList(id,rows,empty,mapper){
- const root=$(id);root.replaceChildren();
- if(!rows.length){root.append(el('p','helper',empty));return;}
- for(const row of rows)root.append(mapper(row));
-}
 async function loadProjects(){
  const data=await api('/projects');projectCache=data.projects||[];
- renderList('projectList',projectCache,'目前沒有專案。請先與幕僚長討論，再由 CEO 建立。',p=>
+ renderList($('projectList'),projectCache,'目前沒有專案。請先與幕僚長討論，再由 CEO 建立。',p=>
   listItem(p.name,p.goal||'未填寫目標',el('span','quiet-pill',p.stage||'draft')));
  const select=$('taskProject');
  const old=select.value;select.replaceChildren(new Option('選擇專案',''));
@@ -118,12 +89,12 @@ async function loadProjects(){
 }
 async function loadTasks(){
  const data=await api('/tasks');
- renderList('taskList',data.tasks||[],'目前尚未建立任務。',t=>
+ renderList($('taskList'),data.tasks||[],'目前尚未建立任務。',t=>
   listItem(t.title,t.brief,el('span','quiet-pill',statuses[t.status]||t.status)));
 }
 async function loadApprovals(){
  const data=await api('/approvals');
- renderList('approvalList',data.approvals||[],'目前沒有待審批事項。',a=>{
+ renderList($('approvalList'),data.approvals||[],'目前沒有待審批事項。',a=>{
   const actions=el('div','inline-actions');
   for(const [decision,label] of [['approved','核准'],['rejected','駁回']]){
    const button=el('button',decision==='approved'?'primary-btn':'outline-btn',label);
@@ -142,7 +113,7 @@ async function loadApprovals(){
 }
 async function loadNotifications(){
  const data=await api('/operations/notifications');
- renderList('notificationList',data.notifications||[],'目前沒有內部通知。',n=>
+ renderList($('notificationList'),data.notifications||[],'目前沒有內部通知。',n=>
   listItem(n.title,n.body,el('span','quiet-pill',n.status==='read'?'已讀':n.severity==='warning'?'需注意':'未讀')));
 }
 async function loadDashboard(){
