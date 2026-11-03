@@ -67,7 +67,7 @@ try{
  try {
   const row=await db.query('INSERT INTO conversations(role_id,project_id) VALUES($1,$2) RETURNING id',['finance',projectId]);
   conversationId=row.rows[0].id;
-  await db.query('INSERT INTO messages(conversation_id,speaker,body) VALUES($1,$2,$3),($1,$4,$5)',[conversationId,'user','測試財務資料保存','assistant','測試財務建議已保存']);
+  await db.query("INSERT INTO messages(conversation_id,speaker,body,created_at) VALUES($1,'user',$2,NOW()-INTERVAL '1 second'),($1,'assistant',$3,NOW())",[conversationId,'測試財務資料保存','測試財務建議已保存']);
   const financeHistory=await call('/api/conversations?role_id=finance',{cookie});
   assert.equal(financeHistory.status,200);
   assert.ok(financeHistory.body.conversations.some(c=>c.id===conversationId));
