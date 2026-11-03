@@ -173,7 +173,17 @@ app.post('/api/chat',async(req,res)=>{
    reply=await askModel({role,maxTokens:1100,messages:[...history,{role:'user',content:prompt}]});
   }catch(e){
    if(e instanceof AiGatewayError && e.message==='ai_daily_limit_reached')return res.status(429).json({error:'ai_daily_limit_reached'});
-   if(e instanceof AiGatewayError)return res.status(502).json({error:'ai_unavailable'});
+   if(e instanceof AiGatewayError){
+    // Only share safe categories; never expose private model response or API credentials.
+    const upstream=/^ai_upstream_http_(\d{3})$/.exec(e.message);
+    const status=upstream?Number(upstream[1]):null;
+    if(status===401)return res.status(502).json({error:'ai_key_invalid'});
+    if(status===403)return res.status(502).json({error:'ai_permission_denied'});
+    if(status===429)return res.status(502).json({error:'ai_quota_or_rate_limit'});
+    if(status===400||status===404)return res.status(502).json({error:'ai_model_or_request_invalid'});
+    if(e.message==='ai_timeout')return res.status(504).json({error:'ai_timeout'});
+    return res.status(502).json({error:'ai_unavailable'});
+   }
    throw e;
   }
   const client=await db.connect();
