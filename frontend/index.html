@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f5f6f8">
 <meta name="color-scheme" content="light">
-<title>SKAI V0.5 · CEO 指揮中心（介面預覽）</title>
+<title>SKAI V0.5 · CEO 指揮中心</title>
 <link rel="stylesheet" href="./styles.css">
 <script type="module" src="./app.js"></script>
 </head>
@@ -26,7 +26,7 @@
   <div class="main-column">
     <header class="topbar">
       <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1>CEO 指揮中心</h1><p class="subhead">以簡單的方式，管理你的 AI 公司。</p></div>
-      <div class="top-actions"><span class="offline-chip"><span class="status-dot"></span>介面預覽 · 未連線</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">CEO</button></div>
+      <div class="top-actions"><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">CEO</button></div>
     </header>
     <main>
       <section class="page active" id="page-home">
@@ -62,15 +62,15 @@
             </section>
             <div class="section-heading"><h2>公司概況</h2><span>未連接資料庫</span></div>
             <div class="kpi-grid">
-              <button class="kpi" data-jump="projects"><span>專案總數</span><strong>—</strong><small>等待連線</small></button>
-              <button class="kpi" data-jump="tasks"><span>進行中任務</span><strong>—</strong><small>等待連線</small></button>
-              <button class="kpi" data-jump="approvals"><span>待 CEO 審批</span><strong>—</strong><small>等待連線</small></button>
+              <button class="kpi" data-jump="projects"><span>專案總數</span><strong id="statProjects">—</strong><small id="projectLabel">等待連線</small></button>
+              <button class="kpi" data-jump="tasks"><span>進行中任務</span><strong id="statTasks">—</strong><small id="taskLabel">等待連線</small></button>
+              <button class="kpi" data-jump="approvals"><span>待 CEO 審批</span><strong id="statApprovals">—</strong><small id="approvalLabel">等待連線</small></button>
             </div>
             <section class="card">
               <div class="section-top"><h2>AI 幕僚長</h2><span class="quiet-pill">對話入口</span></div>
-              <p class="helper">你可以先預覽對話介面；正式 AI 對話需完成安全登入及雲端串接。</p>
-              <div class="chat-preview"><span class="mini-face">✦</span><div><b>AI 幕僚長</b><p>CEO，請選擇 AI 員工或建立新專案。這裡目前是介面預覽，尚未連線。</p></div></div>
-              <form id="chatPreviewForm" class="chat-form"><input id="chatText" type="text" maxlength="500" placeholder="輸入指令（目前僅顯示預覽提示）" aria-label="輸入指令" autocomplete="off"><button class="primary-btn" type="submit">傳送</button></form>
+              <p class="helper">你可以先預覽對話介面；登入後可以開始幕僚長對話。AI 回覆僅為建議，並不自動執行操作。</p>
+              <div class="chat-preview"><span class="mini-face">✦</span><div><b id="chatRoleName">AI 幕僚長</b><p>CEO，登入後即可提出想法，由 AI 分析並協助規劃。</p></div></div><div id="chatHistory" class="chat-history" aria-live="polite"></div>
+              <form id="chatPreviewForm" class="chat-form"><input id="chatText" type="text" maxlength="500" placeholder="輸入指令或專案構想" aria-label="輸入指令" autocomplete="off"><button class="primary-btn" type="submit">傳送</button></form>
             </section>
           </div>
           <aside class="secondary-area">
@@ -86,10 +86,12 @@
         </div>
       </section>
       <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選員工卡片查看工作職責。績效與真實工作狀態待後端連線。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
-      <section class="page" id="page-projects"><div class="card"><h2>專案管理</h2><p class="helper">V0.5 採 AI 對話建案；安全連線完成後才會開放儲存與建立專案。</p><div class="empty-state"><span class="empty-symbol">▦</span><p>專案服務尚未連線</p><small>目前不會建立模擬專案或寫入假資料。</small></div></div></section>
-      <section class="page" id="page-tasks"><div class="card"><h2>任務管理</h2><div class="empty-state"><span class="empty-symbol">☷</span><p>尚無可讀取的任務資料</p><small>未連接後端，無法顯示真實派工進度。</small></div></div></section>
-      <section class="page" id="page-approvals"><div class="card"><h2>CEO 待審批</h2><div class="empty-state"><span class="empty-symbol">✓</span><p>審批資料尚未連線</p><small>所有重大操作仍須 CEO 在安全登入後核准。</small></div></div></section>
-      <section class="page" id="page-notifications"><div class="card"><h2>管理通知</h2><div class="empty-state"><span class="empty-symbol">◌</span><p>通知收件匣尚未連線</p><small>這裡不是 ChatGPT App 的推播紀錄。</small></div></div></section>
+      <section class="page" id="page-projects"><div class="card"><h2>專案管理</h2><p class="helper">建議先與幕僚長討論，確認後再送出專案建立指令。這裡提供 CEO 核准建立的操作入口。</p>
+<form id="projectForm" class="stack-form"><label>專案名稱<input name="name" maxlength="120" required placeholder="例如：埔里潮流盆栽咖啡"></label><label>確認後的目標<textarea name="goal" maxlength="8000" placeholder="填入與幕僚長討論後確認的目標"></textarea></label><button class="primary-btn" type="submit">CEO 建立專案</button></form>
+<div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-tasks"><div class="card"><h2>任務管理</h2><p class="helper">CEO 可建立任務提案；所有工作均依核准流程執行。</p><form id="taskForm" class="stack-form"><label>所屬專案<select name="project_id" id="taskProject" required><option value="">先選專案</option></select></label><label>任務名稱<input name="title" maxlength="160" required></label><label>任務說明<textarea name="brief" maxlength="8000"></textarea></label><button class="primary-btn" type="submit">建立待審批任務</button></form><div class="section-heading"><h2>任務紀錄</h2><button class="text-btn" data-refresh="tasks">重新整理</button></div><div class="data-list" id="taskList"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-approvals"><div class="card"><div class="section-top"><h2>CEO 待審批</h2><button class="text-btn" data-refresh="approvals">重新整理</button></div><p class="helper">核准任務並不會直接進行對外操作。跨部門計畫須再獨立審核。</p><div class="data-list" id="approvalList"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-notifications"><div class="card"><div class="section-top"><h2>管理通知</h2><button class="text-btn" data-refresh="notifications">重新整理</button></div><p class="helper">SKAI 內部通知，並非 ChatGPT App 推播。</p><div class="data-list" id="notificationList"><p class="helper">等待連線…</p></div></div></section>
     </main>
   </div>
 </div>
@@ -107,8 +109,9 @@
   <div class="dialog-status"><span>目前任務</span><b>未連線</b></div>
   <div class="dialog-status"><span>EPS 績效</span><b>—</b></div>
   <button class="primary-btn dialog-action" id="employeeChat">與這位主管對話</button>
-  <p class="helper">正式對話功能需完成雲端 API 與身分驗證整合。</p>
+  <p class="helper">登入後可與專屬 AI 主管進行對話；不會自動執行外部操作。</p>
 </dialog>
+<dialog id="loginDialog" class="employee-dialog login-dialog" aria-labelledby="loginTitle"><div class="dialog-top"><span class="overline">SECURE ACCESS</span><span class="quiet-pill">V0.5 測試登入</span></div><h2 id="loginTitle">CEO 安全登入</h2><p class="helper">使用部署環境設定的 CEO 密碼登入。密碼不會儲存在瀏覽器或公開程式碼中。</p><form id="loginForm" class="stack-form"><label>CEO 密碼<input id="ceoPassword" name="password" type="password" autocomplete="current-password" minlength="16" required></label><button class="primary-btn" type="submit">登入指揮中心</button></form><p id="loginError" class="helper" role="alert"></p><p class="helper">尚未部署後端時無法登入；可查看未連線介面。</p></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
