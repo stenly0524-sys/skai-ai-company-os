@@ -64,7 +64,8 @@ function showPage(page){
   if(active)nav.setAttribute('aria-current','page');
   else nav.removeAttribute('aria-current');
  }
- window.scrollTo({top:0,behavior:'instant'});
+ window.scrollTo({top:0,behavior:'auto'});
+ if(history.replaceState)history.replaceState(null,'','#'+page);
 }
 for(const button of document.querySelectorAll('[data-page]'))button.addEventListener('click',()=>showPage(button.dataset.page));
 for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>showPage(button.dataset.jump));
