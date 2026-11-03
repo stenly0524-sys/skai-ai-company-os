@@ -15,6 +15,23 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: skai_test
+          POSTGRES_PASSWORD: ci_only_password
+          POSTGRES_DB: skai_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U skai_test -d skai_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://skai_test:ci_only_password@localhost:5432/skai_test
+      DATABASE_SSL: 'false'
     defaults:
       run:
         working-directory: backend
@@ -26,6 +43,8 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run check
       - run: npm test
+      - run: npm run migrate
+      - run: node tests/integration.mjs
       - run: node --check ../frontend/app.js
       - run: node --check ../frontend/employees.js
       - run: node --test ../frontend/test.mjs
