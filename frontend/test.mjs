@@ -18,7 +18,8 @@ test('Apple-style layout includes iPhone landscape compatibility and accessible 
  assert.match(html,/viewport-fit=cover/);
  assert.match(html,/officePeople/);
  assert.match(html,/employeeDialog/);
- assert.match(html,/介面預覽/);
+ assert.match(html,/CEO 指揮中心/);
+ assert.match(html,/loginDialog/);
  assert.match(css,/max-width:1024px/);
  assert.match(css,/orientation:landscape/);
  assert.match(css,/safe-area-inset-bottom/);
@@ -29,5 +30,14 @@ test('UI does not embed backend admin credentials or fake real KPI values',async
  const html=await fs.readFile(new URL('./index.html',import.meta.url),'utf8');
  assert.doesNotMatch(js,/SKAI_ADMIN_TOKEN|OPENAI_API_KEY|Authorization:\s*Bearer/);
  assert.match(html,/等待連線/);
- assert.match(html,/尚未連線/);
+ assert.match(html,/未連線/);
+});
+
+test('UI calls only same-origin server endpoints, with no embedded secrets',async()=>{
+ const app=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
+ assert.match(app,/fetch\('\/api'/);
+ assert.match(app,/credentials:'same-origin'/);
+ assert.match(app,/X-CSRF-Token/);
+ assert.match(app,/\/session\/login/);
+ assert.match(app,/\/dashboard/);
 });
