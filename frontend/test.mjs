@@ -59,3 +59,24 @@ test('local-storage app supplies backup, project, tasks and CEO approval modules
  assert.ok(STORAGE_KEY.includes('skai_v05'));
  assert.equal(STORAGE_VERSION,1);
 });
+
+test('local company CRUD persists independently of the backend and requires CEO decision',()=>{
+ const memory=new Map();
+ globalThis.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,val)=>memory.set(key,String(val)),removeItem:key=>memory.delete(key)};
+ try{
+  const p=localCompany.createProject({name:'真實工作專案',goal:'整理供應鏈'});
+  assert.equal(localCompany.projects().length,1);
+  const created=localCompany.createTask({project_id:p.id,title:'確認供應商資料'});
+  assert.equal(localCompany.dashboard().pending,1);
+  assert.equal(localCompany.tasks()[0].status,'proposed');
+  assert.equal(localCompany.decide(created.approval.id,'approved').status,'approved');
+  assert.equal(localCompany.dashboard().pending,0);
+  assert.equal(localCompany.tasks()[0].status,'approved');
+  const exported=localCompany.exportJson();
+  memory.clear();
+  assert.equal(localCompany.projects().length,0);
+  localCompany.importJson(exported);
+  assert.equal(localCompany.projects()[0].name,'真實工作專案');
+  assert.equal(localCompany.tasks()[0].status,'approved');
+ }finally{delete globalThis.localStorage;}
+});
