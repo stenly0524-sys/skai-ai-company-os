@@ -4,3 +4,34 @@
 @media(max-width:720px) and (orientation:landscape){.main-column{padding-top:calc(env(safe-area-inset-top) + 11px);padding-bottom:calc(env(safe-area-inset-bottom) + 69px)}.topbar{margin-bottom:8px}.topbar h1{font-size:23px}.subhead{display:none}.content-grid{grid-template-columns:minmax(0,1.25fr) minmax(215px,.8fr)}.secondary-area{grid-template-columns:1fr}.office-scene{height:160px}.scene-card .helper{display:none}.kpi-grid{gap:7px}.kpi{padding:10px}.kpi strong{font-size:18px}.card{padding:13px}.person-head{width:24px;height:24px;font-size:13px}.person-label{font-size:8px}.mobile-nav{padding-top:4px;padding-bottom:calc(env(safe-area-inset-bottom) + 2px)}.mobileitem span{font-size:19px}.empty-state{min-height:80px}.empty-state.compact{min-height:55px}}
 @media(max-width:720px) and (max-height:430px) and (orientation:landscape){.office-scene{height:140px}.topbar h1{font-size:21px}.scene-bottom{margin-top:5px}.office-person .person-label{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* iPhone 15 Pro Max landscape: 932 CSS px wide, but still a phone UI. */
+@media (orientation:landscape) and (max-width:1024px) and (max-height:550px){
+ .app-shell{display:block}
+ .desktop-nav{display:none}
+ .main-column{padding:calc(env(safe-area-inset-top) + 10px) max(15px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom) + 67px) max(15px,env(safe-area-inset-right))}
+ .topbar{margin-bottom:8px}
+ .topbar h1{font-size:23px}
+ .subhead{display:none}
+ .content-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,.8fr);gap:11px}
+ .primary-area,.secondary-area{gap:9px}
+ .secondary-area{grid-template-columns:1fr}
+ .secondary-area .card:last-child{grid-column:auto}
+ .card{padding:12px;border-radius:16px}
+ .office-scene{height:165px}
+ .person-head{width:25px;height:25px;font-size:14px}
+ .person-label{font-size:9px;padding:2px 4px}
+ .scene-card .helper{display:none}
+ .scene-bottom{margin-top:5px}
+ .kpi-grid{gap:7px}
+ .kpi{padding:10px;border-radius:12px}
+ .kpi strong{font-size:20px}
+ .kpi span{font-size:11px}
+ .empty-state{min-height:86px}
+ .empty-state.compact{min-height:55px}
+ .mobile-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;z-index:50;left:0;right:0;bottom:0;background:#fffffff2;backdrop-filter:blur(18px);border-top:1px solid #e5eaf0;padding:5px max(10px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 3px) max(10px,env(safe-area-inset-left))}
+ .mobileitem{border:0;background:transparent;border-radius:10px;color:#93a4b2;padding:3px 0;display:grid;justify-items:center;gap:1px;font-size:10px}
+ .mobileitem span{font-size:20px;line-height:20px}
+ .mobileitem.active{color:#5a83a9;background:#ecf2f9}
+ .topbar .offline-chip{font-size:11px}
+}
