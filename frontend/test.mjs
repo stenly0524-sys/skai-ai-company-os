@@ -81,3 +81,21 @@ test('local company CRUD persists independently of the backend and requires CEO 
   assert.equal(localCompany.tasks()[0].status,'approved');
  }finally{delete globalThis.localStorage;}
 });
+
+
+test('CEO workflow exposes real backend AI orchestration without auto approving or simulating AI',async()=>{
+ const html=await fs.readFile(new URL('./index.html',import.meta.url),'utf8');
+ const app=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
+ const backend=await fs.readFile(new URL('../backend/src/orchestration.js',import.meta.url),'utf8');
+ assert.match(html,/id="page-orchestrations"/);
+ assert.match(html,/id="orchestrationTask"/);
+ assert.match(html,/data-page="orchestrations"/);
+ assert.match(app,/api\('\/orchestrations'/);
+ assert.match(app,/orchestrations\/plan/);
+ assert.match(app,/CEO 核准分工/);
+ assert.match(app,/執行下一部門分析/);
+ assert.match(app,/CEO 驗收結案/);
+ assert.match(app,/workspaceMode\(\)==='local'/);
+ assert.match(backend,/api\.get\('\/',async/);
+ assert.match(backend,/SELECT r\.\*,t\.title AS task_title/);
+});
