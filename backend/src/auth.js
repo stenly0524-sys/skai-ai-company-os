@@ -23,9 +23,9 @@ export function sameOrigin(request){
  if(!origin)return true; // Non-browser requests still need authentication.
  try{
   const originUrl=new URL(origin);
-  const protocol=request.get('x-forwarded-proto')?.split(',')[0].trim()||request.protocol;
-  const current=protocol+'://'+request.get('host');
-  return originUrl.origin===current;
+  // Hosted environments must specify an exact trusted external origin.
+  const current=process.env.PUBLIC_ORIGIN || request.protocol+'://'+request.get('host');
+  return originUrl.origin===new URL(current).origin;
  }catch{return false}
 }
 export function authRouter(db){
