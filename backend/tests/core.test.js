@@ -97,3 +97,19 @@ test('briefing identifies counts without inventing external updates',()=>{
  assert.match(brief,/待審批：2/);
  assert.match(brief,/未連接的資料不列入/);
 });
+
+import {cookieValue,sessionCookie,validPassword,sameOrigin} from '../src/auth.js';
+test('CEO session cookies are HttpOnly and strict, with secure production mode',()=>{
+ assert.equal(cookieValue('theme=light; skai_session=token-123; other=x'),'token-123');
+ assert.equal(cookieValue('other=x'),null);
+ assert.match(sessionCookie('abc',true),/HttpOnly; SameSite=Strict/);
+ assert.match(sessionCookie('abc',true),/Secure/);
+ assert.doesNotMatch(sessionCookie('abc',false),/; Secure/);
+ assert.equal(validPassword('secure-password','secure-password'),true);
+ assert.equal(validPassword('incorrect','secure-password'),false);
+});
+test('origin comparison rejects cross-origin requests',()=>{
+ const request={get:(key)=>({'origin':'https://skai.example','host':'skai.example','x-forwarded-proto':'https'})[key],protocol:'http'};
+ assert.equal(sameOrigin(request),true);
+ assert.equal(sameOrigin({...request,get:(key)=>key==='origin'?'https://attacker.example':request.get(key)}),false);
+});
