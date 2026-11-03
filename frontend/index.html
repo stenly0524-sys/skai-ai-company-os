@@ -26,7 +26,7 @@
   <div class="main-column">
     <header class="topbar">
       <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1>CEO 指揮中心</h1><p class="subhead">以簡單的方式，管理你的 AI 公司。</p></div>
-      <div class="top-actions"><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">CEO</button></div>
+      <div class="top-actions"><button class="text-btn mode-toggle" id="useLocal" type="button">本機模式</button><button class="text-btn mode-toggle" id="useCloud" type="button">雲端模式</button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">CEO</button></div>
     </header>
     <main>
       <section class="page active" id="page-home">
@@ -88,7 +88,7 @@
       <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選員工卡片查看工作職責。績效與真實工作狀態待後端連線。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
       <section class="page" id="page-projects"><div class="card"><h2>專案管理</h2><p class="helper">建議先與幕僚長討論，確認後再送出專案建立指令。這裡提供 CEO 核准建立的操作入口。</p>
 <form id="projectForm" class="stack-form"><label>專案名稱<input name="name" maxlength="120" required placeholder="例如：埔里潮流盆栽咖啡"></label><label>確認後的目標<textarea name="goal" maxlength="8000" placeholder="填入與幕僚長討論後確認的目標"></textarea></label><button class="primary-btn" type="submit">CEO 建立專案</button></form>
-<div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></section>
+<div class="actions" id="localBackupTools"><button type="button" class="outline-btn" id="exportWorkspace">匯出本機資料</button><label class="outline-btn" for="importWorkspace">匯入本機備份</label><input type="file" id="importWorkspace" accept=".json,application/json" hidden></div><div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></section>
       <section class="page" id="page-tasks"><div class="card"><h2>任務管理</h2><p class="helper">CEO 可建立任務提案；所有工作均依核准流程執行。</p><form id="taskForm" class="stack-form"><label>所屬專案<select name="project_id" id="taskProject" required><option value="">先選專案</option></select></label><label>任務名稱<input name="title" maxlength="160" required></label><label>任務說明<textarea name="brief" maxlength="8000"></textarea></label><button class="primary-btn" type="submit">建立待審批任務</button></form><div class="section-heading"><h2>任務紀錄</h2><button class="text-btn" data-refresh="tasks">重新整理</button></div><div class="data-list" id="taskList"><p class="helper">等待連線…</p></div></div></section>
       <section class="page" id="page-approvals"><div class="card"><div class="section-top"><h2>CEO 待審批</h2><button class="text-btn" data-refresh="approvals">重新整理</button></div><p class="helper">核准任務並不會直接進行對外操作。跨部門計畫須再獨立審核。</p><div class="data-list" id="approvalList"><p class="helper">等待連線…</p></div></div></section>
       <section class="page" id="page-notifications"><div class="card"><div class="section-top"><h2>管理通知</h2><button class="text-btn" data-refresh="notifications">重新整理</button></div><p class="helper">SKAI 內部通知，並非 ChatGPT App 推播。</p><div class="data-list" id="notificationList"><p class="helper">等待連線…</p></div></div></section>
