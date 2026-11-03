@@ -50,3 +50,12 @@ Use a separate test environment, verify DB+API integration, add authentication a
 **Recovery:** A crashed step remains `running` until explicitly recovered after a 2-minute staleness window by `POST /api/orchestrations/:run_id/recover`. Up to three manual attempts per step; no autonomous resubmission or external side effects.
 
 **Boundaries:** Does not execute payments, send messages, perform external web searches, or create external deliverables. Departmental text is model-generated analysis, and source claims are not automatically verified. Plan approval and task approval are separate CEO decisions. Further work needed for background workers, real CEO identity/permissions, AI cost quotas, robust concurrency tests, and end-to-end staging validation.
+
+## Stage 4: Background checks and in-app notification outbox (source code, not deployed)
+
+- Apply SQL migration `003_operations.sql` using `npm run migrate`.
+- Run `npm run worker` on a persistently running server with the same DB and environment as the API. The worker runs a minute-level check, deduplicated across workers by day. It will catch up on that day's patrol (after 09:00 Asia/Taipei) and briefing (after 10:00 Asia/Taipei) when it starts late.
+- The system calculates a factual database-only snapshot and stores `notification_events`. Inspect through `GET /api/operations/notifications` and mark seen via `POST /api/operations/notifications/:id/read`. Testing can manually start due checks using `POST /api/operations/checks/run`.
+- `GET /api/operations/usage` shows a daily **OpenAI API call-count gate** configurable with `SKAI_DAILY_AI_CALL_LIMIT`. Each started request reserves one slot even on failure; this is not a token-based cost ceiling and does not report ChatGPT subscription limits.
+- **Crucial:** Neither GitHub Pages nor this backend is capable of pushing directly into the ChatGPT App notifications through an external bot API. The Stage 4 messages are only a durable SKAI internal inbox. The separate ChatGPT scheduled reminders tested previously are not automatically connected to this DB.
+- Production readiness still requires authenticated browser sessions, API rate limiting, alert destinations, worker monitoring, staging PostgreSQL/API tests, and cost-based quota measures.
