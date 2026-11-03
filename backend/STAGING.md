@@ -29,3 +29,43 @@ GitHub Actions starts ephemeral PostgreSQL, runs migrations, then runs `tests/in
 
 ## Must not claim yet
 - No public V0.5 hosting, actual API chat, real iPhone compatibility, SMS/ChatGPT push, or production-grade security is established by CI alone.
+
+## V0.5 staging readiness gate (does not call OpenAI)
+
+Before deploying, configure the variables **privately on the host** and run:
+
+```bash
+cd backend
+npm run preflight
+```
+
+This checks the shape of the PostgreSQL URL, TLS policy, CEO password, developer token, OpenAI key presence, HTTPS origin, and a conservative initial AI-request cap. It does **not** test that credentials work, that a host exists, or that there is an OpenAI balance. Never paste secrets into a chat, repository, issue, or public workflow log.
+
+**Hard blocker:** A GitHub repository is not a Node/PostgreSQL host. Until a real host, database, HTTPS domain and privately configured secrets exist, the V0.5 server cannot be marked deployed. Do not publish the full server by replacing the V0.4 GitHub Pages website.
+
+## Data preservation, backups and recovery
+
+- Formal SKAI records live in PostgreSQL: projects, tasks, CEO decisions, orchestrations, AI conversation messages and audit logs. Browser localStorage is not the production database.
+- Before every schema migration, make an **independent encrypted database backup** using a provider-managed backup/snapshot or PostgreSQL `pg_dump` from a secured operator machine. Never commit dumps to GitHub or put database passwords on the command line.
+- Example from a trusted operator shell with `DATABASE_URL` already available as a private environment variable:
+
+```bash
+# DATABASE_URL must be provided securely, never echoed in a terminal recording.
+pg_dump --format=custom --no-owner --no-acl --dbname="$DATABASE_URL" --file="skai-private-backup.dump"
+```
+
+- Store the dump in a restricted, encrypted location outside the application host. Test a restore to a **separate empty test database** with `pg_restore` before relying on backups. A backup file alone is not evidence of recoverability.
+- Retain the original dump through a failed migration. Do not automatically restore over live production data; CEO/operator approval and a maintenance window are required.
+- GitHub Actions PostgreSQL data is **ephemeral** and is never a real customer-data backup.
+- AI conversation history currently returns the most recent 100 messages per conversation to the UI; older records remain in PostgreSQL and need pagination to browse.
+
+## Real-world acceptance checklist
+
+1. `npm run preflight` passes on the *private* staging host.
+2. Schema migrations apply without destroying previously saved records.
+3. `/health` returns success only when PostgreSQL is available.
+4. CEO login works over HTTPS, and unauthenticated/CSRF-invalid access is rejected.
+5. Create a project, propose and approve a task, refresh the page and confirm data remains.
+6. With an explicitly permitted OpenAI billing balance, send **one** real chief-of-staff message and confirm it survives a new CEO session; no paid API calls happen during CI.
+7. With explicit CEO approval, generate and review a multi-department plan, run one department step and verify its persisted report.
+8. Check the backup and trial restore before entering real financial, HR, supplier or customer data.
