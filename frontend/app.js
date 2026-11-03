@@ -189,7 +189,8 @@ function chooseChat(role){
 }
 $('employeeChat').addEventListener('click',()=>{
  dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
- if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
 });
 $('chatPreviewForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
