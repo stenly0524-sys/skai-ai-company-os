@@ -15,6 +15,7 @@ const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY', 'SKAI_CE
 for (const key of required) if (!process.env[key] || process.env[key].startsWith('replace-')) throw new Error('Missing secure configuration: ' + key);
 if (process.env.SKAI_ADMIN_TOKEN.length < 32) throw new Error('SKAI_ADMIN_TOKEN must be at least 32 characters');
 if (process.env.SKAI_CEO_PASSWORD.length < 16) throw new Error('SKAI_CEO_PASSWORD must be at least 16 characters');
+if (process.env.NODE_ENV==='production' && !/^https:\/\/[^/]+$/.test(process.env.PUBLIC_ORIGIN||'')) throw new Error('PUBLIC_ORIGIN must be an HTTPS origin in production');
 const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: true }, max: 5 });
 configureAiUsage(db);
 const app = express();
@@ -43,7 +44,7 @@ app.get('/health', async (_req,res) => {
 app.post('/api/session/login',sessionAuth.login);
 app.use('/api', (req,res,next) => {
  const authorization = req.get('authorization') || '';
- if (!req.get('origin') && authorization.startsWith('Bearer ') && sameSecret(authorization.slice(7))) {
+ if (process.env.NODE_ENV!=='production' && !req.get('origin') && authorization.startsWith('Bearer ') && sameSecret(authorization.slice(7))) {
   req.isDeveloperToken = true;
   return next();
  }
