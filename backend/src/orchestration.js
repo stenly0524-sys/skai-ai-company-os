@@ -15,6 +15,14 @@ export function orchestrationRouter(db){
   return {run:r.rows[0],steps:s.rows};
  };
  const fail=(res,e)=>{console.error('orchestration:',e?.message||e);res.status(e instanceof AiGatewayError?502:500).json({error:e instanceof AiGatewayError?'ai_unavailable':'internal_error'})};
+ api.get('/',async(_req,res)=>{
+  try {
+   const q=await db.query(`SELECT r.*,t.title AS task_title,t.project_id
+    FROM orchestration_runs r JOIN tasks t ON t.id=r.task_id
+    ORDER BY r.created_at DESC LIMIT 100`);
+   res.json({runs:q.rows});
+  }catch(e){fail(res,e)}
+ });
  api.post('/plan',async(req,res)=>{
   const taskId=req.body?.task_id;
   if(!validUuid(taskId))return res.status(400).json({error:'invalid_task_id'});
