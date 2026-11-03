@@ -1,8 +1,10 @@
-import { EMPLOYEES } from './employees.js';
+import { EMPLOYEES, TASK_STATUS } from './data.js';
+import { api,workspaceMode,useLocalWorkspace,useCloudWorkspace,setCsrfToken } from './api.js';
+import { localCompany } from './storage.js';
 
 const $=id=>document.getElementById(id);
 const office=$('officePeople'),grid=$('employeeGrid'),dialog=$('employeeDialog'),toast=$('toast');
-let currentEmployee=EMPLOYEES[0],csrfToken=null,isSignedIn=false,toastTimer;
+let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
 let projectCache=[],roleConversations=new Map();
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
@@ -55,33 +57,15 @@ for(const button of document.querySelectorAll('[data-jump]'))button.addEventList
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
  isSignedIn=connected;
- $('connectionStatus').textContent=connected?'● 系統已登入':'● 未連線';
+ $('connectionStatus').textContent=workspaceMode()==='local'?'● 本機工作區':connected?'● 系統已登入':'● 未連線';
  $('connectionStatus').setAttribute('aria-label',connected?'後端已登入':'未連線');
- document.querySelector('.nav-footer').textContent=connected?'SKAI V0.5 · 測試環境':'SKAI V0.5 · 未連線預覽';
-}
-async function api(path,{method='GET',body}={}){
- const headers={Accept:'application/json'};
- if(body!==undefined)headers['Content-Type']='application/json';
- if(!['GET','HEAD'].includes(method) && !path.endsWith('/session/login')){
-  if(!csrfToken)throw Error('請先登入 CEO 帳號');
-  headers['X-CSRF-Token']=csrfToken;
- }
- const response=await fetch('/api'+path,{
-  method,headers,credentials:'same-origin',
-  ...(body===undefined?{}:{body:JSON.stringify(body)})
- });
- let data;
- try{data=await response.json()}catch{throw Error('SKAI API 尚未部署或回傳格式錯誤');}
- if(!response.ok){
-  if(response.status===401){setConnection(false);csrfToken=null;}
-  throw Error(data?.error||'系統回應失敗');
- }
- return data;
+ document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'SKAI V0.5 · 本機保存（非雲端同步）':connected?'SKAI V0.5 · 雲端測試環境':'SKAI V0.5 · 未連線預覽';
 }
 async function startSession(){
+ if(workspaceMode()==='local'){setConnection(true);await refreshAll();return;}
  try{
   const data=await api('/session');
-  csrfToken=data.csrf_token;setConnection(true);
+  setCsrfToken(data.csrf_token);setConnection(true);
   await refreshAll();
  }catch{
   setConnection(false);
@@ -93,7 +77,8 @@ function openLogin(){
  $('loginDialog').showModal();
 }
 $('ceoInfo').addEventListener('click',()=>{
- if(isSignedIn)showToast('已登入 CEO 測試帳號；請在正式版本再啟用帳號管理。');
+ if(workspaceMode()==='local')showToast('目前使用本機工作區，資料只在這台裝置保存。');
+ else if(isSignedIn)showToast('已登入 CEO 測試帳號；請在正式版本再啟用帳號管理。');
  else openLogin();
 });
 $('loginForm').addEventListener('submit',async event=>{
@@ -102,14 +87,14 @@ $('loginForm').addEventListener('submit',async event=>{
  try{
   const password=$('ceoPassword').value;
   const data=await api('/session/login',{method:'POST',body:{password}});
-  csrfToken=data.csrf_token;setConnection(true);
+  setCsrfToken(data.csrf_token);setConnection(true);
   $('ceoPassword').value='';$('loginDialog').close();
   showToast('CEO 已登入測試環境');
   await refreshAll();
  }catch(e){$('loginError').textContent='登入失敗：'+e.message;}
  finally{button.disabled=false;}
 });
-const statuses={proposed:'待審批',approved:'已核准',in_progress:'執行中',review:'待驗收',done:'完成',paused:'暫停',rejected:'已駁回'};
+const statuses=TASK_STATUS;
 function listItem(title,description,extra){
  const item=el('article','data-item');
  item.append(el('b','',title));
@@ -219,6 +204,38 @@ $('chatPreviewForm').addEventListener('submit',async event=>{
   waiting.textContent=data.reply;
  }catch(e){waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
  finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
 });
 const initialPage=location.hash.slice(1);
 if(['home','employees','projects','tasks','approvals','notifications'].includes(initialPage))showPage(initialPage);
