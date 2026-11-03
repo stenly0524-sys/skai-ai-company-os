@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
+import pg from 'pg';
 
 const base='http://127.0.0.1:8787';
 const env={...process.env,PORT:'8787',NODE_ENV:'development',DATABASE_SSL:'false',
@@ -58,6 +59,30 @@ try{
  const dashboard=await call('/api/dashboard',{cookie});
  assert.equal(dashboard.status,200);
  assert.ok(dashboard.body.counts.projects>=1);
+ // Saved company conversations are readable only after CEO authentication.
+ const missingConversationRole=await call('/api/conversations',{cookie});
+ assert.equal(missingConversationRole.status,400);
+ const db=new pg.Pool({connectionString:env.DATABASE_URL,ssl:false});
+ let conversationId;
+ try {
+  const row=await db.query('INSERT INTO conversations(role_id,project_id) VALUES($1,$2) RETURNING id',['finance',projectId]);
+  conversationId=row.rows[0].id;
+  await db.query('INSERT INTO messages(conversation_id,speaker,body) VALUES($1,$2,$3),($1,$4,$5)',[conversationId,'user','測試財務資料保存','assistant','測試財務建議已保存']);
+  const financeHistory=await call('/api/conversations?role_id=finance',{cookie});
+  assert.equal(financeHistory.status,200);
+  assert.ok(financeHistory.body.conversations.some(c=>c.id===conversationId));
+  const otherRole=await call('/api/conversations?role_id=marketing',{cookie});
+  assert.equal(otherRole.status,200);
+  assert.ok(!otherRole.body.conversations.some(c=>c.id===conversationId));
+  const persisted=await call('/api/conversations/'+conversationId+'/messages',{cookie});
+  assert.equal(persisted.status,200);
+  assert.equal(persisted.body.conversation.role_id,'finance');
+  assert.deepEqual(persisted.body.messages.map(x=>x.body),['測試財務資料保存','測試財務建議已保存']);
+  const badId=await call('/api/conversations/not-uuid/messages',{cookie});
+  assert.equal(badId.status,400);
+  const unauthenticated=await call('/api/conversations/'+conversationId+'/messages');
+  assert.equal(unauthenticated.status,401);
+ } finally {await db.end();}
  const restored=await call('/api/session',{cookie});
  assert.equal(restored.status,200);
  assert.ok(restored.body.csrf_token);
@@ -65,7 +90,7 @@ try{
  assert.equal(logout.status,200);
  const invalid=await call('/api/projects',{cookie});
  assert.equal(invalid.status,401);
- console.log('PASS: PostgreSQL migrations, HTTPS-ready CEO session contract, project/task/approval persistence, CSRF, invalid session');
+ console.log('PASS: PostgreSQL migrations, HTTPS-ready CEO session contract, project/task/approval and AI conversation persistence, role-scoped history, CSRF, invalid session');
 }finally{
  child.kill('SIGTERM');
  await delay(250);
