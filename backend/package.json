@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "check": "node --check src/server.js",
+    "check": "node --check src/server.js && node --check src/orchestration.js && node --check src/planner.js && node --check src/ai.js && node --check scripts/migrate.js",
     "test": "node --test tests/*.test.js",
     "migrate": "node scripts/migrate.js"
   },
