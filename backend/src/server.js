@@ -1,7 +1,8 @@
 import express from 'express';
 import pg from 'pg';
-import crypto from 'node:crypto';
 import { ROLES, systemPrompt } from './roles.js';
+import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
+import { approvalDecision } from './workflow.js';
 
 const { Pool } = pg;
 const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY'];
@@ -25,22 +26,21 @@ app.use((req, res, next) => {
  if (req.method === 'OPTIONS') return res.sendStatus(origin && allowed.includes(origin) ? 204 : 403);
  next();
 });
-const sameSecret = token => {
- const a = Buffer.from(token || ''), b = Buffer.from(process.env.SKAI_ADMIN_TOKEN);
- return a.length === b.length && crypto.timingSafeEqual(a,b);
-};
+const sameSecret = token => tokenMatches(token, process.env.SKAI_ADMIN_TOKEN);
 app.get('/health', async (_req,res) => {
  try { await db.query('SELECT 1'); res.json({ ok: true, service: 'SKAI V0.5 alpha' }); }
  catch { res.status(503).json({ error: 'database_unavailable' }); }
 });
 app.use('/api', (req,res,next) => {
+ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(x=>x.trim()).filter(Boolean);
+ if(!validOrigin(req.get('origin'), allowedOrigins))return res.status(403).json({error:'origin_not_allowed'});
  const authorization = req.get('authorization') || '';
  if (!authorization.startsWith('Bearer ') || !sameSecret(authorization.slice(7))) return res.status(401).json({ error:'unauthorized' });
  next();
 });
 const sendError = (res,e) => { console.error('SKAI API error:', e?.code || e?.message || e); res.status(500).json({error:'internal_error'}); };
-const txt = (v,n) => typeof v === 'string' ? v.trim().slice(0,n) : '';
-const uuid = s => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+const txt = compactText;
+const uuid = validUuid;
 const record = async (client,event,type,id,details={}) => client.query(
  'INSERT INTO audit_log(actor,event,target_type,target_id,details) VALUES($1,$2,$3,$4,$5)',
  ['ceo',event,type,id,JSON.stringify(details)]
@@ -88,7 +88,8 @@ app.get('/api/approvals', async (_req,res)=>{
 });
 app.post('/api/approvals/:id/decision',async(req,res)=>{
  const id=req.params.id,status=req.body?.decision,note=txt(req.body?.note,2000);
- if(!uuid(id)||!['approved','rejected'].includes(status))return res.status(400).json({error:'invalid_decision'});
+ if(!uuid(id))return res.status(400).json({error:'invalid_decision'});
+ try{approvalDecision(status)}catch{return res.status(400).json({error:'invalid_decision'});}
  const client=await db.connect();
  try{
   await client.query('BEGIN');
