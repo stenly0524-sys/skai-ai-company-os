@@ -71,3 +71,29 @@ test('consolidation requires finished analysis and preserves source outputs',()=
  assert.match(report,/法律條款待查/);
  assert.throws(()=>summarizeOutcomes([{status:'failed',role_id:'finance'}]),/steps_incomplete/);
 });
+
+import {taipeiParts,dueWindows,capFromEnv,briefText} from '../src/operations.js';
+
+test('scheduled巡檢 respects Asia/Taipei, with deterministic daily keys',()=>{
+ const before=new Date('2026-11-04T00:30:00Z'); // Taiwan 08:30
+ const nine=new Date('2026-11-04T01:30:00Z'); // Taiwan 09:30
+ const ten=new Date('2026-11-04T02:30:00Z'); // Taiwan 10:30
+ assert.equal(taipeiParts(before).hour,8);
+ assert.equal(dueWindows(before).length,0);
+ assert.deepEqual(dueWindows(nine).map(x=>x.name),['patrol']);
+ assert.deepEqual(dueWindows(ten).map(x=>x.name),['patrol','briefing']);
+ assert.deepEqual(dueWindows(ten).map(x=>x.key),['patrol:2026-11-04','briefing:2026-11-04']);
+});
+test('daily AI call cap handles unsafe configuration',()=>{
+ assert.equal(capFromEnv('12'),12);
+ assert.equal(capFromEnv('0'),20);
+ assert.equal(capFromEnv('unlimited'),20);
+ assert.equal(capFromEnv('999999999'),20);
+ assert.equal(capFromEnv('2.5'),20);
+});
+test('briefing identifies counts without inventing external updates',()=>{
+ const brief=briefText({projects:3,pending:2,active:1,failed:0});
+ assert.match(brief,/專案：3/);
+ assert.match(brief,/待審批：2/);
+ assert.match(brief,/未連接的資料不列入/);
+});
