@@ -213,19 +213,21 @@ async function refreshAll(){
 }
 $('projectForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
- const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
  if(!name)return;
- const button=event.currentTarget.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/projects',{method:'POST',body:{name,goal}});event.currentTarget.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
 $('taskForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
- const fd=new FormData(event.currentTarget);
+ const form=event.currentTarget;
+ const fd=new FormData(form);
  const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
- const button=event.currentTarget.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/tasks',{method:'POST',body});event.currentTarget.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
