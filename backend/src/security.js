@@ -9,7 +9,7 @@ export function validOrigin(origin, allowed){
  return allowed.includes(origin);
 }
 export function validUuid(value){
- return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+ return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 export function compactText(value,maxLength){
  return typeof value==='string'?value.trim().slice(0,maxLength):'';
