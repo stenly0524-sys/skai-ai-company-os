@@ -14,10 +14,10 @@ This is the first **backend foundation**, isolated from the published V0.4 `inde
 - A single bearer token is **development-only**. Never put this token in a public GitHub Pages browser client. Production needs secure login, server sessions, rate limiting, CSRF strategy, audit review, secret management, backups and tests.
 
 ## Local setup
-1. Create a PostgreSQL database. Execute `sql/001_initial.sql` in it.
+1. Create a PostgreSQL database. Run `npm run migrate` (idempotent migration ledger).
 2. Set environment values from `.env.example` **in your host or shell**; do not commit your real values.
 3. Run `npm install` in the `backend` directory, then `npm start`.
-4. `GET /health` checks DB readiness. Protected `/api/*` routes require `Authorization: Bearer <SKAI_ADMIN_TOKEN>`.
+4. Run `npm test` for deterministic policy and security tests, or `npm run check` for syntax. `GET /health` checks DB readiness. Protected `/api/*` routes require `Authorization: Bearer <SKAI_ADMIN_TOKEN>`.
 
 ## Sample API
 - `GET /api/roles`
@@ -31,3 +31,8 @@ A chat answer is only a proposal. Tasks must be created explicitly and start as 
 
 ## Safe rollout
 Use a separate test environment, verify DB+API integration, add authentication and test suites, then review changes via PR before ever replacing the public page.
+
+## Safety and test status
+- Pure workflow/security unit tests are configured in GitHub Actions on the development branch.
+- Only the CEO API approval endpoint updates approval state. The role assistant cannot secretly promote a task into execution.
+- No live AI, database, webhook, or production end-to-end tests are claimed until credentials and staging services are configured.
