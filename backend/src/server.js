@@ -1,16 +1,20 @@
 import express from 'express';
 import pg from 'pg';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { ROLES, systemPrompt } from './roles.js';
 import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
 import { approvalDecision } from './workflow.js';
 import { orchestrationRouter } from './orchestration.js';
 import { operationsRouter } from './ops-router.js';
 import { askModel, configureAiUsage, AiGatewayError } from './ai.js';
+import { authRouter } from './auth.js';
 
 const { Pool } = pg;
-const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY'];
+const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY', 'SKAI_CEO_PASSWORD'];
 for (const key of required) if (!process.env[key] || process.env[key].startsWith('replace-')) throw new Error('Missing secure configuration: ' + key);
 if (process.env.SKAI_ADMIN_TOKEN.length < 32) throw new Error('SKAI_ADMIN_TOKEN must be at least 32 characters');
+if (process.env.SKAI_CEO_PASSWORD.length < 16) throw new Error('SKAI_CEO_PASSWORD must be at least 16 characters');
 const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: true }, max: 5 });
 configureAiUsage(db);
 const app = express();
@@ -31,17 +35,22 @@ app.use((req, res, next) => {
  next();
 });
 const sameSecret = token => tokenMatches(token, process.env.SKAI_ADMIN_TOKEN);
+const sessionAuth=authRouter(db);
 app.get('/health', async (_req,res) => {
  try { await db.query('SELECT 1'); res.json({ ok: true, service: 'SKAI V0.5 alpha' }); }
  catch { res.status(503).json({ error: 'database_unavailable' }); }
 });
+app.post('/api/session/login',sessionAuth.login);
 app.use('/api', (req,res,next) => {
- const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(x=>x.trim()).filter(Boolean);
- if(!validOrigin(req.get('origin'), allowedOrigins))return res.status(403).json({error:'origin_not_allowed'});
  const authorization = req.get('authorization') || '';
- if (!authorization.startsWith('Bearer ') || !sameSecret(authorization.slice(7))) return res.status(401).json({ error:'unauthorized' });
- next();
+ if (!req.get('origin') && authorization.startsWith('Bearer ') && sameSecret(authorization.slice(7))) {
+  req.isDeveloperToken = true;
+  return next();
+ }
+ sessionAuth.authenticate(req,res,next);
 });
+app.get('/api/session',sessionAuth.session);
+app.post('/api/session/logout',sessionAuth.logout);
 const sendError = (res,e) => { console.error('SKAI API error:', e?.code || e?.message || e); res.status(500).json({error:'internal_error'}); };
 const txt = compactText;
 const uuid = validUuid;
@@ -52,6 +61,15 @@ const record = async (client,event,type,id,details={}) => client.query(
 app.use('/api/orchestrations', orchestrationRouter(db));
 app.use('/api/operations', operationsRouter(db));
 app.get('/api/roles', (_req,res) => res.json({ roles: Object.entries(ROLES).map(([id, r]) => ({ id,...r })) }));
+app.get('/api/dashboard', async (_req,res) => {
+ try {
+  const q=await db.query(`SELECT
+   (SELECT COUNT(*) FROM projects WHERE status!='closed')::int AS projects,
+   (SELECT COUNT(*) FROM tasks WHERE status='in_progress')::int AS active,
+   (SELECT COUNT(*) FROM approvals WHERE status='pending')::int AS pending`);
+  res.json({counts:q.rows[0],source:'postgresql',notice:'僅統計 SKAI 已保存資料'});
+ }catch(e){sendError(res,e)}
+});
 app.get('/api/projects', async (_req,res) => {
  try { const q=await db.query('SELECT * FROM projects ORDER BY created_at DESC LIMIT 200');res.json({projects:q.rows}); }
  catch(e){sendError(res,e);}
@@ -141,7 +159,11 @@ app.post('/api/chat',async(req,res)=>{
   res.json({conversation_id:conversation,role_id:role,reply,usage:null,notice:'AI 回覆僅為建議；未自動建立、核准或執行任何工作。'});
  }catch(e){sendError(res,e);}
 });
-app.use((_req,res)=>res.status(404).json({error:'not_found'}));
+app.use('/api',(_req,res)=>res.status(404).json({error:'not_found'}));
+const frontendRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../frontend');
+app.use(express.static(frontendRoot,{index:false,etag:true,maxAge:'5m'}));
+app.get('/',(_req,res)=>res.sendFile(path.join(frontendRoot,'index.html')));
+app.use((_req,res)=>res.status(404).send('Not Found'));
 app.use((err,_req,res,_next)=>{if(err?.type==='entity.too.large')return res.status(413).json({error:'payload_too_large'});res.status(400).json({error:'invalid_json'});});
 const port=Number(process.env.PORT||8787);
 app.listen(port,()=>console.log('SKAI V0.5 alpha listening on '+port));
