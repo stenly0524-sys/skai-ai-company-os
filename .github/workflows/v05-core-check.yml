@@ -1,0 +1,27 @@
+name: SKAI V0.5 backend checks
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/v05-core-check.yml'
+  push:
+    branches: [feature/v0.5-core-foundation]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/v05-core-check.yml'
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run check
+      - run: npm test
