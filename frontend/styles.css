@@ -68,3 +68,12 @@
 @media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
  .top-actions{max-width:none;flex-wrap:nowrap}
 }
+
+/* CEO-governed AI orchestration and readable persisted reports */
+.orchestration-entry{display:grid;gap:10px;padding:14px;border:1px solid #e2e9ef;background:#fafcfd;border-radius:14px;min-width:0}
+.orchestration-entry>.outline-btn{justify-self:start}
+.orchestration-detail{display:grid;gap:8px;min-width:0}
+.orchestration-report{min-width:0}
+.orchestration-result{white-space:pre-wrap;overflow-wrap:anywhere;max-height:330px;overflow:auto;margin:4px 0;padding:12px;border-radius:12px;border:1px solid #e4ebf2;background:#f3f6fa;color:#41586e;font:inherit;font-size:13px;line-height:1.65}
+@media(max-width:720px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))}.mobileitem{min-width:0;font-size:9px;letter-spacing:-.2px}.mobileitem span{font-size:20px}}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))}.mobileitem{min-width:0;font-size:9px}}
