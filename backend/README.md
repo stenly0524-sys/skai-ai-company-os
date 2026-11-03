@@ -59,3 +59,14 @@ Use a separate test environment, verify DB+API integration, add authentication a
 - `GET /api/operations/usage` shows a daily **OpenAI API call-count gate** configurable with `SKAI_DAILY_AI_CALL_LIMIT`. Each started request reserves one slot even on failure; this is not a token-based cost ceiling and does not report ChatGPT subscription limits.
 - **Crucial:** Neither GitHub Pages nor this backend is capable of pushing directly into the ChatGPT App notifications through an external bot API. The Stage 4 messages are only a durable SKAI internal inbox. The separate ChatGPT scheduled reminders tested previously are not automatically connected to this DB.
 - Production readiness still requires authenticated browser sessions, API rate limiting, alert destinations, worker monitoring, staging PostgreSQL/API tests, and cost-based quota measures.
+
+## Stage 5.5: Same-origin browser integration (implemented in code, NOT deployed)
+
+- `backend` now serves the `frontend` folder on the same host at `/`. It does not publish the main-branch GitHub Pages site.
+- Configure `SKAI_CEO_PASSWORD` (16+ random characters), `SKAI_ADMIN_TOKEN` (32+), `DATABASE_URL` and `OPENAI_API_KEY` on the **server**. Run `npm run migrate` to create `ceo_sessions` before starting.
+- Browser login: `POST /api/session/login` with CEO password; credentials are checked on the server. Session is stored in PostgreSQL; browser receives an HttpOnly, SameSite=Strict cookie. HTTPS + `NODE_ENV=production` makes the cookie Secure. Browser writes also require `X-CSRF-Token`, issued at login and refreshed by `GET /api/session`.
+- The dashboard reads PostgreSQL counts, projects, tasks, pending approvals and SKAI notification events. CEO submits project/task drafts and approvals through server routes. CEO chat submits actual text requests via the OpenAI API gateway, subject to the daily request cap.
+- Existing static V0.4 GitHub Pages application stays untouched.
+- This is **single-CEO staging auth**, not hardened public multi-user identity. There is an in-memory per-instance login limiter; production needs Redis/shared rate limiting, identity recovery/MFA, trusted reverse-proxy setup, backups, TLS, secret rotation, session monitoring, security audits, and actual API/DB integration tests.
+- No model automatically starts a project or applies external changes from a conversation. The form is a CEO-controlled confirmation of a conversational plan; structured AI-to-project draft conversion remains on the roadmap.
+- No passwords, bearer tokens or OpenAI API keys should ever be placed in public client-side sources.
