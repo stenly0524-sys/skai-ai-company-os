@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'backend/**'
+      - 'frontend/**'
       - '.github/workflows/v05-core-check.yml'
   push:
     branches: [feature/v0.5-core-foundation]
@@ -25,3 +26,6 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run check
       - run: npm test
+      - run: node --check ../frontend/app.js
+      - run: node --check ../frontend/employees.js
+      - run: node --test ../frontend/test.mjs
