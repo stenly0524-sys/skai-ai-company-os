@@ -36,3 +36,17 @@ Use a separate test environment, verify DB+API integration, add authentication a
 - Pure workflow/security unit tests are configured in GitHub Actions on the development branch.
 - Only the CEO API approval endpoint updates approval state. The role assistant cannot secretly promote a task into execution.
 - No live AI, database, webhook, or production end-to-end tests are claimed until credentials and staging services are configured.
+
+## Stage 3: Multi-department orchestration (source code, not deployed)
+
+**Approval-gated workflow:**
+1. Create a project and task. The task begins as `proposed`.
+2. CEO approves via `POST /api/approvals/:id/decision`.
+3. `POST /api/orchestrations/plan` with `{"task_id":"<uuid>"}`. The Chief of Staff calls the OpenAI API to propose a JSON division of work (1–8 specialized departments); a draft plan and steps are saved.
+4. CEO reviews using `GET /api/orchestrations/:run_id`, then approves by `POST /api/orchestrations/:run_id/approve`.
+5. `POST /api/orchestrations/:run_id/advance` executes **one** internal department AI analysis and durably saves it. Repeat until `plan_status=review`.
+6. CEO reviews the consolidated original departmental outputs and confirms by `POST /api/orchestrations/:run_id/complete`.
+
+**Recovery:** A crashed step remains `running` until explicitly recovered after a 2-minute staleness window by `POST /api/orchestrations/:run_id/recover`. Up to three manual attempts per step; no autonomous resubmission or external side effects.
+
+**Boundaries:** Does not execute payments, send messages, perform external web searches, or create external deliverables. Departmental text is model-generated analysis, and source claims are not automatically verified. Plan approval and task approval are separate CEO decisions. Further work needed for background workers, real CEO identity/permissions, AI cost quotas, robust concurrency tests, and end-to-end staging validation.
