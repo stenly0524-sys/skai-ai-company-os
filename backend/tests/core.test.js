@@ -109,7 +109,7 @@ test('CEO session cookies are HttpOnly and strict, with secure production mode',
  assert.equal(validPassword('incorrect','secure-password'),false);
 });
 test('origin comparison rejects cross-origin requests',()=>{
- const request={get:(key)=>({'origin':'https://skai.example','host':'skai.example','x-forwarded-proto':'https'})[key],protocol:'http'};
+ const request={get:(key)=>({'origin':'https://skai.example','host':'skai.example'})[key],protocol:'https'};
  assert.equal(sameOrigin(request),true);
  assert.equal(sameOrigin({...request,get:(key)=>key==='origin'?'https://attacker.example':request.get(key)}),false);
 });
