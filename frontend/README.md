@@ -19,3 +19,6 @@ Serve the `frontend` directory with any local static HTTP server. Example: `pyth
 - Actual phone browser tests (iPhone 15 Pro Max Safari) and landscape usability verification.
 
 Do **not** place `SKAI_ADMIN_TOKEN` or OpenAI keys into any frontend file, client-side storage or public GitHub Pages build.
+
+## Same-origin integration
+The development backend now serves this UI from `/` and connects browser actions through first-party session cookies, never a client-side API key. The interface reads real database records only when the test environment has been deployed and the CEO is authenticated; otherwise it keeps blank status indicators.
