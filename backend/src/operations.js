@@ -27,8 +27,9 @@ export async function performChecks(db,now=new Date()){
   const client=await db.connect();
   try {
    await client.query('BEGIN');
-   const prior=await client.query('SELECT check_key FROM scheduled_checks WHERE check_key=$1 FOR UPDATE',[task.key]);
-   if(prior.rowCount){await client.query('ROLLBACK');continue}
+   // Claim the day once, even when several worker instances race.
+   const claimed=await client.query('INSERT INTO scheduled_checks(check_key,check_type) VALUES($1,$2) ON CONFLICT(check_key) DO NOTHING RETURNING check_key',[task.key,task.name]);
+   if(!claimed.rowCount){await client.query('ROLLBACK');continue}
    const q=await client.query(`SELECT
     (SELECT COUNT(*) FROM projects WHERE status!='closed')::int AS projects,
     (SELECT COUNT(*) FROM approvals WHERE status='pending')::int AS pending,
@@ -42,7 +43,6 @@ export async function performChecks(db,now=new Date()){
     ?'【SKAI 巡檢】待審批 '+totals.pending+' 項；執行中 '+totals.active+' 項；分析異常 '+totals.failed+' 項。'
     :briefText(totals);
    await client.query('INSERT INTO notification_events(event_key,severity,title,body) VALUES($1,$2,$3,$4) ON CONFLICT(event_key) DO NOTHING',[key,important?'warning':'info',title,body]);
-   await client.query('INSERT INTO scheduled_checks(check_key,check_type) VALUES($1,$2)',[task.key,task.name]);
    await client.query('COMMIT');
    created.push(task.name);
   }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
