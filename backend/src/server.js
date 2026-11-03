@@ -4,12 +4,15 @@ import { ROLES, systemPrompt } from './roles.js';
 import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
 import { approvalDecision } from './workflow.js';
 import { orchestrationRouter } from './orchestration.js';
+import { operationsRouter } from './ops-router.js';
+import { askModel, configureAiUsage, AiGatewayError } from './ai.js';
 
 const { Pool } = pg;
 const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY'];
 for (const key of required) if (!process.env[key] || process.env[key].startsWith('replace-')) throw new Error('Missing secure configuration: ' + key);
 if (process.env.SKAI_ADMIN_TOKEN.length < 32) throw new Error('SKAI_ADMIN_TOKEN must be at least 32 characters');
 const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: true }, max: 5 });
+configureAiUsage(db);
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '32kb' }));
@@ -47,6 +50,7 @@ const record = async (client,event,type,id,details={}) => client.query(
  ['ceo',event,type,id,JSON.stringify(details)]
 );
 app.use('/api/orchestrations', orchestrationRouter(db));
+app.use('/api/operations', operationsRouter(db));
 app.get('/api/roles', (_req,res) => res.json({ roles: Object.entries(ROLES).map(([id, r]) => ({ id,...r })) }));
 app.get('/api/projects', async (_req,res) => {
  try { const q=await db.query('SELECT * FROM projects ORDER BY created_at DESC LIMIT 200');res.json({projects:q.rows}); }
@@ -118,16 +122,15 @@ app.post('/api/chat',async(req,res)=>{
    if(projectId){const p=await db.query('SELECT id FROM projects WHERE id=$1',[projectId]);if(!p.rowCount)return res.status(404).json({error:'project_not_found'});}
    const c=await db.query('INSERT INTO conversations(project_id,role_id) VALUES($1,$2) RETURNING id',[projectId,role]);conversation=c.rows[0].id;
   }
-  // No external actions: a model reply is a proposal, not an executed task.
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),25000);
-  let result;
+  // A reply remains advice; the shared durable daily-call quota applies here too.
+  let reply;
   try{
-   const response=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+process.env.OPENAI_API_KEY},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-4.1-mini',temperature:0.3,max_completion_tokens:1100,messages:[{role:'system',content:systemPrompt(role)},...history,{role:'user',content:prompt}]})});
-   if(!response.ok){console.error('AI upstream status:',response.status);return res.status(502).json({error:'ai_upstream_failed'});}
-   result=await response.json();
-  }finally{clearTimeout(timer);}
-  const reply=txt(result?.choices?.[0]?.message?.content,10000);
-  if(!reply)return res.status(502).json({error:'empty_ai_response'});
+   reply=await askModel({role,maxTokens:1100,messages:[...history,{role:'user',content:prompt}]});
+  }catch(e){
+   if(e instanceof AiGatewayError && e.message==='ai_daily_limit_reached')return res.status(429).json({error:'ai_daily_limit_reached'});
+   if(e instanceof AiGatewayError)return res.status(502).json({error:'ai_unavailable'});
+   throw e;
+  }
   const client=await db.connect();
   try{
    await client.query('BEGIN');
@@ -135,7 +138,7 @@ app.post('/api/chat',async(req,res)=>{
    await record(client,'chat.replied','conversation',conversation,{role});
    await client.query('COMMIT');
   }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
-  res.json({conversation_id:conversation,role_id:role,reply,usage:result?.usage||null,notice:'AI 回覆僅為建議；未自動建立、核准或執行任何工作。'});
+  res.json({conversation_id:conversation,role_id:role,reply,usage:null,notice:'AI 回覆僅為建議；未自動建立、核准或執行任何工作。'});
  }catch(e){sendError(res,e);}
 });
 app.use((_req,res)=>res.status(404).json({error:'not_found'}));
