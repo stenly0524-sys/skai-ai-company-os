@@ -4,3 +4,8 @@ node_modules/
 !.env.example
 *.log
 .DS_Store
+
+# Browser integration test output
+frontend/test-results/
+frontend/playwright-report/
+frontend/node_modules/
