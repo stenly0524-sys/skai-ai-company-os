@@ -125,6 +125,32 @@ app.post('/api/approvals/:id/decision',async(req,res)=>{
   await client.query('COMMIT');res.json({approval:a.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
+// Durable, CEO-authenticated conversation retrieval. Only saved PostgreSQL records are returned.
+app.get('/api/conversations',async(req,res)=>{
+ const role=txt(req.query.role_id,32);
+ if(!ROLES[role])return res.status(400).json({error:'invalid_role'});
+ try{
+  const q=await db.query(`SELECT c.id,c.role_id,c.project_id,c.created_at,
+   (SELECT MAX(m.created_at) FROM messages m WHERE m.conversation_id=c.id) AS last_message_at
+   FROM conversations c WHERE c.role_id=$1
+   ORDER BY COALESCE((SELECT MAX(m.created_at) FROM messages m WHERE m.conversation_id=c.id),c.created_at) DESC,c.id DESC
+   LIMIT 50`,[role]);
+  res.json({conversations:q.rows,source:'postgresql'});
+ }catch(e){sendError(res,e)}
+});
+app.get('/api/conversations/:id/messages',async(req,res)=>{
+ const id=req.params.id;
+ if(!uuid(id))return res.status(400).json({error:'invalid_conversation_id'});
+ try{
+  const c=await db.query('SELECT id,role_id,project_id,created_at FROM conversations WHERE id=$1',[id]);
+  if(!c.rowCount)return res.status(404).json({error:'conversation_not_found'});
+  const q=await db.query(`SELECT id,speaker,body,created_at FROM (
+    SELECT id,speaker,body,created_at FROM messages WHERE conversation_id=$1
+    ORDER BY created_at DESC,id DESC LIMIT 100
+   ) recent ORDER BY created_at,id`,[id]);
+  res.json({conversation:c.rows[0],messages:q.rows,source:'postgresql',truncated:q.rows.length===100});
+ }catch(e){sendError(res,e)}
+});
 app.post('/api/chat',async(req,res)=>{
  const role=txt(req.body?.role_id,32)||'chief_of_staff',prompt=txt(req.body?.message,4000);
  const conversationId=req.body?.conversation_id||null,projectId=req.body?.project_id||null;
