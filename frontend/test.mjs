@@ -41,3 +41,21 @@ test('UI calls only same-origin server endpoints, with no embedded secrets',asyn
  assert.match(app,/\/session\/login/);
  assert.match(app,/\/dashboard/);
 });
+
+import {localCompany} from './storage.js';
+import {STORAGE_KEY,STORAGE_VERSION} from './data.js';
+test('local-storage app supplies backup, project, tasks and CEO approval modules',async()=>{
+ const storage=await fs.readFile(new URL('./storage.js',import.meta.url),'utf8');
+ const api=await fs.readFile(new URL('./api.js',import.meta.url),'utf8');
+ const app=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
+ assert.match(storage,/localStorage/);
+ assert.match(storage,/exportJson/);
+ assert.match(storage,/importJson/);
+ assert.match(api,/localRequest/);
+ assert.match(api,/credentials:'same-origin'/);
+ assert.match(app,/useLocalWorkspace/);
+ assert.match(app,/useCloudWorkspace/);
+ assert.match(app,/localCompany\.exportJson/);
+ assert.ok(STORAGE_KEY.includes('skai_v05'));
+ assert.equal(STORAGE_VERSION,1);
+});
