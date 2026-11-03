@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f6f8">
+<meta name="color-scheme" content="light">
+<title>SKAI V0.5 · 獨立網頁預覽（本機模式）</title>
+<link rel="stylesheet" href="./styles.css">
+<script type="module" src="./app.js"></script>
+</head>
+<body>
+<div class="preview-banner" role="status">SKAI V0.5 獨立公開預覽｜本機模式：資料只存在目前瀏覽器，請勿輸入機密資訊。AI 與雲端尚未連接。</div>
+<div class="app-shell">
+  <aside class="desktop-nav" aria-label="主要選單">
+    <a class="brand" href="#home"><span class="logo">S</span><span>SKAI <small>AI COMPANY OS</small></span></a>
+    <nav class="nav-list">
+      <button class="navitem active" data-page="home"><span>⌂</span> 總部</button>
+      <button class="navitem" data-page="employees"><span>♙</span> AI 員工</button>
+      <button class="navitem" data-page="projects"><span>▦</span> 專案</button>
+      <button class="navitem" data-page="tasks"><span>☷</span> 任務</button>
+      <button class="navitem" data-page="approvals"><span>✓</span> 待審批</button>
+      <button class="navitem" data-page="notifications"><span>◌</span> 通知</button>
+    </nav>
+    <div class="nav-footer">SKAI V0.5 <span>前端預覽</span><br>未連線 · 無實際營運數據</div>
+  </aside>
+  <div class="main-column">
+    <header class="topbar">
+      <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1>CEO 指揮中心</h1><p class="subhead">以簡單的方式，管理你的 AI 公司。</p></div>
+      <div class="top-actions"><button class="text-btn mode-toggle" id="useLocal" type="button">本機模式</button><button class="text-btn mode-toggle" id="useCloud" type="button" title="雲端尚未部署">雲端模式（未開放）</button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">CEO</button></div>
+    </header>
+    <main>
+      <section class="page active" id="page-home">
+        <div class="content-grid">
+          <div class="primary-area">
+            <section class="card scene-card" aria-label="3D AI 辦公室示意">
+              <div class="section-top"><div><span class="overline">HEADQUARTERS</span><h2>AI 公司總部</h2></div><span class="quiet-pill">9 位常設角色</span></div>
+              <p class="helper">點選辦公室人物，查看主管資料及工作範圍。</p>
+              <div class="office-scene" id="officeScene" role="group" aria-label="可點選的 AI 部門主管辦公室">
+                <svg class="office-art" viewBox="0 0 740 360" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                  <defs><linearGradient id="floor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f6f9fc"/><stop offset="1" stop-color="#e4eaf0"/></linearGradient><linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fdfefe"/><stop offset="1" stop-color="#ccd6e0"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#62758a" flood-opacity=".12"/></filter></defs>
+                  <path d="M43 125 305 11 694 124 422 322Z" fill="#d9e0e7" opacity=".58"/>
+                  <path d="M60 121 306 24 675 130 420 303Z" fill="url(#floor)" stroke="#cad3dd" stroke-width="4" filter="url(#shadow)"/>
+                  <path d="M60 121V98L306 2V24M306 2 675 109V130" fill="none" stroke="#dce5ed" stroke-width="12" stroke-linejoin="round"/>
+                  <path d="M80 124 310 40 654 136M105 150 338 63 619 154M136 176 357 89 584 179M174 204 393 114 555 199M215 231 423 140 517 226" stroke="#d5dde6" stroke-width="1" opacity=".6"/>
+                  <g fill="#fefefe" stroke="#cdd7e0" stroke-width="3" filter="url(#shadow)">
+                    <path d="M177 123 235 99 282 114 224 141Z"/><path d="M177 123V139L224 158V141M224 141 282 114V130L224 158Z" fill="url(#desk)"/>
+                    <path d="M294 89 353 66 396 81 338 105Z"/><path d="M294 89V105L338 121V105M338 105 396 81V97L338 121Z" fill="url(#desk)"/>
+                    <path d="M421 121 473 101 522 116 469 137Z"/><path d="M421 121V136L469 151V137M469 137 522 116V130L469 151Z" fill="url(#desk)"/>
+                    <path d="M254 194 313 171 355 186 296 210Z"/><path d="M254 194V211L296 227V210M296 210 355 186V203L296 227Z" fill="url(#desk)"/>
+                    <path d="M392 222 444 200 492 217 440 240Z"/><path d="M392 222V237L440 255V240M440 240 492 217V233L440 255Z" fill="url(#desk)"/>
+                  </g>
+                  <g fill="#a9bdca"><path d="M202 116 227 106 244 112 221 122Z"/><path d="M318 82 342 73 359 79 336 88Z"/><path d="M447 115 470 107 488 113 464 122Z"/><path d="M277 187 300 179 317 185 294 195Z"/><path d="M415 217 440 208 456 215 432 225Z"/></g>
+                  <g fill="#c4d2df" stroke="#b5c3d0"><rect x="221" y="95" width="25" height="18" rx="3"/><rect x="336" y="62" width="24" height="17" rx="3"/><rect x="463" y="97" width="24" height="17" rx="3"/><rect x="292" y="169" width="25" height="17" rx="3"/><rect x="431" y="197" width="25" height="16" rx="3"/></g>
+                  <g><path d="M111 151 127 142 139 151 124 161Z" fill="#cdd8cc"/><path d="M120 151v-24" stroke="#7fa78b" stroke-width="4"/><circle cx="115" cy="126" r="13" fill="#8fb6a0"/><circle cx="132" cy="122" r="12" fill="#739f87"/>
+                  <path d="M568 170 584 162 599 172 583 181Z" fill="#cdd8cc"/><path d="M583 170v-27" stroke="#7fa78b" stroke-width="4"/><circle cx="576" cy="142" r="13" fill="#89ad96"/><circle cx="591" cy="139" r="12" fill="#78a387"/></g>
+                  <g fill="#f3ead9" stroke="#d9ccb8" stroke-width="2"><path d="M398 140 437 126 467 137 426 152Z"/><path d="M398 140V147L426 159V152M426 152 467 137V144L426 159Z"/></g>
+                  <g fill="#e7edf2"><ellipse cx="192" cy="176" rx="15" ry="8"/><ellipse cx="343" cy="147" rx="15" ry="8"/><ellipse cx="505" cy="179" rx="15" ry="8"/><ellipse cx="342" cy="264" rx="15" ry="8"/><ellipse cx="476" cy="288" rx="15" ry="8"/></g>
+                </svg>
+                <div id="officePeople" class="office-people"></div>
+              </div>
+              <div class="scene-bottom"><span><span class="status-dot green"></span> 角色資料已載入</span><span>按人物查看詳情</span></div>
+            </section>
+            <div class="section-heading"><h2>公司概況</h2><span>未連接資料庫</span></div>
+            <div class="kpi-grid">
+              <button class="kpi" data-jump="projects"><span>專案總數</span><strong id="statProjects">—</strong><small id="projectLabel">等待連線</small></button>
+              <button class="kpi" data-jump="tasks"><span>進行中任務</span><strong id="statTasks">—</strong><small id="taskLabel">等待連線</small></button>
+              <button class="kpi" data-jump="approvals"><span>待 CEO 審批</span><strong id="statApprovals">—</strong><small id="approvalLabel">等待連線</small></button>
+            </div>
+            <section class="card">
+              <div class="section-top"><h2>AI 幕僚長</h2><span class="quiet-pill">對話入口</span></div>
+              <p class="helper">你可以先預覽對話介面；登入後可以開始幕僚長對話。AI 回覆僅為建議，並不自動執行操作。</p>
+              <div class="chat-preview"><span class="mini-face">✦</span><div><b id="chatRoleName">AI 幕僚長</b><p>CEO，登入後即可提出想法，由 AI 分析並協助規劃。</p></div></div><div id="chatHistory" class="chat-history" aria-live="polite"></div>
+              <form id="chatPreviewForm" class="chat-form"><input id="chatText" type="text" maxlength="500" placeholder="輸入指令或專案構想" aria-label="輸入指令" autocomplete="off"><button class="primary-btn" type="submit">傳送</button></form>
+            </section>
+          </div>
+          <aside class="secondary-area">
+            <section class="card"><div class="section-top"><h2>今日重點</h2><span class="quiet-pill">摘要</span></div>
+              <div class="empty-state"><span class="empty-symbol">☷</span><p>尚無即時資料</p><small>部署後可顯示巡檢、任務與待審批資訊。</small></div>
+            </section>
+            <section class="card"><div class="section-top"><h2>專案進度</h2><span class="quiet-pill">專案</span></div>
+              <div class="empty-state compact"><span class="empty-symbol">▦</span><p>尚未同步專案</p><small>不使用模擬進度冒充真實資料。</small></div>
+            </section>
+            <section class="card"><div class="section-top"><h2>公司通知</h2><span class="quiet-pill">提醒</span></div><p class="helper">通知 API 尚未接入此介面；ChatGPT 手機排程與 SKAI 後端未自動互通。</p>
+            </section>
+          </aside>
+        </div>
+      </section>
+      <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選員工卡片查看工作職責。績效與真實工作狀態待後端連線。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
+      <section class="page" id="page-projects"><div class="card"><h2>專案管理</h2><p class="helper">建議先與幕僚長討論，確認後再送出專案建立指令。這裡提供 CEO 核准建立的操作入口。</p>
+<form id="projectForm" class="stack-form"><label>專案名稱<input name="name" maxlength="120" required placeholder="例如：埔里潮流盆栽咖啡"></label><label>確認後的目標<textarea name="goal" maxlength="8000" placeholder="填入與幕僚長討論後確認的目標"></textarea></label><button class="primary-btn" type="submit">CEO 建立專案</button></form>
+<div class="actions" id="localBackupTools"><button type="button" class="outline-btn" id="exportWorkspace">匯出本機資料</button><label class="outline-btn" for="importWorkspace">匯入本機備份</label><input type="file" id="importWorkspace" accept=".json,application/json" hidden></div><div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-tasks"><div class="card"><h2>任務管理</h2><p class="helper">CEO 可建立任務提案；所有工作均依核准流程執行。</p><form id="taskForm" class="stack-form"><label>所屬專案<select name="project_id" id="taskProject" required><option value="">先選專案</option></select></label><label>任務名稱<input name="title" maxlength="160" required></label><label>任務說明<textarea name="brief" maxlength="8000"></textarea></label><button class="primary-btn" type="submit">建立待審批任務</button></form><div class="section-heading"><h2>任務紀錄</h2><button class="text-btn" data-refresh="tasks">重新整理</button></div><div class="data-list" id="taskList"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-approvals"><div class="card"><div class="section-top"><h2>CEO 待審批</h2><button class="text-btn" data-refresh="approvals">重新整理</button></div><p class="helper">核准任務並不會直接進行對外操作。跨部門計畫須再獨立審核。</p><div class="data-list" id="approvalList"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-notifications"><div class="card"><div class="section-top"><h2>管理通知</h2><button class="text-btn" data-refresh="notifications">重新整理</button></div><p class="helper">SKAI 內部通知，並非 ChatGPT App 推播。</p><div class="data-list" id="notificationList"><p class="helper">等待連線…</p></div></div></section>
+    </main>
+  </div>
+</div>
+<nav class="mobile-nav" aria-label="手機底部導覽">
+  <button class="mobileitem active" data-page="home"><span>⌂</span>總部</button>
+  <button class="mobileitem" data-page="employees"><span>♙</span>員工</button>
+  <button class="mobileitem" data-page="projects"><span>▦</span>專案</button>
+  <button class="mobileitem" data-page="tasks"><span>☷</span>任務</button>
+  <button class="mobileitem" data-page="approvals"><span>✓</span>審批</button>
+  <button class="mobileitem" data-page="notifications"><span>◌</span>通知</button>
+</nav>
+<dialog id="employeeDialog" class="employee-dialog" aria-labelledby="employeeTitle">
+  <div class="dialog-top"><span class="overline">SKAI / EMPLOYEE</span><button id="closeEmployee" class="icon-close" aria-label="關閉員工資訊">×</button></div>
+  <div class="dialog-identity"><span id="employeeFace" class="large-face"></span><div><h2 id="employeeTitle"></h2><p id="employeeCode"></p></div></div>
+  <p id="employeeDescription" class="dialog-description"></p>
+  <div class="dialog-status"><span>目前任務</span><b>未連線</b></div>
+  <div class="dialog-status"><span>EPS 績效</span><b>—</b></div>
+  <button class="primary-btn dialog-action" id="employeeChat">與這位主管對話</button>
+  <p class="helper">登入後可與專屬 AI 主管進行對話；不會自動執行外部操作。</p>
+</dialog>
+<dialog id="loginDialog" class="employee-dialog login-dialog" aria-labelledby="loginTitle"><div class="dialog-top"><span class="overline">SECURE ACCESS</span><span class="quiet-pill">V0.5 測試登入</span></div><h2 id="loginTitle">CEO 安全登入</h2><p class="helper">使用部署環境設定的 CEO 密碼登入。密碼不會儲存在瀏覽器或公開程式碼中。</p><form id="loginForm" class="stack-form"><label>CEO 密碼<input id="ceoPassword" name="password" type="password" autocomplete="current-password" minlength="16" required></label><button class="primary-btn" type="submit">登入指揮中心</button></form><p id="loginError" class="helper" role="alert"></p><p class="helper">尚未部署後端時無法登入；可查看未連線介面。</p></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
