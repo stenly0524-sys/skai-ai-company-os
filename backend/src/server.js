@@ -3,6 +3,7 @@ import pg from 'pg';
 import { ROLES, systemPrompt } from './roles.js';
 import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
 import { approvalDecision } from './workflow.js';
+import { orchestrationRouter } from './orchestration.js';
 
 const { Pool } = pg;
 const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY'];
@@ -45,6 +46,7 @@ const record = async (client,event,type,id,details={}) => client.query(
  'INSERT INTO audit_log(actor,event,target_type,target_id,details) VALUES($1,$2,$3,$4,$5)',
  ['ceo',event,type,id,JSON.stringify(details)]
 );
+app.use('/api/orchestrations', orchestrationRouter(db));
 app.get('/api/roles', (_req,res) => res.json({ roles: Object.entries(ROLES).map(([id, r]) => ({ id,...r })) }));
 app.get('/api/projects', async (_req,res) => {
  try { const q=await db.query('SELECT * FROM projects ORDER BY created_at DESC LIMIT 200');res.json({projects:q.rows}); }
