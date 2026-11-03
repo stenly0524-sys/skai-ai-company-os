@@ -102,3 +102,58 @@ test('CEO cloud chat restores saved chief-of-staff messages after page reload (m
  await expect(page.locator('#chatHistory')).toContainText('請整理市場策略');
  await expect(page.locator('#chatHistory')).toContainText('已保存的市場策略建議');
 });
+
+
+test('CEO cloud project and task creation reset forms only after async API saves (mock PostgreSQL)',async({page})=>{
+ const projectId='11111111-1111-4111-8111-111111111112';
+ const taskId='11111111-1111-4111-8111-111111111113';
+ const approvalsId='11111111-1111-4111-8111-111111111114';
+ const projects=[],tasks=[],approvals=[],errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ await page.route('**/api/**',async route=>{
+  const request=route.request(),url=new URL(request.url()),path=url.pathname,method=request.method();
+  let body={};
+  if(path==='/api/session')body={authenticated:true,csrf_token:'test-csrf-token'};
+  else if(path==='/api/dashboard')body={counts:{projects:projects.length,active:0,pending:approvals.length}};
+  else if(path==='/api/projects'&&method==='POST'){
+   const {name,goal}=request.postDataJSON();
+   const project={id:projectId,name,goal,stage:'draft'};projects.push(project);
+   return route.fulfill({status:201,json:{project}});
+  }
+  else if(path==='/api/projects')body={projects};
+  else if(path==='/api/tasks'&&method==='POST'){
+   const {project_id,title,brief}=request.postDataJSON();
+   const task={id:taskId,project_id,title,brief,status:'proposed'};tasks.push(task);
+   approvals.push({id:approvalsId,task_id:taskId,title,created_at:new Date().toISOString()});
+   return route.fulfill({status:201,json:{task,approval:approvals[0]}});
+  }
+  else if(path==='/api/tasks')body={tasks};
+  else if(path==='/api/approvals')body={approvals};
+  else if(path==='/api/operations/notifications')body={notifications:[]};
+  else if(path==='/api/orchestrations')body={runs:[]};
+  else if(path==='/api/conversations')body={conversations:[]};
+  else return route.fulfill({status:404,json:{error:'not_found'}});
+  return route.fulfill({status:200,json:body});
+ });
+ await page.goto('/');
+ await expect(page.locator('#connectionStatus')).toContainText('系統已登入');
+ await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#projectForm [name="name"]').fill('SKAI 系統測試');
+ await page.locator('#projectForm [name="goal"]').fill('驗證儲存與重新登入');
+ await page.locator('#projectForm [type="submit"]').click();
+ await expect(page.locator('#projectList')).toContainText('SKAI 系統測試');
+ await expect(page.locator('#projectForm [name="name"]')).toHaveValue('');
+ expect(projects).toHaveLength(1);
+ await page.locator('.desktop-nav [data-page="tasks"]').click();
+ await page.locator('#taskProject').selectOption(projectId);
+ await page.locator('#taskForm [name="title"]').fill('核准第一項任務');
+ await page.locator('#taskForm [type="submit"]').click();
+ await expect(page.locator('#taskList')).toContainText('核准第一項任務');
+ await expect(page.locator('#taskForm [name="title"]')).toHaveValue('');
+ expect(tasks).toHaveLength(1);
+ expect(errors).toEqual([]);
+ await page.reload();
+ await page.locator('.desktop-nav [data-page="projects"]').click();
+ await expect(page.locator('#projectList')).toContainText('SKAI 系統測試');
+ expect(errors).toEqual([]);
+});
