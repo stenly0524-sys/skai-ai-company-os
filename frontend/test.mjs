@@ -35,9 +35,10 @@ test('UI does not embed backend admin credentials or fake real KPI values',async
 
 test('UI calls only same-origin server endpoints, with no embedded secrets',async()=>{
  const app=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
- assert.match(app,/fetch\('\/api'/);
- assert.match(app,/credentials:'same-origin'/);
- assert.match(app,/X-CSRF-Token/);
+ const transport=await fs.readFile(new URL('./api.js',import.meta.url),'utf8');
+ assert.match(transport,/fetch\('\/api'/);
+ assert.match(transport,/credentials:'same-origin'/);
+ assert.match(transport,/X-CSRF-Token/);
  assert.match(app,/\/session\/login/);
  assert.match(app,/\/dashboard/);
 });
