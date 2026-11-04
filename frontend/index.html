@@ -23,20 +23,20 @@
       
 
     </nav>
-    <div class="nav-footer">SKAI V0.7 <span>連線確認中</span><br>僅顯示已驗證資料</div><div class="sidebar-ceo"><span class="sidebar-ceo-avatar">👨🏻‍💼</span><strong>CEO</strong><button id="openSettings" type="button" class="sidebar-settings" aria-label="開啟工作區設定">⚙</button></div>
+    <div class="nav-footer">SKAI V0.7 <span>連線確認中</span><br>僅顯示已驗證資料</div><div class="sidebar-ceo"><strong>CEO</strong><button id="openSettings" type="button" class="sidebar-settings" aria-label="開啟工作區設定">⚙</button></div>
   </aside>
   <div class="main-column">
     <header class="topbar">
       <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1 id="pageTitle">早安，CEO</h1><p class="subhead" id="pageSubtitle">SKAI OS｜個人企業智慧管理中心</p></div> <time id="todayClock" class="header-clock"></time>
-      <div class="top-actions"><button class="mobile-settings-button" id="openSettingsMobile" type="button" aria-label="切換工作區">⚙</button><button class="header-bell" data-jump="notifications" type="button" aria-label="查看通知"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="header-bell-count" id="headerNotificationCount" hidden></span></button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">👨🏻‍💼</button></div>
+      <div class="top-actions"><button class="mobile-settings-button" id="openSettingsMobile" type="button" aria-label="切換工作區">⚙</button><button class="header-bell" data-jump="notifications" type="button" aria-label="查看通知"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="header-bell-count" id="headerNotificationCount" hidden></span></button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態"></button></div>
     </header>
     <main>
       <section class="page active" id="page-home">
         <div class="kpi-grid compact-home-kpis">
-          <button class="kpi" data-jump="projects"><span>進行中專案</span><strong id="statProjects">—</strong><small id="projectLabel">等待連線</small></button>
-          <button class="kpi" data-jump="tasks"><span>待辦任務</span><strong id="statTasks">—</strong><small id="taskLabel">等待連線</small></button>
+          <button class="kpi" data-jump="projects"><span>進行中專案</span><strong id="statProjects">—</strong><small id="projectLabel" hidden></small></button>
+          <button class="kpi" data-jump="tasks"><span>待辦任務</span><strong id="statTasks">—</strong><small id="taskLabel" hidden></small></button>
           <button class="kpi" data-jump="tasks"><span>本週完成率</span><strong id="statWeekly">—</strong><small id="weeklyLabel">依已保存任務計算</small></button>
-          <button class="kpi" data-jump="department-finance"><span>本月 AI 成本</span><strong id="statAiCost">—</strong><small id="costLabel">實際 API 紀錄估算 · USD</small></button>
+          <button class="kpi" data-jump="department-finance"><span>本月算力成本</span><strong id="statAiCost">—</strong><small id="costLabel" hidden></small></button>
           <span id="statApprovals" hidden>—</span><span id="approvalLabel" hidden>等待連線</span>
         </div>
         <div class="content-grid">
@@ -51,8 +51,8 @@
             </section>
             <section class="card home-ai-usage" aria-labelledby="homeAiUsageTitle">
               <div class="section-top">
-                <div><h2 id="homeAiUsageTitle">資訊部｜AI API 與 Token 狀況</h2><p class="home-ai-caption">今日用量 · 後端紀錄</p></div>
-                <button class="text-btn" data-jump="department-tech">查看設定 ›</button>
+                <div><h2 id="homeAiUsageTitle">Token流量</h2></div>
+                <button class="text-btn" data-no-icon data-jump="department-tech">查看設定</button>
               </div>
               <div class="home-ai-metrics">
                 <div class="home-ai-metric"><span>API 呼叫</span><strong id="homeAiCalls">—</strong></div>
