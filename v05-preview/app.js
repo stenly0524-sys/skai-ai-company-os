@@ -7,7 +7,7 @@ import {el,listItem,renderList} from './ui.js';
 const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
-let projectCache=[],roleConversations=new Map();
+let projectCache=[],roleConversations=new Map(),activeDetailProjectId=null;
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
  toastTimer=setTimeout(()=>{toast.hidden=true},4000);
@@ -83,10 +83,13 @@ async function loadProjects(){
  renderList($('projectList'),projectCache,'目前沒有專案。請先建立第一個專案。',p=>{
   const tools=el('div','inline-actions');
   tools.append(el('span','quiet-pill',String(p.progress??0)+'%'));
+  const detail=el('button','outline-btn','查看詳情');detail.type='button';detail.addEventListener('click',()=>openProjectDetails(p.id));tools.append(detail);
   const edit=el('button','outline-btn','更新進度');edit.type='button';
   edit.addEventListener('click',()=>openProjectEditor(p));tools.append(edit);
   return listItem(p.name,p.notes||p.goal||'尚無專案描述',tools);
  });
+ const docSelect=$('documentProject');const prevDoc=docSelect.value;docSelect.replaceChildren(new Option('選擇專案',''));
+ for(const p of projectCache)docSelect.add(new Option(p.name,p.id));docSelect.value=projectCache.some(x=>x.id===prevDoc)?prevDoc:'';
  const select=$('taskProject');
  const old=select.value;select.replaceChildren(new Option('選擇專案',''));
  for(const p of projectCache)select.add(new Option(p.name,p.id));
@@ -138,14 +141,14 @@ async function loadDashboard(){
 async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await Promise.all([loadDashboard(),loadHomeSummary()]);
- if(page==='data')await loadDataIndex();
+ if(page==='data')await Promise.all([loadDataIndex(),loadDocuments(),loadActivity()]);
  if(page==='projects')await loadProjects();
  if(page==='tasks'){await loadProjects();await loadTasks();}
  if(page==='approvals')await loadApprovals();
  if(page==='notifications')await loadNotifications();
 }
 async function refreshAll(){
- await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadHomeSummary(),loadDataIndex()]);
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadHomeSummary(),loadDataIndex(),loadDocuments(),loadActivity()]);
 }
 $('projectForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
@@ -235,7 +238,8 @@ async function loadDataIndex(){
  try{
   const [p,t]=await Promise.all([api('/projects'),api('/tasks')]);
   const q=$('dataSearch').value.trim().toLocaleLowerCase('zh-TW');
-  const all=[...(p.projects||[]).map(x=>({title:'專案｜'+x.name,body:x.goal||'未填寫目標'})),...(t.tasks||[]).map(x=>({title:'任務｜'+x.title,body:x.brief||'無任務說明'}))];
+  const d=await api('/documents');
+  const all=[...(p.projects||[]).map(x=>({title:'專案｜'+x.name,body:x.goal||'未填寫目標'})),...(t.tasks||[]).map(x=>({title:'任務｜'+x.title,body:x.brief||'無任務說明'})),...(d.documents||[]).map(x=>({title:'文件｜'+x.name,body:x.url}))];
   const matched=all.filter(x=>(x.title+' '+x.body).toLocaleLowerCase('zh-TW').includes(q)).slice(0,100);
   renderList(target,matched,'找不到符合的專案或任務紀錄。',x=>listItem(x.title,x.body));
  }catch(e){target.textContent='無法讀取資料：'+e.message;}
@@ -275,6 +279,46 @@ $('taskEditForm').addEventListener('submit',async event=>{
   showToast('任務狀態已更新');
  }catch(e){showToast('無法更新任務：'+e.message);}
 });
+async function loadDocuments(){
+ const data=await api('/documents'),target=$('documentList');
+ renderList(target,data.documents||[],'尚無文件連結。',d=>{
+  const actions=el('div','inline-actions');
+  const open=el('a','outline-btn','開啟文件');open.href=d.url;open.target='_blank';open.rel='noopener noreferrer';
+  const remove=el('button','text-btn','移除');remove.type='button';
+  remove.addEventListener('click',async()=>{if(!confirm('確定從索引移除這筆文件連結？不會刪除原始檔案。'))return;
+    try{await api('/documents/'+encodeURIComponent(d.id),{method:'DELETE'});await Promise.all([loadDocuments(),loadDataIndex(),loadActivity()]);if(activeDetailProjectId)await openProjectDetails(activeDetailProjectId);showToast('已移除連結');}catch(e){showToast(e.message);}
+  });
+  actions.append(open,remove);return listItem(d.name,d.url,actions);
+ });
+}
+async function loadActivity(){
+ const data=await api('/activity');
+ renderList($('recentActivity'),(data.activity||[]).slice(0,20),'目前尚無變更紀錄。',x=>listItem(x.description,new Date(x.created_at).toLocaleString('zh-TW')));
+}
+$('documentForm').addEventListener('submit',async event=>{
+ event.preventDefault();const f=event.currentTarget,fd=new FormData(f);
+ try{await api('/documents',{method:'POST',body:{project_id:String(fd.get('project_id')),name:String(fd.get('name')),url:String(fd.get('url'))}});
+  f.reset();await Promise.all([loadDocuments(),loadDataIndex(),loadActivity()]);showToast('已保存文件連結');
+ }catch(e){showToast('文件連結保存失敗：'+e.message);}
+});
+async function openProjectDetails(projectId){
+ const panel=$('projectDetails');activeDetailProjectId=projectId;
+ const [p,t,d,a]=await Promise.all([api('/projects'),api('/tasks'),api('/documents'),api('/activity')]);
+ const project=(p.projects||[]).find(x=>x.id===projectId);
+ if(!project){panel.hidden=true;return;}
+ panel.hidden=false;$('detailProjectTitle').textContent=project.name;
+ $('detailProjectGoal').textContent=project.goal||'尚無專案目標';
+ const tasks=(t.tasks||[]).filter(x=>x.project_id===projectId),docs=(d.documents||[]).filter(x=>x.project_id===projectId),history=(a.activity||[]).filter(x=>x.project_id===projectId);
+ $('detailProjectMeta').textContent='階段：'+project.stage+'｜進度：'+String(project.progress??0)+'%｜任務：'+tasks.length+' 項｜文件連結：'+docs.length+' 筆';
+ renderList($('detailProjectTasks'),tasks,'目前尚無任務。',x=>listItem(x.title,(statuses[x.status]||x.status)+' · '+String(x.progress??0)+'%'));
+ renderList($('detailProjectDocs'),docs,'目前尚無文件連結。',x=>{
+  const link=el('a','outline-btn','開啟');link.href=x.url;link.target='_blank';link.rel='noopener noreferrer';
+  return listItem(x.name,x.url,link);
+ });
+ renderList($('detailProjectHistory'),history,'尚無歷史紀錄；較舊版本的操作不會自動補記。',x=>listItem(x.description,new Date(x.created_at).toLocaleString('zh-TW')));
+ panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('closeProjectDetails').addEventListener('click',()=>{$('projectDetails').hidden=true;activeDetailProjectId=null;});
 const initialPage=location.hash.slice(1);
 if(['home','employees','projects','tasks','approvals','notifications','data','assistant'].includes(initialPage))showPage(initialPage);
 startSession();
