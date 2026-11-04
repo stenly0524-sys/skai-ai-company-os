@@ -18,6 +18,10 @@ renderOffice(EMPLOYEES,{office:$('officePeople'),grid:$('employeeGrid'),mobileGr
 applyInterfaceIcons();
 function showEmployee(employee){
  currentEmployee=employee;
+ if(employee.id==='finance'||employee.id==='tech'){
+  showPage(employee.id==='finance'?'department-finance':'department-tech');
+  return;
+ }
  $('employeeTitle').textContent=employee.name;
  $('employeeCode').textContent=employee.title;
  $('employeeDescription').textContent=employee.scope;
@@ -35,7 +39,7 @@ function showPage(page){
   if(active)nav.setAttribute('aria-current','page');else nav.removeAttribute('aria-current');
  }
  const more=$('mobileMore');
- if(more){more.classList.toggle('active',page==='employees'||page==='notifications'||page==='ai-controls');closeMobileMore();}
+ if(more){more.classList.toggle('active',page==='employees'||page==='notifications'||page==='department-tech'||page==='department-finance');closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
  if(history.replaceState)history.replaceState(null,'','#'+page);
  if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
@@ -320,26 +324,7 @@ async function loadDashboard(){
   el('p','',projectCount+' 個進行中的專案'),
   el('small','','目前統計未結案的專案；可至「專案」頁查看詳細資料。')
  );
- try{
-  if(workspaceMode()==='local'){
-   $('usageSummary').textContent='本機模式無雲端 AI API 用量。';
-   $('usageDetails').textContent='請切換雲端模式查看真實用量。';
-   return;
-  }
-  const usage=await api('/operations/usage');
-  const stats=usage.usage||{};
-  const used=Number(stats.reserved_calls)||0;
-  const success=Number(stats.completed_calls)||0;
-  const failed=Number(stats.failed_calls)||0;
-  const input=Number(stats.total_input_tokens)||0;
-  const output=Number(stats.total_output_tokens)||0;
-  $('usageDay').textContent='台灣時間 · '+usage.day;
-  $('usageSummary').textContent='今日已嘗試 '+used+' / '+usage.cap+' 次；剩餘 '+Math.max(0,usage.cap-used)+' 次';
-  $('usageDetails').textContent='成功 '+success+' 次 · 失敗 '+failed+' 次 · 輸入 '+input.toLocaleString()+' tokens · 輸出 '+output.toLocaleString()+' tokens。失敗請求也計入防護上限，非實際費用。';
- }catch{
-  $('usageSummary').textContent='目前無法讀取 AI API 用量。';
-  $('usageDetails').textContent='其他公司資料不受影響。';
- }
+
 }
 async function refreshPage(page){
  if(!isSignedIn)return;
@@ -349,65 +334,87 @@ async function refreshPage(page){
  if(page==='approvals')await loadApprovals();
  if(page==='chief-plans')await loadOrchestrations();
  if(page==='notifications')await loadNotifications();
- if(page==='ai-controls')await loadAiControls();
+ if(page==='department-tech'||page==='department-finance')await loadDepartmentUsage();
 }
-async function loadAiControls(){
- const feedback=$('aiControlFeedback');
+async function loadDepartmentUsage(){
+ const techStatus=$('techUsageDetails'),financeStatus=$('financeBudgetUsage');
  if(workspaceMode()==='local'){
-  $('controlStatus').textContent='本機模式不能修改雲端 AI 控制。';
-  $('controlUsage').textContent='請切換雲端模式並登入 CEO。';
-  $('aiControlForm').querySelector('button[type="submit"]').disabled=true;
+  techStatus.textContent='本機模式無雲端 AI API 與 Token 紀錄；請切換雲端並登入 CEO。';
+  financeStatus.textContent='本機模式無 AI 美元成本紀錄；請切換雲端並登入 CEO。';
+  $('aiControlForm').querySelector('[type="submit"]').disabled=true;
+  $('aiFinanceForm').querySelector('[type="submit"]').disabled=true;
   return;
  }
  if(!isSignedIn)return;
  try{
   const [data,usage]=await Promise.all([api('/operations/ai-settings'),api('/operations/usage')]);
-  const s=data.settings;
+  const s=data.settings,stats=usage.usage||{},usd=usage.cost||{};
+  const count=Number(stats.reserved_calls)||0,completed=Number(stats.completed_calls)||0,failed=Number(stats.failed_calls)||0;
+  const input=Number(stats.total_input_tokens)||0,output=Number(stats.total_output_tokens)||0;
+  $('techCallCount').textContent=count.toLocaleString()+' / '+Number(usage.cap).toLocaleString();
+  $('techInputTokens').textContent=input.toLocaleString();
+  $('techOutputTokens').textContent=output.toLocaleString();
+  $('techTotalTokens').textContent=(input+output).toLocaleString();
+  techStatus.textContent='台灣時間 '+usage.day+' · 成功 '+completed+' 次 · 失敗 '+failed+' 次 · 剩餘 '+Math.max(0,Number(usage.cap)-count)+' 次 · '+(s.ai_enabled?'AI 已啟用':'AI 已暫停')+'。Token 以已回傳 API 用量統計；尚未完成的呼叫可能未計入。';
   $('aiControlEnabled').checked=Boolean(s.ai_enabled);
   $('aiControlLimit').max=String(data.deployment_ceiling);
   $('aiControlLimit').value=String(s.daily_call_limit);
   $('aiTokenWarning').value=String(s.daily_token_warning);
-  $('controlStatus').textContent=s.ai_enabled?'AI 已啟用 · 後續呼叫受 CEO 設定限制':'AI 已暫停 · 新的 AI 呼叫會被拒絕';
-  const used=Number(usage.usage?.reserved_calls)||0;
-  const total=Number(usage.usage?.total_input_tokens||0)+Number(usage.usage?.total_output_tokens||0);
-  $('controlUsage').textContent='今日已嘗試 '+used+'／'+usage.cap+' 次，已記錄 '+total.toLocaleString()+' Tokens。';
-  const usd=usage.cost||{};
-  const dayUsd=Number(usd.day_usd)||0,monthUsd=Number(usd.month_usd)||0;
-  $('controlUsdUsage').textContent='今日預算占用約 USD '+dayUsd.toFixed(4)+' / USD '+Number(s.daily_budget_usd).toFixed(2)+
-    '；本月約 USD '+monthUsd.toFixed(4)+' / USD '+Number(s.monthly_budget_usd).toFixed(2)+
-    '。待核實請求 '+(Number(usd.unverified_count)||0)+' 筆。';
+  $('aiControlCeiling').textContent='部署環境每日最高 '+data.deployment_ceiling+' 次，CEO 設定不得超過此上限。';
+  const day=Number(usd.day_usd)||0,month=Number(usd.month_usd)||0;
+  $('financeDailyUsd').textContent='US$'+day.toFixed(4);
+  $('financeMonthlyUsd').textContent='US$'+month.toFixed(4);
+  financeStatus.textContent='今日預算占用 US$'+day.toFixed(4)+' / US$'+Number(s.daily_budget_usd).toFixed(2)+'；本月 US$'+month.toFixed(4)+' / US$'+Number(s.monthly_budget_usd).toFixed(2)+'。';
+  $('financePending').textContent='待核實 '+(Number(usd.unverified_count)||0)+' 筆請求，保留預留金額避免低估費用。';
   $('aiDailyUsd').value=Number(s.daily_budget_usd).toFixed(2);
   $('aiMonthlyUsd').value=Number(s.monthly_budget_usd).toFixed(2);
   const pricing=data.pricing;
-  $('aiCostDetails').textContent='計價模型 '+data.pricing_model+
-    (pricing?'（每百萬輸入 Tokens：USD '+pricing.input+'；輸出：USD '+pricing.output+'）':'（模型尚未設定價格，AI 呼叫會被阻擋）')+
-    '。SKAI 為保守估算，非 OpenAI 帳單；預算以台灣日期計算。';
-  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
-  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
-  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
- }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+  $('aiCostDetails').textContent='美元估算模型 '+data.pricing_model+(pricing?'：每百萬輸入 Tokens US$'+pricing.input+'，輸出 Tokens US$'+pricing.output:'：單價尚未設定')+'。使用量與保守預算占用不等於 OpenAI 官方帳單；幣別 USD。';
+  $('aiControlForm').querySelector('[type="submit"]').disabled=false;
+  $('aiFinanceForm').querySelector('[type="submit"]').disabled=false;
+ }catch(e){
+  techStatus.textContent='資訊部無法讀取 Token 用量：'+e.message;
+  financeStatus.textContent='財務部無法讀取美元用量：'+e.message;
+ }
+}
+async function saveDepartmentSettings(changes,feedbackId,button){
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式');
+ button.disabled=true;
+ $(feedbackId).textContent='正在儲存 CEO 控管設定…';
+ try{
+  // Merge server settings immediately before saving so each department
+  // never overwrites the other department's latest fields from a stale form.
+  const latest=await api('/operations/ai-settings');
+  const s=latest.settings;
+  const payload={
+   ai_enabled:changes.ai_enabled??Boolean(s.ai_enabled),
+   daily_call_limit:changes.daily_call_limit??Number(s.daily_call_limit),
+   daily_token_warning:changes.daily_token_warning??Number(s.daily_token_warning),
+   daily_budget_usd:changes.daily_budget_usd??Number(s.daily_budget_usd),
+   monthly_budget_usd:changes.monthly_budget_usd??Number(s.monthly_budget_usd)
+  };
+  if(payload.daily_budget_usd>payload.monthly_budget_usd)throw Error('每日美元上限不得超過每月美元上限');
+  await api('/operations/ai-settings',{method:'POST',body:payload});
+  await loadDepartmentUsage();
+  $(feedbackId).textContent='CEO 控管設定已保存，後續 AI 呼叫將依新設定執行。';
+ }catch(e){$(feedbackId).textContent='儲存失敗：'+e.message;}
+ finally{button.disabled=false;}
 }
 $('aiControlForm').addEventListener('submit',async event=>{
  event.preventDefault();
- if(!isSignedIn)return openLogin();
- if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
- const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
- const body={
+ await saveDepartmentSettings({
   ai_enabled:$('aiControlEnabled').checked,
   daily_call_limit:Number($('aiControlLimit').value),
-  daily_token_warning:Number($('aiTokenWarning').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ },'aiControlFeedback',event.currentTarget.querySelector('[type="submit"]'));
+});
+$('aiFinanceForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ await saveDepartmentSettings({
   daily_budget_usd:Number($('aiDailyUsd').value),
   monthly_budget_usd:Number($('aiMonthlyUsd').value)
- };
- if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning)||!Number.isFinite(body.daily_budget_usd)||!Number.isFinite(body.monthly_budget_usd))return showToast('請輸入有效整數');
- button.disabled=true;
- $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
- try{
-  await api('/operations/ai-settings',{method:'POST',body});
-  await Promise.all([loadDashboard(),loadAiControls()]);
-  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
- }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
- finally{button.disabled=false}
+ },'aiFinanceFeedback',event.currentTarget.querySelector('[type="submit"]'));
 });
 async function refreshAll(){
  await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
@@ -532,6 +539,7 @@ $('importWorkspace').addEventListener('change',async e=>{
  }catch(error){showToast(error.message);}
  finally{e.target.value='';}
 });
-const initialPage=location.hash.slice(1)==='orchestrations'?'tasks':location.hash.slice(1);
-if(['home','employees','projects','tasks','approvals','notifications','ai-controls'].includes(initialPage))showPage(initialPage);
+const initialHash=location.hash.slice(1);
+const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
+if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance'].includes(initialPage))showPage(initialPage);
 startSession();
