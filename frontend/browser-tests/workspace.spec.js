@@ -64,10 +64,11 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await expect(page.locator('#connectionStatus')).toContainText('本機工作區');
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
- await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(5);
+ await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(6);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
- await page.locator('#officeScene .office-hotspot').first().click();
+ await page.locator('.desktop-nav [data-page="employees"]').click();
+ await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
  await context.close();
@@ -171,18 +172,18 @@ test('CEO cloud project and task creation reset forms only after async API saves
 });
 
 
-test('SKAI V0.6 mobile navigation keeps five primary pages and accessible More menu',async({browser})=>{
+test('SKAI V0.9 mobile navigation keeps six primary pages and accessible More menu',async({browser})=>{
  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await context.newPage();
  await page.goto('/');
- await expect(page.locator('.mobile-nav [data-page]')).toHaveCount(5);
+ await expect(page.locator('.mobile-nav [data-page]')).toHaveCount(6);
  const more=page.locator('#mobileMore'),menu=page.locator('#mobileMoreMenu');
  await expect(menu).toBeHidden();
  await more.click();
  await expect(menu).toBeVisible();
  await expect(more).toHaveAttribute('aria-expanded','true');
- await menu.locator('[data-page="employees"]').click();
- await expect(page.locator('#page-employees')).toHaveClass(/active/);
+ await menu.locator('[data-page="approvals"]').click();
+ await expect(page.locator('#page-approvals')).toHaveClass(/active/);
  await expect(menu).toBeHidden();
  await expect(more).toHaveClass(/active/);
  await more.click();
@@ -201,10 +202,10 @@ test('SKAI command center shows nine functional manager tiles on portrait phone'
  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await context.newPage();
  await page.goto('/');
- await expect(page.locator('#officeScene')).toBeVisible();
- await expect(page.locator('#mobileOfficeGrid .mobile-office-person')).toHaveCount(9);
- await expect(page.locator('#officeScene .office-hotspot').first()).toBeVisible();
- await page.locator('#officeScene .office-hotspot').first().click();
+ await expect(page.locator('#page-home .scene-card')).toHaveCount(0);
+ await page.locator('.mobile-nav [data-page="employees"]').click();
+ await expect(page.locator('#employeeGrid .employee-card')).toHaveCount(9);
+ await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await expect(page.locator('#employeeTitle')).toHaveText('AI 幕僚長');
  await page.locator('#closeEmployee').click();
@@ -214,33 +215,26 @@ test('SKAI command center shows nine functional manager tiles on portrait phone'
 });
 
 
-test('SKAI HQ loads approved light office artwork and interactive staff hotspots',async({page})=>{
+test('SKAI HQ removes scene and Department page manages nine roles',async({page})=>{
  await page.goto('/');
- const office=page.locator('#officeScene');
- await expect(office).toBeVisible();
- await expect(office.locator('.office-hotspot')).toHaveCount(7);
- const image=await page.request.get('/assets/skai-office-hd.svg');
- expect(image.status()).toBe(200);
- expect(image.headers()['content-type']).toMatch(/image\/svg\+xml/);
- const source=await image.text();
- expect(source).toContain('viewBox="0 0 1200 1000"');
- const bg=await office.evaluate(node=>getComputedStyle(node).backgroundImage);
- expect(bg).toContain('skai-office-hd.svg');
- await office.locator('.office-hotspot').first().click();
+ await expect(page.locator('#page-home .office-scene')).toHaveCount(0);
+ await page.locator('.desktop-nav [data-page="employees"]').click();
+ await expect(page.locator('#employeeGrid .employee-card')).toHaveCount(9);
+ await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
 });
-
 
 test('all 24 SKAI icons use SVG and primary mobile tabs retain their navigation actions',async({browser})=>{
  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await context.newPage();await page.goto('/');
  await expect(page.locator('.mobile-nav .mobileitem .skai-icon svg')).toHaveCount(6);
- await expect(page.locator('#mobileOfficeGrid .mobile-office-person .skai-icon svg')).toHaveCount(9);
+ await page.locator('.mobile-nav [data-page="employees"]').click();
+ await expect(page.locator('#employeeGrid .employee-card .skai-icon svg')).toHaveCount(9);
  await page.locator('.mobile-nav [data-page="projects"]').click();
  await expect(page.locator('#page-projects')).toHaveClass(/active/);
  await page.locator('.mobile-nav [data-page="home"]').click();
- await expect(page.locator('#officeScene')).toBeVisible();
+ await expect(page.locator('#page-home .office-scene')).toHaveCount(0);
  await context.close();
 });
 
@@ -333,6 +327,39 @@ test('CEO tasks replace independent AI collaboration and offer chief plan revisi
 });
 
 // Screenshot-based visual inspection of the actual integrated frontend (no private user data).
+test('local CEO can select, approve, review and delete tasks and projects',async({page})=>{
+ await page.goto('/');
+ await page.locator('#openSettings').click();
+ await page.locator('#useLocal').click();
+ await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#jumpProjectCreate').click();
+ await page.locator('#projectForm [name="name"]').fill('管理測試專案');
+ await page.locator('#projectForm [type="submit"]').click();
+ await expect(page.locator('#projectCards')).toContainText('管理測試專案');
+ await page.locator('.desktop-nav [data-page="tasks"]').click();
+ await page.locator('#jumpTaskCreate').click();
+ await page.locator('#taskProject').selectOption({label:'管理測試專案'});
+ await page.locator('#taskForm [name="title"]').fill('測試可勾選及審核任務');
+ await page.locator('#taskForm [type="submit"]').click();
+ await expect(page.locator('#taskCards')).toContainText('測試可勾選及審核任務');
+ page.on('dialog',dialog=>dialog.accept());
+ await page.locator('#taskCards .task-row-actions button',{hasText:'核准'}).click();
+ await expect(page.locator('#taskCards')).toContainText('已核准');
+ await page.locator('#taskCards .task-row-actions button',{hasText:'開始'}).click();
+ await expect(page.locator('#taskCards')).toContainText('執行中');
+ await page.locator('#taskCards .task-row-actions button',{hasText:'提交審核'}).click();
+ await expect(page.locator('#taskCards')).toContainText('待驗收');
+ await page.locator('#taskCards .task-row-actions button',{hasText:'驗收完成'}).click();
+ await expect(page.locator('#taskCards')).toContainText('完成');
+ await page.locator('#taskCards .task-select-label input').first().check();
+ await expect(page.locator('#bulkDeleteTasks')).toBeEnabled();
+ await page.locator('#bulkDeleteTasks').click();
+ await expect(page.locator('#taskCards')).not.toContainText('測試可勾選及審核任務');
+ await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#projectCards [aria-label="刪除專案 管理測試專案"]').click();
+ await expect(page.locator('#projectCards')).not.toContainText('管理測試專案');
+});
+
 test('visual audit: reference layout across five screens',async({page})=>{
  await page.setViewportSize({width:1280,height:800});
  await page.goto('/');
