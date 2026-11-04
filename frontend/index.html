@@ -21,6 +21,7 @@
       <button class="navitem" data-page="orchestrations"><span>◇</span> AI 協作</button>
       <button class="navitem" data-page="approvals"><span>✓</span> 待審批</button>
       <button class="navitem" data-page="notifications"><span>◌</span> 通知</button>
+      <button class="navitem" data-page="ai-controls"><span>⚙</span> AI 管理</button>
     </nav>
     <div class="nav-footer">SKAI V0.5 <span>連線確認中</span><br>僅顯示已驗證資料</div>
   </aside>
@@ -104,6 +105,30 @@
       </div></section>
       <section class="page" id="page-approvals"><div class="card"><div class="section-top"><h2>CEO 待審批</h2><button class="text-btn" data-refresh="approvals">重新整理</button></div><p class="helper">核准任務並不會直接進行對外操作。跨部門計畫須再獨立審核。</p><div class="data-list" id="approvalList"><p class="helper">等待連線…</p></div></div></section>
       <section class="page" id="page-notifications"><div class="card"><div class="section-top"><h2>管理通知</h2><button class="text-btn" data-refresh="notifications">重新整理</button></div><p class="helper">SKAI 內部通知，並非 ChatGPT App 推播。</p><div class="data-list" id="notificationList"><p class="helper">等待連線…</p></div></div></section>
+      <section class="page" id="page-ai-controls">
+       <div class="card">
+        <div class="section-top"><h2>CEO AI 管理後台</h2><span class="quiet-pill">需要 CEO 登入</span></div>
+        <p class="helper">管理 SKAI 內部 AI 呼叫；這些設定不會修改 OpenAI 官方帳戶額度。所有變更保存於 PostgreSQL 並留下稽核紀錄。</p>
+        <div class="card ai-control-status" aria-live="polite">
+         <h2>目前 AI 使用狀況</h2>
+         <p id="controlStatus" class="helper">登入後讀取控制設定。</p>
+         <p id="controlUsage" class="helper">尚未讀取今日實際使用量。</p>
+        </div>
+        <form id="aiControlForm" class="stack-form">
+         <label class="ai-switch"><input type="checkbox" id="aiControlEnabled" name="ai_enabled" checked> 啟用 AI 回覆與部門分析</label>
+         <label>每日 AI 呼叫次數上限
+          <input type="number" id="aiControlLimit" name="daily_call_limit" min="1" max="50" step="1" value="50" required>
+         </label>
+         <p id="aiControlCeiling" class="helper">部署環境安全上限：50 次／日。降低數值可立即限制後續請求。</p>
+         <label>每日 Token 使用警示門檻（提醒用）
+          <input type="number" id="aiTokenWarning" name="daily_token_warning" min="1000" max="10000000" step="1000" value="100000" required>
+         </label>
+         <p class="helper">Token 警示在 AI 請求完成並記錄用量後觸發，僅產生內部通知；**不是硬性 Token 上限，也不是美元費用控制**。已發出的請求無法追回費用。</p>
+         <button type="submit" class="primary-btn">CEO 保存 AI 設定</button>
+        </form>
+        <p id="aiControlFeedback" class="helper" role="status"></p>
+       </div>
+      </section>
     </main>
   </div>
 </div>
@@ -118,6 +143,7 @@
 <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
   <button class="mobile-more-link" data-page="employees"><span>♙</span> AI 員工</button>
   <button class="mobile-more-link" data-page="notifications"><span>◌</span> 公司通知</button>
+  <button class="mobile-more-link" data-page="ai-controls"><span>⚙</span> AI 管理後台</button>
 </div>
 <dialog id="employeeDialog" class="employee-dialog" aria-labelledby="employeeTitle">
   <div class="dialog-top"><span class="overline">SKAI / EMPLOYEE</span><button id="closeEmployee" class="icon-close" aria-label="關閉員工資訊">×</button></div>
