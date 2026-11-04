@@ -678,3 +678,5 @@ body{background:linear-gradient(135deg,#e8eef7 0%,#f6f8fd 57%,#e8effb 100%);colo
  #page-assistant .assistant-hero-body{grid-template-columns:100px 1fr}
  #page-projects .listing-card,#page-tasks .listing-card{min-height:0}
 }
+
+.mobile-settings-button{display:none;border:1px solid #dae4f3;border-radius:12px;background:#f4f8fc;padding:7px 10px;color:#58728e;font-size:17px}@media(max-width:720px){.mobile-settings-button{display:inline-flex}.top-actions{gap:6px}.topbar .offline-chip{font-size:10px;padding:5px 7px}}
