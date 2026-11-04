@@ -157,6 +157,38 @@ app.post('/api/tasks/:id/transition',async(req,res)=>{
   await client.query('COMMIT');res.json({task:updated.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
+// Drive archive: CEO can choose one or several deliverable formats and open existing files.
+// Generation/upload requires a separate Google Drive OAuth/Service Account connection.
+app.get('/api/projects/:id/drive-folders',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_project_id'});
+ try{const q=await db.query('SELECT role_id,folder_id,folder_url FROM project_drive_folders WHERE project_id=$1 ORDER BY role_id',[id]);res.json({folders:q.rows});}
+ catch(e){sendError(res,e)}
+});
+app.get('/api/tasks/:id/deliverables',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
+ try{
+  const q=await db.query('SELECT id,role_id,format,title,drive_url,review_state,created_at FROM task_deliverables WHERE task_id=$1 ORDER BY created_at DESC',[id]);
+  const p=await db.query('SELECT formats FROM task_delivery_preferences WHERE task_id=$1',[id]);
+  res.json({documents:q.rows,formats:p.rows[0]?.formats||['pdf'],auto_generation_connected:false,
+   notice:'CEO 可以設定 PDF、Word、Excel 多選及檢視已歸檔檔案；後續任務的伺服器自動生成及上傳仍需 Google Drive 長期授權。'});
+ }catch(e){sendError(res,e)}
+});
+app.put('/api/tasks/:id/delivery-preferences',async(req,res)=>{
+ const id=req.params.id,formats=req.body?.formats;
+ if(!uuid(id)||!Array.isArray(formats)||formats.length<1||formats.length>3||
+  new Set(formats).size!==formats.length||formats.some(x=>!['pdf','docx','xlsx'].includes(x)))
+  return res.status(400).json({error:'invalid_delivery_formats'});
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const exists=await client.query('SELECT id FROM tasks WHERE id=$1',[id]);
+  if(!exists.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  await client.query('INSERT INTO task_delivery_preferences(task_id,formats) VALUES($1,$2::TEXT[]) ON CONFLICT(task_id) DO UPDATE SET formats=$2::TEXT[],updated_at=NOW()',[id,formats]);
+  await record(client,'task.delivery_formats_selected','task',id,{formats});
+  await client.query('COMMIT');
+  res.json({formats,notice:'交付格式已保存。檔案不會在尚未完成的 AI 任務中憑空生成。'});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e)}finally{client.release()}
+});
 app.get('/api/tasks', async(req,res) => {
  const projectId=req.query.project_id;
  if(projectId && !uuid(projectId))return res.status(400).json({error:'invalid_project_id'});
