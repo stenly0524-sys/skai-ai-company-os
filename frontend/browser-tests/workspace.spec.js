@@ -16,7 +16,8 @@ test('iPhone portrait: create project, propose and approve task, preserve across
  await page.locator('#taskForm [name="title"]').fill('整理供應商名單');
  await page.locator('#taskForm [type="submit"]').click();
  await expect(page.locator('#taskList')).toContainText('整理供應商名單');
- await page.locator('.mobile-nav [data-page="approvals"]').click();
+ await page.locator('#mobileMore').click();
+ await page.locator('#mobileMoreMenu [data-page="approvals"]').click();
  await expect(page.locator('#approvalList')).toContainText('整理供應商名單');
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('#approvalList .primary-btn').click();
@@ -57,10 +58,10 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await page.getByRole('button',{name:'本機模式'}).click();
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
- await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(6);
+ await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(5);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
- await page.locator('.desktop-nav [data-page="employees"]').click();
+ await page.locator('[data-jump="employees"]').click();
  await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
@@ -70,6 +71,7 @@ test('iPhone landscape: navigation and content remain accessible without horizon
 test('offline workspace never fabricates AI response',async({page})=>{
  await page.goto('/');
  await page.getByRole('button',{name:'本機模式'}).click();
+ await page.locator('.desktop-nav [data-page="assistant"]').click();
  await page.locator('#chatText').fill('請完成真實市場研究');
  await page.locator('#chatPreviewForm [type="submit"]').click();
  await expect(page.locator('#chatHistory')).toContainText('此功能需要雲端 AI 後端');
