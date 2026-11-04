@@ -800,3 +800,33 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  .assistant-intro{min-height:145px;padding:11px}
  .assistant-capabilities{font-size:11px}
 }
+
+/* V0.9 CEO headquarters without the old office illustration. */
+#page-home .content-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:15px}
+#page-home .primary-area,#page-home .secondary-area{display:flex;flex-direction:column;gap:14px}
+#page-home .home-todo-card{min-height:300px;flex:1;padding:20px}
+#page-home .home-todo-row{padding:13px 6px;font-size:14px}
+#page-home .progress-overview{min-height:300px;padding:20px}
+#page-home .project-progress-row{padding:10px 4px}
+#page-home .home-action-card{min-height:140px}
+#page-home .home-shortcuts .outline-btn{min-height:118px}
+.legacy-office-support{display:none}
+.department-hub{min-height:460px}
+.department-hub .employee-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.department-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.project-manage-row{display:flex;gap:9px;align-items:stretch}
+.project-manage-row>.visual-project-row{flex:1;min-width:0}
+.project-manage-row>.danger-outline{align-self:center}
+.danger-outline{border:1px solid #f0bac0;border-radius:12px;padding:9px 13px;background:#fff7f8;color:#ac2435;font-size:12px;font-weight:750;white-space:nowrap}
+.danger-outline:hover{background:#ffeaeb}.danger-outline:disabled{opacity:.45;cursor:default}
+.destructive-help{margin:9px 2px}
+.task-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0;padding:9px 13px;background:#eef5ff;border-radius:14px}
+.select-all-tasks{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:740}
+.select-all-tasks input,.task-select-label input{width:17px;height:17px;accent-color:#287de4;cursor:pointer}
+.task-selected-count{font-size:12px;color:#64809f;margin-left:auto}
+.actionable-task-row{display:grid;grid-template-columns:23px minmax(0,1fr) auto minmax(75px,.55fr) auto;gap:10px;cursor:default}
+.task-row-actions{display:flex;gap:6px;align-items:center}
+.task-row-actions .outline-btn,.task-row-actions .danger-outline{font-size:11px;padding:7px 9px}
+@media(max-width:1100px){#page-home .content-grid{grid-template-columns:1fr 1fr}.actionable-task-row{grid-template-columns:23px minmax(0,1fr) auto}.task-project-name{display:none}.task-row-actions{grid-column:2/4}}
+@media(max-width:720px){#page-home .content-grid{grid-template-columns:1fr}#page-home .home-todo-card{min-height:180px}#page-home .progress-overview{min-height:190px}#page-home .home-shortcuts .outline-btn{min-height:80px}.department-hub .employee-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.project-manage-row{gap:5px}.project-manage-row>.danger-outline{padding:9px 8px}.actionable-task-row{grid-template-columns:23px minmax(0,1fr) auto}.task-row-actions{grid-column:2/4}.task-selected-count{margin-left:0}}
+@media(orientation:landscape) and (max-width:1050px) and (max-height:550px){#page-home .content-grid{grid-template-columns:1fr 1fr}}
