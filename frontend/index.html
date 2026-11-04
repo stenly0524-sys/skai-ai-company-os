@@ -12,7 +12,7 @@
 <body>
 <div class="app-shell">
   <aside class="desktop-nav" aria-label="主要選單">
-    <a class="brand" href="#home"><span class="logo">▥</span><span>SKAI <small>AI COMPANY OS</small></span></a>
+    <a class="brand" href="#home"><span class="logo">▥</span><span>SKAI OS <small>AI COMPANY OS</small></span></a>
     <nav class="nav-list">
       <button class="navitem active" data-page="home"><span>⌂</span> 首頁</button>
       
@@ -28,7 +28,7 @@
   <div class="main-column">
     <header class="topbar">
       <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1 id="pageTitle">早安，CEO</h1><p class="subhead" id="pageSubtitle">SKAI OS｜個人企業智慧管理中心</p></div>
-      <div class="top-actions"><button class="mobile-settings-button" id="openSettingsMobile" type="button" aria-label="切換工作區">⚙</button><div class="workspace-toggle" id="workspaceToggle" hidden><button class="text-btn mode-toggle" id="useLocal" type="button">本機模式</button><button class="text-btn mode-toggle" id="useCloud" type="button">雲端模式</button></div><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">👨🏻‍💼</button></div>
+      <div class="top-actions"><button class="mobile-settings-button" id="openSettingsMobile" type="button" aria-label="切換工作區">⚙</button><div class="workspace-toggle" id="workspaceToggle" hidden><button class="text-btn mode-toggle" id="useLocal" type="button">本機模式</button><button class="text-btn mode-toggle" id="useCloud" type="button">雲端模式</button></div><button class="header-bell" data-jump="notifications" type="button" aria-label="查看通知">♧<span class="header-bell-count" id="headerNotificationCount" hidden></span></button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">👨🏻‍💼</button></div>
     </header>
     <main>
       <section class="page active" id="page-home">
@@ -77,7 +77,7 @@
             <section class="card progress-overview"><div class="section-top"><h2>專案進度總覽</h2><button class="text-btn" data-jump="projects">查看全部 ›</button></div>
                <div id="homeProjectBars" class="project-bars"><p class="helper">登入後讀取專案進度。</p></div><div id="projectSnapshot" class="visually-hidden" aria-live="polite"></div>
             </section>
-            <section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks"><span class="shortcut-emoji">＋</span>新增任務</button><button class="outline-btn" data-jump="projects"><span class="shortcut-emoji">▣</span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji">⌕</span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji">▥</span>查看報表</button></div></section>
+            <section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji">＋</span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji">▣</span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji">⌕</span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji">▥</span>查看報表</button></div></section>
             <div id="todayHighlights" class="visually-hidden" aria-live="polite"></div>
             
           </aside>
