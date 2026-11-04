@@ -4,6 +4,7 @@ import { parsePlan, summarizeOutcomes } from './planner.js';
 import { validUuid, compactText } from './security.js';
 import { ROLES } from './roles.js';
 import { departmentReportInstructions, reportQualityIssues } from './report-quality.js';
+import {validateDetailedPlan,estimateDetailedPlan,chiefPlanPrompt} from './chief-plans.js';
 
 // Exposed AFTER the existing development authentication middleware.
 // All orchestration effects are internal text generation; no external actions.
@@ -35,23 +36,23 @@ export function orchestrationRouter(db){
    const exists=await db.query('SELECT id FROM orchestration_runs WHERE task_id=$1',[taskId]);
    if(exists.rowCount)return res.status(409).json({error:'plan_already_exists',run_id:exists.rows[0].id});
    const raw=await askModel({role:'chief_of_staff',format:'json',maxTokens:1800,messages:[
-    {role:'user',content:'根據以下 CEO 已核准任務提出 1 至 8 個專業部門工作，僅回傳 JSON 物件：{"summary":"整體目標","steps":[{"role_id":"finance","instruction":"具體分析項目"}]}。role_id 僅能選 admin,finance,brand,marketing,operations,tech,hr,legal。不要提出任何立即對外執行行動；分析結果須標記假設及未驗證資訊。\n專案目標：'+task.project_goal+'\n任務：'+task.title+'\n任務說明：'+task.brief}
+    {role:'user',content:chiefPlanPrompt(task)}
    ]});
    let plan;
-   try{plan=parsePlan(raw)}catch{return res.status(502).json({error:'invalid_ai_plan'});}
+   try{plan=estimateDetailedPlan(validateDetailedPlan(JSON.parse(raw)),{taskTitle:task.title,taskBrief:task.brief,model:process.env.OPENAI_MODEL||'gpt-4.1-mini'})}catch{return res.status(502).json({error:'invalid_ai_plan'});}
    const client=await db.connect();
    try{
     await client.query('BEGIN');
     // This unique task_id constraint prevents duplicate orchestration after concurrent requests.
-    const run=await client.query("INSERT INTO orchestration_runs(task_id,summary) VALUES($1,$2) RETURNING *",[taskId,plan.summary]);
+    const run=await client.query("INSERT INTO orchestration_runs(task_id,summary,plan_estimate) VALUES($1,$2,$3) RETURNING *",[taskId,plan.steps.length?JSON.parse(raw).summary:'',JSON.stringify(plan.estimate)]);
     for(const step of plan.steps) await client.query(
-     'INSERT INTO orchestration_steps(run_id,sequence_no,role_id,instruction) VALUES($1,$2,$3,$4)',
-     [run.rows[0].id,step.sequence_no,step.role_id,step.instruction]
+     'INSERT INTO orchestration_steps(run_id,sequence_no,role_id,instruction,estimated_minutes,estimated_input_tokens,max_output_tokens,estimated_usd) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
+     [run.rows[0].id,step.sequence_no,step.role_id,step.instruction,step.estimated_minutes,step.estimated_input_tokens,step.max_output_tokens,step.estimated_usd]
     );
     await client.query('INSERT INTO audit_log(actor,event,target_type,target_id,details) VALUES($1,$2,$3,$4,$5)',
      ['chief_of_staff','plan.proposed','task',taskId,JSON.stringify({run_id:run.rows[0].id,count:plan.steps.length})]);
     await client.query('COMMIT');
-    res.status(201).json({run:run.rows[0],steps:plan.steps,notice:'待 CEO 審閱分工；尚未啟動部門分析。'});
+    res.status(201).json({run:run.rows[0],steps:plan.steps,notice:'幕僚長已提出部門工作與預估資源；CEO 確認前不會執行。'});
    }catch(e){await client.query('ROLLBACK');if(e.code==='23505')return res.status(409).json({error:'plan_already_exists'});throw e}finally{client.release()}
   }catch(e){fail(res,e)}
  });
@@ -103,7 +104,7 @@ export function orchestrationRouter(db){
   try {
    const done=await db.query("SELECT role_id,result FROM orchestration_steps WHERE run_id=$1 AND status='done' ORDER BY sequence_no",[id]);
    const context=done.rows.map(s=>s.role_id+': '+s.result?.slice(0,2000)).join('\n');
-   outcome=await askModel({role:step.role_id,maxTokens:2400,messages:[
+   outcome=await askModel({role:step.role_id,maxTokens:Math.min(Number(step.max_output_tokens)||2400,2400),messages:[
     {role:'user',content:departmentReportInstructions(step.role_id)+'\n任務：'+task.title+'\n說明：'+task.brief+'\n本部門工作：'+step.instruction+'\n先前部門分析摘要：'+context}
    ]});
   }catch(e){
