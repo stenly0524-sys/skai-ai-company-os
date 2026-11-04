@@ -331,6 +331,7 @@ async function loadDashboard(){
  $('statWeekly').textContent=recent.length?Math.round(100*done/recent.length)+'%':'—';
  $('weeklyLabel').textContent=recent.length?'本週更新的 '+recent.length+' 項任務':'本週尚無任務更新';
  renderHomeProjects(projects);renderHomeTodos(tasks,data.pending??0);
+ await loadHomeAiUsage();
  $('statAiCost').textContent='—';
  $('costLabel').textContent=workspaceMode()==='local'?'本機無 AI API 費用紀錄':'讀取 AI 用量中…';
  if(workspaceMode()==='cloud'){
@@ -338,6 +339,33 @@ async function loadDashboard(){
    if(Number.isFinite(usd)){$('statAiCost').textContent='$'+usd.toFixed(2);$('costLabel').textContent='USD · 後端估算，非實際帳單';}
    else $('costLabel').textContent='尚無可核實的 AI 成本';
   }catch{$('costLabel').textContent='AI 成本暫時無法讀取';}
+ }
+}
+async function loadHomeAiUsage(){
+ const counts=['homeAiCalls','homeAiInputTokens','homeAiOutputTokens','homeAiTotalTokens'];
+ const status=$('homeAiStatus');counts.forEach(id=>$(id).textContent='—');
+ if(workspaceMode()==='local'){
+  status.textContent='本機模式不包含 AI API 用量，請使用雲端工作區。';
+  return;
+ }
+ status.textContent='正在讀取今日 AI 用量…';
+ try{
+  const data=await api('/operations/usage'),usage=data.usage||{};
+  const parsed=['reserved_calls','total_input_tokens','total_output_tokens'];
+  if(parsed.some(k=>usage[k]===undefined||usage[k]===null||!Number.isFinite(Number(usage[k])))){
+   status.textContent='尚無完整的 AI API 用量紀錄。';return;
+  }
+  const calls=Number(usage.reserved_calls),input=Number(usage.total_input_tokens),output=Number(usage.total_output_tokens);
+  $('homeAiCalls').textContent=calls.toLocaleString('zh-TW');
+  $('homeAiInputTokens').textContent=input.toLocaleString('zh-TW');
+  $('homeAiOutputTokens').textContent=output.toLocaleString('zh-TW');
+  $('homeAiTotalTokens').textContent=(input+output).toLocaleString('zh-TW');
+  const ok=Number(usage.completed_calls)||0,failed=Number(usage.failed_calls)||0;
+  status.textContent=(data.day?'台灣時間 '+data.day+' · ':'')+'成功 '+ok+' 次 · 失敗 '+failed+' 次'+
+   (Number.isFinite(Number(data.cap))?' · 上限 '+Number(data.cap).toLocaleString('zh-TW')+' 次':'')+
+   ' · 數值為後端已紀錄用量';
+ }catch(e){
+  status.textContent='AI API 用量暫時無法讀取：'+e.message;
  }
 }
 function renderHomeProjects(projects){
