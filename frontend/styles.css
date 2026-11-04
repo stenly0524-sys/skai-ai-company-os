@@ -1119,6 +1119,7 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
 @media (min-width:1051px) and (min-height:590px){
  body[data-current-page="home"]{overflow:hidden}
  body[data-current-page="home"] .app-shell{
+  margin:8px auto!important;
   height:calc(100dvh - 16px)!important;min-height:0!important;
   max-height:calc(100dvh - 16px)!important;
  }
