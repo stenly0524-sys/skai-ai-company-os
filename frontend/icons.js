@@ -34,6 +34,35 @@ export function applyInterfaceIcons(){
  });
  const face=document.getElementById('employeeFace');if(face)face.replaceChildren(makeIcon('employees'));
  const chief=document.querySelector('.mini-face');if(chief)chief.replaceChildren(makeIcon('chief_of_staff'));
+ function decorateActionButton(button){
+  if(button.querySelector('.skai-icon'))return;
+  const name=button.textContent.trim();
+  if(!name)return;
+  const rules=[
+   [/CEO|審核|核准|批准|待審批/, 'approvals'],
+   [/驗收|完成/, 'validation'],
+   [/分析|執行|協作|生成分工/, 'orchestrations'],
+   [/恢復|重新整理|更新/, 'operations'],
+   [/報告|查看|閱讀/, 'knowledge'],
+   [/收合|進度/, 'progress'],
+   [/匯出|匯入|專案/, 'projects'],
+   [/通知|提醒/, 'notifications'],
+   [/對話|詢問|AI/, 'chief_of_staff'],
+   [/任務/, 'tasks']
+  ];
+  const icon=rules.find(([regexp])=>regexp.test(name))?.[1];
+  if(icon)button.prepend(makeIcon(icon));
+ }
+ function updateActionIcons(root=document){
+  root.querySelectorAll('button.outline-btn,button.text-btn,button.primary-btn').forEach(decorateActionButton);
+ }
+ updateActionIcons();
+ for(const id of ['orchestrationList','approvalList','projectList','taskList','notificationList']){
+  const root=document.getElementById(id);
+  if(!root)continue;
+  const observer=new MutationObserver(()=>updateActionIcons(root));
+  observer.observe(root,{childList:true,subtree:true});
+ }
  const other=[
   ['#ceoInfo','ceo'],['#closeEmployee','settings'],['#useLocal','settings'],['#useCloud','relationships'],
   ['#employeeChat','relationships'],['#projectForm [type="submit"]','projects'],
