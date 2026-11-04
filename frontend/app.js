@@ -607,6 +607,7 @@ $('chatPreviewForm').addEventListener('submit',async event=>{
  finally{button.disabled=false;}
 });
 $('useLocal').addEventListener('click',async()=>{
+ $('workspaceToggle').hidden=true;
  useLocalWorkspace();
  roleConversations.clear();
  await chooseChat(currentEmployee);
@@ -616,6 +617,7 @@ $('useLocal').addEventListener('click',async()=>{
  showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
 });
 $('useCloud').addEventListener('click',async()=>{
+ $('workspaceToggle').hidden=true;
  useCloudWorkspace();
  roleConversations.clear();
  await chooseChat(currentEmployee);
