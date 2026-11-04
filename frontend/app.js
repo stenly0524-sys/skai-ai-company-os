@@ -370,7 +370,7 @@ function renderProjectCards(){
  });
  if(!rows.length){root.append(el('p','helper','沒有符合條件的專案。'));return;}
  for(const p of rows){
-  const button=el('button','visual-project-row');button.type='button';button.addEventListener('click',()=>showToast('專案：'+p.name+'。詳細內容與任務關聯持續開發中。'));
+  const button=el('button','visual-project-row');button.type='button';button.addEventListener('click',()=>openQuickProject(p));
   const graphic=el('span','project-graphic','▣');const body=el('span','project-row-main');
   body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
   const stage=el('span','status-pill',p.status==='closed'?'已完成':p.stage==='active'?'進行中':'規劃中');
@@ -379,6 +379,19 @@ function renderProjectCards(){
   meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));root.append(button);
  }
 }
+async function openQuickProject(project){
+ const panel=$('projectQuickDetail');if(!panel)return;
+ panel.hidden=false;$('quickProjectName').textContent=project.name;
+ $('quickProjectGoal').textContent=project.goal||'尚未設定專案目標';
+ $('quickProjectStatus').textContent='階段：'+(project.stage||'未設定')+'｜進度：'+(project.progress===undefined||project.progress===null?'未設定':project.progress+'%');
+ try{
+  const data=await api('/tasks');
+  const linked=(data.tasks||[]).filter(t=>t.project_id===project.id);
+  renderList($('quickProjectTasks'),linked,'這個專案尚無已保存任務。',t=>listItem(t.title,((statuses[t.status]||t.status)+' · '+(t.brief||''))));
+ }catch(e){$('quickProjectTasks').replaceChildren(el('p','helper','讀取相關任務失敗：'+e.message));}
+ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('closeQuickDetail')?.addEventListener('click',()=>{$('projectQuickDetail').hidden=true;});
 function renderTaskCards(){
  const root=$('taskCards');if(!root)return;root.replaceChildren();
  const q=$('taskSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
