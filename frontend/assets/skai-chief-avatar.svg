@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 270" role="img" aria-label="AI 幕僚長虛擬人物">
+<defs><linearGradient id="bg" x2=".9" y2="1"><stop stop-color="#f8fbff"/><stop offset="1" stop-color="#d8e8ff"/></linearGradient><linearGradient id="j" x2="1" y2="1"><stop stop-color="#354357"/><stop offset="1" stop-color="#141d2c"/></linearGradient><linearGradient id="hair" x2="1" y2="1"><stop stop-color="#3c4654"/><stop offset="1" stop-color="#1c2532"/></linearGradient><radialGradient id="face"><stop stop-color="#ffe2c8"/><stop offset="1" stop-color="#efb994"/></radialGradient></defs>
+<rect width="240" height="270" rx="24" fill="url(#bg)"/><ellipse cx="117" cy="256" rx="100" ry="22" fill="#8095b5" opacity=".13"/>
+<path d="M26 273q9-67 45-77l43-15 46 2 34 15q31 16 38 75" fill="url(#j)"/>
+<path d="M89 190l27 15 31-16 13 80H77Z" fill="#edf1f6"/><path d="M113 203l-14 20 17 48 16-48Z" fill="#444c62"/>
+<path d="M94 167h44v38q-23 20-44 0Z" fill="#efbd9d"/>
+<ellipse cx="117" cy="113" rx="65" ry="80" fill="url(#face)"/><ellipse cx="53" cy="127" rx="11" ry="18" fill="#e6a982"/><ellipse cx="179" cy="127" rx="11" ry="18" fill="#e6a982"/>
+<path d="M53 112Q34 84 51 56q13-16 21-13 0-31 50-30 59-1 69 42 8 36-11 63l-8-29q-16 10-34-9-39 20-79 12Z" fill="url(#hair)"/>
+<path d="M49 82Q58 35 102 38q-10 6-16 19 42-35 85-8-23-3-41 11 32-9 51 3" fill="none" stroke="#56616b" stroke-width="7" stroke-linecap="round" opacity=".6"/>
+<path d="M78 118q13-7 29 0M131 118q12-8 25-1" stroke="#473c39" stroke-width="4" stroke-linecap="round" fill="none"/>
+<ellipse cx="93" cy="129" rx="7" ry="9" fill="#222d38"/><ellipse cx="143" cy="129" rx="7" ry="9" fill="#222d38"/><circle cx="95" cy="126" r="2.5" fill="white"/><circle cx="145" cy="126" r="2.5" fill="white"/>
+<path d="M112 134q-8 15 4 15" stroke="#b57e63" stroke-width="3" fill="none"/><path d="M99 158q18 10 35-2" stroke="#b07665" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M31 271q9-61 36-70l31-11 19 24-33 59" fill="#303d51"/><path d="M209 271q-9-61-36-70l-31-11-19 24 33 59" fill="#354154"/>
+<path d="M78 210l26 12-10 13 15 37M154 210l-25 12 10 13-14 37" fill="none" stroke="#76859c" stroke-width="3"/>
+</svg>
