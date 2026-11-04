@@ -41,12 +41,12 @@
         </div>
         <div class="content-grid">
           <div class="primary-area">
-            <section class="card home-todo-card"><div class="section-top"><h2><span class="sparkle">✦</span> 今日重點</h2><button class="text-btn" data-jump="tasks">查看任務</button></div><div class="data-list" id="homeTodoList"><p class="helper">登入後讀取待辦任務。</p></div></section>
+            <section class="card home-todo-card"><div class="section-top"><h2><span class="sparkle">✦</span> 今日重點</h2><button class="text-btn" data-no-icon data-jump="tasks">查看任務</button></div><div class="data-list" id="homeTodoList"><p class="helper">登入後讀取待辦任務。</p></div></section>
             <p class="helper subtle-source" id="companyDataSource">連線確認中</p>
 
           </div>
           <aside class="secondary-area">
-            <section class="card progress-overview"><div class="section-top"><h2>專案進度總覽</h2><button class="text-btn" data-jump="projects">查看全部 ›</button></div>
+            <section class="card progress-overview"><div class="section-top"><h2>專案進度總覽</h2><button class="text-btn" data-no-icon data-jump="projects">查看全部 ›</button></div>
                <div id="homeProjectBars" class="project-bars"><p class="helper">登入後讀取專案進度。</p></div><div id="projectSnapshot" class="visually-hidden" aria-live="polite"></div>
             </section>
             <section class="card home-ai-usage" aria-labelledby="homeAiUsageTitle">
@@ -62,7 +62,7 @@
               </div>
               <p id="homeAiStatus" class="home-ai-status" role="status">登入後讀取 AI API 使用資料。</p>
             </section>
-            <section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji">＋</span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji">▣</span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji">⌕</span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji">▥</span>查看報表</button></div></section>
+            <section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji" aria-hidden="true"></span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji" aria-hidden="true"></span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji" aria-hidden="true"></span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji" aria-hidden="true"></span>查看報表</button></div></section>
             <div id="todayHighlights" class="visually-hidden" aria-live="polite"></div>
             
           </aside>
