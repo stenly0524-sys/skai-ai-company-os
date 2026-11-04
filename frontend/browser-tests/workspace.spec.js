@@ -461,3 +461,56 @@ test('portrait: circular bottom icons, clean KPI and header links, unified quick
  const png=await page.screenshot({type:'jpeg',quality:54,fullPage:false});
  console.log('SKAI_MOBILE_V11_BASE64='+png.toString('base64'));
 });
+
+test('HQ desktop one-screen compact layout, crown and simplified text',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/');
+ await page.locator('#openSettings').click();
+ await page.locator('#useLocal').click();
+ await expect(page.locator('#homeAiUsageTitle')).toHaveText('Token流量');
+ await expect(page.locator('#homeAiUsageTitle')).not.toContainText('資訊部');
+ await expect(page.locator('#page-home .home-ai-usage .home-ai-caption')).toHaveCount(0);
+ await expect(page.locator('#page-home .home-ai-usage .section-top .text-btn .skai-icon')).toHaveCount(0);
+ await expect(page.locator('#projectLabel')).toBeHidden();
+ await expect(page.locator('#taskLabel')).toBeHidden();
+ await expect(page.locator('#costLabel')).toBeHidden();
+ await expect(page.locator('#page-home .kpi')).toContainText(['進行中專案','待辦任務','本週完成率','本月算力成本']);
+ await expect(page.locator('#ceoInfo')).not.toContainText('👨🏻‍💼');
+ await expect(page.locator('#ceoInfo .skai-icon svg')).toHaveCount(1);
+ await expect(page.locator('#page-home .home-shortcuts .shortcut-emoji svg')).toHaveCount(4);
+ const m=await page.evaluate(()=>{
+  const rect=x=>document.querySelector(x).getBoundingClientRect();
+  const c=rect('.topbar'),t=rect('#todayClock'),h=rect('#page-home'),v=rect('#ceoInfo');
+  return {docHeight:document.documentElement.scrollHeight,viewportHeight:innerHeight,clockTop:t.top,clockBottom:t.bottom,headTop:c.top,headBottom:c.bottom,clockRight:t.right,headRight:c.right,homeBottom:h.bottom,crownWidth:v.width,crownHeight:v.height,
+    shortcuts:[...document.querySelectorAll('#page-home .home-shortcuts .outline-btn')].map(e=>({width:e.getBoundingClientRect().width,icon:e.querySelector('.shortcut-emoji').getBoundingClientRect().width}))};
+ });
+ expect(m.docHeight).toBeLessThanOrEqual(m.viewportHeight+2);
+ expect(m.homeBottom).toBeLessThanOrEqual(m.viewportHeight+2);
+ expect(m.clockTop).toBeGreaterThanOrEqual(m.headTop-1);
+ expect(m.clockBottom).toBeLessThanOrEqual(m.headBottom+1);
+ expect(m.clockRight).toBeLessThanOrEqual(m.headRight+1);
+ expect(m.crownWidth).toBeGreaterThanOrEqual(45);
+ expect(m.crownHeight).toBeGreaterThanOrEqual(45);
+ for(const btn of m.shortcuts){expect(btn.icon).toBeGreaterThanOrEqual(40);expect(btn.icon).toBeLessThanOrEqual(btn.width+2);}
+ const png=await page.screenshot({type:'jpeg',quality:55,fullPage:false});
+ console.log('SKAI_V12_DESKTOP_BASE64='+png.toString('base64'));
+});
+
+test('HQ landscape phone is a single visible screen with all four actions',async({page})=>{
+ await page.setViewportSize({width:844,height:390});
+ await page.goto('/');
+ await page.evaluate(()=>sessionStorage.setItem('skai_v05_workspace_mode','local'));
+ await page.reload();
+ const d=await page.evaluate(()=>{
+  const home=document.querySelector('#page-home').getBoundingClientRect();
+  const cards=[...document.querySelectorAll('#page-home .secondary-area>.card')].map(c=>c.getBoundingClientRect());
+  const buttons=[...document.querySelectorAll('#page-home .home-shortcuts .outline-btn')].map(x=>x.getBoundingClientRect());
+  return {docHeight:document.documentElement.scrollHeight,docWidth:document.documentElement.scrollWidth,width:innerWidth,height:innerHeight,homeBottom:home.bottom,cards:cards.map(r=>({top:r.top,bottom:r.bottom})),buttons:buttons.map(r=>({top:r.top,bottom:r.bottom}))};
+ });
+ expect(d.docWidth).toBeLessThanOrEqual(d.width+2);
+ expect(d.docHeight).toBeLessThanOrEqual(d.height+2);
+ expect(d.homeBottom).toBeLessThanOrEqual(d.height+2);
+ for(const r of [...d.cards,...d.buttons]){expect(r.top).toBeGreaterThanOrEqual(0);expect(r.bottom).toBeLessThanOrEqual(d.height+2);}
+ const png=await page.screenshot({type:'jpeg',quality:55,fullPage:false});
+ console.log('SKAI_V12_LANDSCAPE_BASE64='+png.toString('base64'));
+});
