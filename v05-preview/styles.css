@@ -70,3 +70,9 @@
 }
 
 .preview-banner{position:relative;z-index:60;padding:10px 16px;text-align:center;background:#e5eef6;color:#49667e;font-size:12px;font-weight:650;line-height:1.5}
+
+/* SKAI 精簡總控版本：辦公室縮小、儀表板優先、詳細內容留在分頁。 */
+.home-kpis{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}.home-kpis .kpi{padding:13px 16px}.home-kpis .kpi strong{font-size:26px}.content-grid{grid-template-columns:minmax(0,1fr) minmax(300px,1.12fr)}.office-scene{height:clamp(140px,18vw,205px)}.scene-card{padding:15px}.scene-card .section-top h2{font-size:16px}.scene-card .helper{margin:5px 0}.home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.home-shortcuts .outline-btn{padding:10px 5px;font-size:12px}.secondary-area .data-list{margin-top:8px}.secondary-area .data-item{padding:9px 11px}.secondary-area .data-item>b{font-size:12px}.secondary-area .data-item .helper{font-size:11px}.assistant-intro{margin-bottom:15px}.data-search-label{font-size:12px;color:#63788a;display:block;margin:14px 0 6px}.data-search{width:100%;border:1px solid #dce5ee;border-radius:12px;padding:12px;background:#f8fafc;font-size:15px}.mobile-nav{grid-template-columns:repeat(5,1fr)}
+@media(max-width:900px){.content-grid{grid-template-columns:1fr 1fr}.home-shortcuts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.content-grid{grid-template-columns:1fr}.home-kpis{gap:7px}.home-kpis .kpi{padding:10px}.home-kpis .kpi strong{font-size:22px}.office-scene{height:170px}.home-shortcuts{grid-template-columns:repeat(4,1fr)}.home-shortcuts .outline-btn{font-size:10px;padding:8px 2px}}
+@media(orientation:landscape) and (max-width:1024px) and (max-height:550px){.content-grid{grid-template-columns:1fr 1.12fr}.office-scene{height:145px}.home-kpis{margin-bottom:8px}}
