@@ -3,6 +3,7 @@ import { askModel, AiGatewayError } from './ai.js';
 import { parsePlan, summarizeOutcomes } from './planner.js';
 import { validUuid, compactText } from './security.js';
 import { ROLES } from './roles.js';
+import { departmentReportInstructions, reportQualityIssues } from './report-quality.js';
 
 // Exposed AFTER the existing development authentication middleware.
 // All orchestration effects are internal text generation; no external actions.
@@ -102,13 +103,23 @@ export function orchestrationRouter(db){
   try {
    const done=await db.query("SELECT role_id,result FROM orchestration_steps WHERE run_id=$1 AND status='done' ORDER BY sequence_no",[id]);
    const context=done.rows.map(s=>s.role_id+': '+s.result?.slice(0,2000)).join('\n');
-   outcome=await askModel({role:step.role_id,maxTokens:1600,messages:[
-    {role:'user',content:'請針對已核准內部分析任務提出專業報告，不要假稱已搜尋外部資料或執行操作。說明結論、依據、風險、不確定性、建議及下一步。\n任務：'+task.title+'\n說明：'+task.brief+'\n本部門工作：'+step.instruction+'\n先前部門分析摘要：'+context}
+   outcome=await askModel({role:step.role_id,maxTokens:2400,messages:[
+    {role:'user',content:departmentReportInstructions(step.role_id)+'\n任務：'+task.title+'\n說明：'+task.brief+'\n本部門工作：'+step.instruction+'\n先前部門分析摘要：'+context}
    ]});
   }catch(e){
    await db.query("UPDATE orchestration_steps SET status='failed',last_error=$2 WHERE id=$1 AND status='running'",[step.id,compactText(e?.message||'model_failed',240)]);
    await db.query("UPDATE orchestration_runs SET plan_status='failed',last_error=$2,updated_at=NOW() WHERE id=$1",[id,'AI 呼叫失敗，可由 CEO 再次執行；不會默默重試。']);
    return fail(res,e);
+  }
+  // One paid AI attempt only; never silently retry a substandard report.
+  const qualityIssues=reportQualityIssues(outcome,step.role_id);
+  if(qualityIssues.length){
+   const issueSummary='report_quality_failed: '+qualityIssues.join(', ');
+   try{
+    await db.query("UPDATE orchestration_steps SET status='failed',last_error=$2 WHERE id=$1 AND status='running'",[step.id,issueSummary]);
+    await db.query("UPDATE orchestration_runs SET plan_status='failed',last_error=$2,updated_at=NOW() WHERE id=$1",[id,'AI 報告未通過品質檢查，未納入正式成果；需 CEO 決定是否重新執行。']);
+   }catch(e){console.error('report quality persistence error:',e?.message||e);return fail(res,e)}
+   return res.status(422).json({error:'report_quality_failed',issues:qualityIssues,notice:'已攔截不合格報告並保留失敗紀錄；本次已使用一次 AI 額度，不會自動重試。'});
   }
   try{
    const c=await db.connect();
