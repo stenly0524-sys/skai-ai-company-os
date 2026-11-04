@@ -41,6 +41,7 @@ function showPage(page){
  const more=$('mobileMore');
  if(more){more.classList.toggle('active',['employees','approvals','notifications','department-tech','department-finance'].includes(page));closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
+ document.body.dataset.currentPage=page;
  if(history.replaceState)history.replaceState(null,'','#'+page);
  const headings={home:['早安，CEO','SKAI OS｜個人企業智慧管理中心'],projects:['專案中心','管理所有專案、進度與里程碑'],tasks:['任務中心','管理與追蹤所有任務執行進度'],data:['資料中心','集中管理知識與工作紀錄'],assistant:['AI 幕僚長','你的專屬策略與執行助理']};
  const heading=headings[page]||['SKAI 指揮中心','管理功能'];$('pageTitle').textContent=heading[0];$('pageSubtitle').textContent=heading[1];
@@ -312,6 +313,7 @@ async function loadDashboard(){
  const data=result.counts||{};
  for(const [id,key] of [['statProjects','projects'],['statTasks','active'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
  $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='已保存任務';$('approvalLabel').textContent='已保存審批';
+ const badge=$('taskNavBadge');if(badge){const n=Number(data.pending)||0;badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
  $('companyDataSource').textContent=workspaceMode()==='local'?'本機工作區 · 非跨裝置同步':'SKAI 雲端資料 · 已登入';
  const highlights=$('todayHighlights');
  highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
