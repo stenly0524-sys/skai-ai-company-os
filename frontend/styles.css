@@ -640,3 +640,41 @@ body{background:linear-gradient(135deg,#e8eef7 0%,#f6f8fd 57%,#e8effb 100%);colo
 }
 
 .project-quick-detail{padding:16px 19px;margin:16px 0 24px;border-radius:17px;background:linear-gradient(135deg,#edf5ff,#fff);border:1px solid #cfe0f4}.project-quick-detail[hidden]{display:none}.project-quick-detail h3{font-size:16px;margin:0;color:#27466e}.project-quick-detail .section-heading{margin:12px 0}.project-quick-detail .data-list{margin-top:10px}
+
+/* V0.7 fidelity correction: keep screenshot-style primary screens clean.
+   Creation forms and advanced workflows remain accessible, but are collapsed until requested. */
+.creation-panel[hidden],#chiefPlanContent[hidden],.workspace-toggle[hidden]{display:none!important}
+.sidebar-ceo{display:flex;align-items:center;gap:10px;padding:17px 9px 2px;margin-top:10px;border-top:1px solid #e1eaf5;font-size:13px}
+.sidebar-ceo-avatar{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:#e2eaf8;font-size:24px}
+.sidebar-settings{border:0;background:transparent;color:#758da9;margin-left:auto;font-size:17px}
+.desktop-nav .nav-footer{margin-top:auto;padding-bottom:6px}
+.workspace-toggle{position:absolute;right:36px;top:77px;z-index:20;display:flex;gap:8px;border:1px solid #d4e1f0;background:#fff;border-radius:15px;box-shadow:0 10px 30px #375b8530;padding:8px}
+#page-projects .creation-panel,#page-tasks .creation-panel{margin-top:24px;border:1px solid #dae6f3;border-radius:14px;background:#f4f8ff;padding:14px}
+#page-projects .creation-panel .section-heading,#page-tasks .creation-panel .section-heading{margin:4px 0 13px}
+.chief-plan-collapsible{padding:13px 17px}
+#toggleChiefPlans{width:100%;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800}
+#chiefPlanContent{padding-top:12px}
+#page-home .scene-heading{display:none}
+#page-home .scene-bottom{display:none}
+#page-home .scene-card{padding:8px}
+#page-home .office-scene{height:183px!important;max-height:183px!important;background-size:cover!important}
+#page-home .mobile-office-grid{display:none!important}
+#page-home .home-todo-card{min-height:167px}
+#page-home .progress-overview{min-height:215px}
+#page-home .home-action-card{min-height:112px}
+#page-assistant .chief-avatar{background:linear-gradient(125deg,#f6faff,#dbe7fb);border-radius:21px;overflow:hidden;box-shadow:none}
+#page-assistant .chief-avatar img{object-fit:contain;width:100%;height:100%}
+#page-assistant .assistant-hero{max-width:930px}
+#page-assistant .assistant-hero-body{grid-template-columns:170px 1fr}
+#page-projects .listing-card,#page-tasks .listing-card{min-height:580px}
+#page-projects .visual-project-list{gap:9px}
+#page-projects .visual-project-row{min-height:70px}
+#page-projects .visual-project-row .project-graphic{font-size:30px}
+#page-data .knowledge-tiles .knowledge-tile{min-height:141px}
+@media(max-width:720px){
+ .sidebar-ceo{display:none}
+ .workspace-toggle{position:fixed;right:8px;top:67px}
+ #page-home .office-scene{height:175px!important;max-height:175px!important}
+ #page-assistant .assistant-hero-body{grid-template-columns:100px 1fr}
+ #page-projects .listing-card,#page-tasks .listing-card{min-height:0}
+}
