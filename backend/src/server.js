@@ -173,6 +173,7 @@ app.post('/api/chat',async(req,res)=>{
    reply=await askModel({role,maxTokens:1100,messages:[...history,{role:'user',content:prompt}]});
   }catch(e){
    if(e instanceof AiGatewayError && e.message==='ai_daily_limit_reached')return res.status(429).json({error:'ai_daily_limit_reached'});
+   if(e instanceof AiGatewayError && e.message==='ai_disabled_by_ceo')return res.status(503).json({error:'ai_disabled_by_ceo'});
    if(e instanceof AiGatewayError){
     // Only share safe categories; never expose private model response or API credentials.
     const upstream=/^ai_upstream_http_(\d{3})$/.exec(e.message);
