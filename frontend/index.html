@@ -109,13 +109,16 @@
 </div>
 <nav class="mobile-nav" aria-label="手機底部導覽">
   <button class="mobileitem active" data-page="home"><span>⌂</span>總部</button>
-  <button class="mobileitem" data-page="employees"><span>♙</span>員工</button>
   <button class="mobileitem" data-page="projects"><span>▦</span>專案</button>
   <button class="mobileitem" data-page="tasks"><span>☷</span>任務</button>
   <button class="mobileitem" data-page="orchestrations"><span>◇</span>協作</button>
   <button class="mobileitem" data-page="approvals"><span>✓</span>審批</button>
-  <button class="mobileitem" data-page="notifications"><span>◌</span>通知</button>
+  <button class="mobileitem" id="mobileMore" type="button" aria-expanded="false" aria-controls="mobileMoreMenu"><span>☰</span>更多</button>
 </nav>
+<div class="mobile-more-menu" id="mobileMoreMenu" hidden>
+  <button class="mobile-more-link" data-page="employees"><span>♙</span> AI 員工</button>
+  <button class="mobile-more-link" data-page="notifications"><span>◌</span> 公司通知</button>
+</div>
 <dialog id="employeeDialog" class="employee-dialog" aria-labelledby="employeeTitle">
   <div class="dialog-top"><span class="overline">SKAI / EMPLOYEE</span><button id="closeEmployee" class="icon-close" aria-label="關閉員工資訊">×</button></div>
   <div class="dialog-identity"><span id="employeeFace" class="large-face"></span><div><h2 id="employeeTitle"></h2><p id="employeeCode"></p></div></div>
