@@ -50,6 +50,32 @@ export const localCompany={
    return approval;
   });
  },
+ deletionPreview(projectId){
+  const st=readLocal();if(!st.projects.some(p=>p.id===projectId))throw Error('找不到專案');
+  const tasks=st.tasks.filter(t=>t.project_id===projectId);
+  return {counts:{tasks:tasks.length,conversations:0,runs:0},blocked:false};
+ },
+ deleteProject(projectId){
+  return change(st=>{
+   const i=st.projects.findIndex(p=>p.id===projectId);if(i<0)throw Error('找不到專案');
+   const p=st.projects.splice(i,1)[0];const taskIds=new Set(st.tasks.filter(t=>t.project_id===projectId).map(t=>t.id));
+   st.tasks=st.tasks.filter(t=>!taskIds.has(t.id));st.approvals=st.approvals.filter(x=>!taskIds.has(x.task_id));return p;
+  });
+ },
+ deleteTask(taskId){
+  return change(st=>{
+   const i=st.tasks.findIndex(t=>t.id===taskId);if(i<0)throw Error('找不到任務');
+   const task=st.tasks.splice(i,1)[0];st.approvals=st.approvals.filter(x=>x.task_id!==taskId);return task;
+  });
+ },
+ transitionTask(taskId,status){
+  const allowed={approved:['in_progress'],in_progress:['review'],review:['done'],paused:['in_progress']};
+  return change(st=>{
+   const task=st.tasks.find(t=>t.id===taskId);if(!task)throw Error('找不到任務');
+   if(!allowed[task.status]?.includes(status))throw Error('任務狀態不允許此操作');
+   task.status=status;task.updated_at=new Date().toISOString();return task;
+  });
+ },
  exportJson:()=>JSON.stringify({exported_at:new Date().toISOString(),...readLocal()},null,2),
  importJson(text){
   const incoming=assertWorkspace(JSON.parse(text));

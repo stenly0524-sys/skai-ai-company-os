@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROLES, systemPrompt } from './roles.js';
 import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
-import { approvalDecision } from './workflow.js';
+import { approvalDecision, requireTransition } from './workflow.js';
 import { orchestrationRouter } from './orchestration.js';
 import { operationsRouter } from './ops-router.js';
 import { askModel, configureAiUsage, AiGatewayError } from './ai.js';
@@ -84,6 +84,73 @@ app.post('/api/projects', async(req,res) => {
   const q=await client.query('INSERT INTO projects(name,goal) VALUES($1,$2) RETURNING *',[name,goal]);
   await record(client,'project.created','project',q.rows[0].id);
   await client.query('COMMIT');res.status(201).json({project:q.rows[0]});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+// CEO-only deletion endpoints. Existing session authentication and CSRF middleware apply.
+app.get('/api/projects/:id/deletion-preview', async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_project_id'});
+ try{
+  const project=await db.query('SELECT id,name FROM projects WHERE id=$1',[id]);
+  if(!project.rowCount)return res.status(404).json({error:'project_not_found'});
+  const r=await db.query(`SELECT
+   (SELECT COUNT(*) FROM tasks WHERE project_id=$1)::int tasks,
+   (SELECT COUNT(*) FROM conversations WHERE project_id=$1)::int conversations,
+   (SELECT COUNT(*) FROM orchestration_runs WHERE task_id IN (SELECT id FROM tasks WHERE project_id=$1))::int runs,
+   (SELECT COUNT(*) FROM orchestration_runs WHERE task_id IN (SELECT id FROM tasks WHERE project_id=$1) AND plan_status='running')::int running`,[id]);
+  res.json({counts:r.rows[0],blocked:r.rows[0].running>0});
+ }catch(e){sendError(res,e);}
+});
+app.delete('/api/projects/:id',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_project_id'});
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const p=await client.query('SELECT id,name FROM projects WHERE id=$1 FOR UPDATE',[id]);
+  if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  const active=await client.query("SELECT r.id FROM orchestration_runs r JOIN tasks t ON t.id=r.task_id WHERE t.project_id=$1 AND r.plan_status='running' LIMIT 1 FOR UPDATE OF r",[id]);
+  if(active.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'project_has_running_ai_jobs'});}
+  const count=await client.query('SELECT COUNT(*)::int n FROM tasks WHERE project_id=$1',[id]);
+  await client.query('DELETE FROM messages WHERE conversation_id IN (SELECT id FROM conversations WHERE project_id=$1)',[id]);
+  await client.query('DELETE FROM conversations WHERE project_id=$1',[id]);
+  await client.query('DELETE FROM approvals WHERE task_id IN (SELECT id FROM tasks WHERE project_id=$1)',[id]);
+  await client.query('DELETE FROM orchestration_runs WHERE task_id IN (SELECT id FROM tasks WHERE project_id=$1)',[id]);
+  await client.query('DELETE FROM tasks WHERE project_id=$1',[id]);
+  // Preserve immutable audit evidence; no user data is silently repurposed.
+  await record(client,'project.deleted','project',id,{name:p.rows[0].name,task_count:count.rows[0].n});
+  await client.query('DELETE FROM projects WHERE id=$1',[id]);
+  await client.query('COMMIT');
+  res.json({ok:true,deleted_project:id,deleted_tasks:count.rows[0].n});
+ }catch(e){await client.query('ROLLBACK');if(e.code==='23503')return res.status(409).json({error:'project_has_other_dependencies'});sendError(res,e);}
+ finally{client.release();}
+});
+app.delete('/api/tasks/:id',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const t=await client.query('SELECT id,title,project_id FROM tasks WHERE id=$1 FOR UPDATE',[id]);
+  if(!t.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  const active=await client.query("SELECT id FROM orchestration_runs WHERE task_id=$1 AND plan_status='running' LIMIT 1 FOR UPDATE",[id]);
+  if(active.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'task_has_running_ai_job'});}
+  await client.query('DELETE FROM approvals WHERE task_id=$1',[id]);
+  await client.query('DELETE FROM orchestration_runs WHERE task_id=$1',[id]);
+  await record(client,'task.deleted','task',id,{title:t.rows[0].title,project_id:t.rows[0].project_id});
+  await client.query('DELETE FROM tasks WHERE id=$1',[id]);
+  await client.query('COMMIT');res.json({ok:true,deleted_task:id});
+ }catch(e){await client.query('ROLLBACK');if(e.code==='23503')return res.status(409).json({error:'task_has_other_dependencies'});sendError(res,e);}finally{client.release();}
+});
+app.post('/api/tasks/:id/transition',async(req,res)=>{
+ const id=req.params.id,status=req.body?.status;
+ if(!uuid(id)||typeof status!=='string')return res.status(400).json({error:'invalid_task_transition'});
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const t=await client.query('SELECT id,status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
+  if(!t.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  try{requireTransition(t.rows[0].status,status);}catch{await client.query('ROLLBACK');return res.status(409).json({error:'invalid_task_transition'});}
+  const updated=await client.query('UPDATE tasks SET status=$2,updated_at=NOW() WHERE id=$1 RETURNING *',[id,status]);
+  await record(client,'task.transition','task',id,{from:t.rows[0].status,to:status});
+  await client.query('COMMIT');res.json({task:updated.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
 app.get('/api/tasks', async(req,res) => {
