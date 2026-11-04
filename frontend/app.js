@@ -198,6 +198,20 @@ async function loadDashboard(){
  $('projectLabel').textContent='資料庫紀錄';
  $('taskLabel').textContent='資料庫紀錄';
  $('approvalLabel').textContent='資料庫紀錄';
+ $('companyDataSource').textContent=workspaceMode()==='local'?'本機資料':'Neon 雲端資料';
+ const projectCount=Number(data.counts?.projects)||0;
+ const activeCount=Number(data.counts?.active)||0;
+ const pendingCount=Number(data.counts?.pending)||0;
+ const highlights=$('todayHighlights');
+ highlights.replaceChildren(
+  el('p','',pendingCount>0?'目前有 '+pendingCount+' 項待 CEO 審批':'目前沒有待 CEO 審批項目'),
+  el('small','',activeCount+' 項任務進行中。資料取自 SKAI 已保存的任務與審批紀錄。')
+ );
+ const snapshot=$('projectSnapshot');
+ snapshot.replaceChildren(
+  el('p','',projectCount+' 個進行中的專案'),
+  el('small','','目前統計未結案的專案；可至「專案」頁查看詳細資料。')
+ );
  try{
   if(workspaceMode()==='local'){
    $('usageSummary').textContent='本機模式無雲端 AI API 用量。';
