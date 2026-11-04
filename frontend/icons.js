@@ -11,7 +11,7 @@ export function makeIcon(name){
  svg.append(path);span.append(svg);
  return span;
 }
-const navPages={home:'home',employees:'employees',projects:'projects',tasks:'tasks',orchestrations:'orchestrations',approvals:'approvals',notifications:'notifications','department-tech':'tech','department-finance':'finance'};
+const navPages={home:'home',employees:'employees',projects:'projects',tasks:'tasks',data:'knowledge',assistant:'chief_of_staff',orchestrations:'orchestrations',approvals:'approvals',notifications:'notifications','department-tech':'tech','department-finance':'finance'};
 export function applyInterfaceIcons(){
  document.querySelectorAll('.navitem[data-page],.mobileitem[data-page],.mobile-more-link[data-page]').forEach(button=>{
   const icon=navPages[button.dataset.page]||'home';

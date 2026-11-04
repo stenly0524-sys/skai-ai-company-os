@@ -39,7 +39,7 @@ function showPage(page){
   if(active)nav.setAttribute('aria-current','page');else nav.removeAttribute('aria-current');
  }
  const more=$('mobileMore');
- if(more){more.classList.toggle('active',page==='employees'||page==='notifications'||page==='department-tech'||page==='department-finance');closeMobileMore();}
+ if(more){more.classList.toggle('active',['employees','approvals','notifications','department-tech','department-finance'].includes(page));closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
  if(history.replaceState)history.replaceState(null,'','#'+page);
  if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
@@ -329,6 +329,7 @@ async function loadDashboard(){
 async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await loadDashboard();
+ if(page==='data')await loadDataIndex();
  if(page==='projects')await loadProjects();
  if(page==='tasks'){await loadProjects();await loadTasks();await loadOrchestrations();}
  if(page==='approvals')await loadApprovals();
@@ -485,7 +486,7 @@ async function chooseChat(role){
  }
 }
 $('employeeChat').addEventListener('click',()=>{
- dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ dialog.close();showPage('assistant');chooseChat(currentEmployee);$('chatText').focus();
  if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
  else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
 });
@@ -539,7 +540,25 @@ $('importWorkspace').addEventListener('change',async e=>{
  }catch(error){showToast(error.message);}
  finally{e.target.value='';}
 });
+async function loadDataIndex(){
+ const target=$('dataResults');if(!target)return;
+ if(!isSignedIn){target.replaceChildren(el('p','helper','請先登入或切換至本機工作區。'));return;}
+ try{
+  const [projects,tasks]=await Promise.all([api('/projects'),api('/tasks')]);
+  const q=$('dataSearch').value.trim().toLocaleLowerCase('zh-TW');
+  const rows=[
+   ...(projects.projects||[]).map(p=>({kind:'project',name:p.name,text:p.goal||'',id:p.id})),
+   ...(tasks.tasks||[]).map(t=>({kind:'task',name:t.title,text:t.brief||'',id:t.id}))
+  ].filter(x=>(x.name+' '+x.text).toLocaleLowerCase('zh-TW').includes(q)).slice(0,100);
+  renderList(target,rows,'找不到符合條件的資料。',x=>{
+   const button=el('button','outline-btn',x.kind==='project'?'開啟專案':'開啟任務');
+   button.type='button';button.addEventListener('click',()=>showPage(x.kind==='project'?'projects':'tasks'));
+   return listItem((x.kind==='project'?'專案｜':'任務｜')+x.name,x.text||'無說明',button);
+  });
+ }catch(e){target.replaceChildren(el('p','helper','資料搜尋失敗：'+e.message));}
+}
+$('dataSearch').addEventListener('input',()=>loadDataIndex());
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
-if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance'].includes(initialPage))showPage(initialPage);
+if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','assistant','data'].includes(initialPage))showPage(initialPage);
 startSession();
