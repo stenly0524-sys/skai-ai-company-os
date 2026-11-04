@@ -80,8 +80,13 @@ $('loginForm').addEventListener('submit',async event=>{
 const statuses=TASK_STATUS;
 async function loadProjects(){
  const data=await api('/projects');projectCache=data.projects||[];
- renderList($('projectList'),projectCache,'目前沒有專案。請先與幕僚長討論，再由 CEO 建立。',p=>
-  listItem(p.name,p.goal||'未填寫目標',el('span','quiet-pill',p.stage||'draft')));
+ renderList($('projectList'),projectCache,'目前沒有專案。請先建立第一個專案。',p=>{
+  const tools=el('div','inline-actions');
+  tools.append(el('span','quiet-pill',String(p.progress??0)+'%'));
+  const edit=el('button','outline-btn','更新進度');edit.type='button';
+  edit.addEventListener('click',()=>openProjectEditor(p));tools.append(edit);
+  return listItem(p.name,p.notes||p.goal||'尚無專案描述',tools);
+ });
  const select=$('taskProject');
  const old=select.value;select.replaceChildren(new Option('選擇專案',''));
  for(const p of projectCache)select.add(new Option(p.name,p.id));
@@ -89,8 +94,15 @@ async function loadProjects(){
 }
 async function loadTasks(){
  const data=await api('/tasks');
- renderList($('taskList'),data.tasks||[],'目前尚未建立任務。',t=>
-  listItem(t.title,t.brief,el('span','quiet-pill',statuses[t.status]||t.status)));
+ renderList($('taskList'),data.tasks||[],'目前尚未建立任務。',t=>{
+  const actions=el('div','inline-actions');
+  actions.append(el('span','quiet-pill',(statuses[t.status]||t.status)+' · '+String(t.progress??0)+'%'));
+  if(!['proposed','rejected'].includes(t.status)){
+   const edit=el('button','outline-btn','更新狀態');edit.type='button';
+   edit.addEventListener('click',()=>openTaskEditor(t));actions.append(edit);
+  }
+  return listItem(t.title,t.brief||'未填寫說明',actions);
+ });
 }
 async function loadApprovals(){
  const data=await api('/approvals');
@@ -103,7 +115,7 @@ async function loadApprovals(){
     const message=decision==='approved'?'確認核准這項任務？':'確認駁回這項任務？';
     if(!confirm(message))return;
     button.disabled=true;
-    try{await api('/approvals/'+encodeURIComponent(a.id)+'/decision',{method:'POST',body:{decision,note:'CEO 於指揮中心決策'}});showToast('決策已保存');await Promise.all([loadApprovals(),loadDashboard()]);}
+    try{await api('/approvals/'+encodeURIComponent(a.id)+'/decision',{method:'POST',body:{decision,note:'CEO 於指揮中心決策'}});showToast('決策已保存');await Promise.all([loadApprovals(),loadDashboard(),loadTasks(),loadHomeSummary()]);}
     catch(e){showToast('審批失敗：'+e.message);button.disabled=false;}
    });
    actions.append(button);
@@ -140,7 +152,7 @@ $('projectForm').addEventListener('submit',async event=>{
  const fd=new FormData(event.currentTarget),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
  if(!name)return;
  const button=event.currentTarget.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/projects',{method:'POST',body:{name,goal}});event.currentTarget.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ try{await api('/projects',{method:'POST',body:{name,goal}});event.currentTarget.reset();await Promise.all([loadProjects(),loadDashboard(),loadHomeSummary(),loadDataIndex()]);showToast('專案已儲存');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
@@ -149,7 +161,7 @@ $('taskForm').addEventListener('submit',async event=>{
  const fd=new FormData(event.currentTarget);
  const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
  const button=event.currentTarget.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/tasks',{method:'POST',body});event.currentTarget.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ try{await api('/tasks',{method:'POST',body});event.currentTarget.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard(),loadHomeSummary(),loadDataIndex()]);showToast('任務已送至 CEO 審批');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
@@ -160,7 +172,7 @@ function chooseChat(role){
  history.append(el('p','helper','對話對象：'+role.name+'。如需查閱歷史紀錄，請待對話歷史畫面整合。'));
 }
 $('employeeChat').addEventListener('click',()=>{
- dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ dialog.close();showPage('assistant');chooseChat(currentEmployee);$('chatText').focus();
  if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
  else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
 });
@@ -214,7 +226,7 @@ async function loadHomeSummary(){
  try{
   const [p,t,a]=await Promise.all([api('/projects'),api('/tasks'),api('/approvals')]);
   const projects=(p.projects||[]).slice(0,4),tasks=(t.tasks||[]).filter(x=>x.status!=='approved'&&x.status!=='rejected').slice(0,3),approvals=(a.approvals||[]).slice(0,2);
-  renderList($('homeProjects'),projects,'尚無專案。可從「專案」建立。',x=>listItem(x.name,x.goal||'尚無簡介',el('span','quiet-pill',x.stage||'規劃中')));
+  renderList($('homeProjects'),projects,'尚無專案。可從「專案」建立。',x=>listItem(x.name,(x.notes||x.goal||'尚無簡介'),el('span','quiet-pill',String(x.progress??0)+'%')));
   renderList($('homeHighlights'),[...approvals.map(x=>({title:'待審批：'+x.title,brief:'需要 CEO 核准'})),...tasks.map(x=>({title:x.title,brief:'任務進度：'+(statuses[x.status]||x.status)}))],'目前沒有待處理事項。',x=>listItem(x.title,x.brief));
  }catch(e){$('homeHighlights').textContent='目前無法讀取任務摘要';$('homeProjects').textContent='目前無法讀取專案摘要';}
 }
@@ -229,6 +241,40 @@ async function loadDataIndex(){
  }catch(e){target.textContent='無法讀取資料：'+e.message;}
 }
 $('dataSearch').addEventListener('input',()=>loadDataIndex());
+function openProjectEditor(p){
+ const panel=$('projectEditor'),form=$('projectEditForm');
+ panel.hidden=false;form.elements.id.value=p.id;
+ $('projectEditName').value=p.name;
+ form.elements.stage.value=['draft','planning','active','paused','completed'].includes(p.stage)?p.stage:'planning';
+ form.elements.progress.value=Number(p.progress??0);
+ form.elements.notes.value=p.notes||'';
+ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function openTaskEditor(t){
+ const panel=$('taskEditor'),form=$('taskEditForm');
+ panel.hidden=false;form.elements.id.value=t.id;$('taskEditName').value=t.title;
+ form.elements.status.value=['approved','in_progress','review','done','paused'].includes(t.status)?t.status:'approved';
+ form.elements.progress.value=Number(t.progress??0);
+ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('projectEditForm').addEventListener('submit',async event=>{
+ event.preventDefault();const f=event.currentTarget;
+ const body={stage:f.elements.stage.value,progress:Number(f.elements.progress.value),notes:f.elements.notes.value};
+ try{await api('/projects/'+encodeURIComponent(f.elements.id.value),{method:'PATCH',body});
+  $('projectEditor').hidden=true;
+  await Promise.all([loadProjects(),loadDashboard(),loadHomeSummary(),loadDataIndex()]);
+  showToast('專案進度已更新');
+ }catch(e){showToast('無法更新專案：'+e.message);}
+});
+$('taskEditForm').addEventListener('submit',async event=>{
+ event.preventDefault();const f=event.currentTarget;
+ const body={status:f.elements.status.value,progress:Number(f.elements.progress.value)};
+ try{await api('/tasks/'+encodeURIComponent(f.elements.id.value),{method:'PATCH',body});
+  $('taskEditor').hidden=true;
+  await Promise.all([loadTasks(),loadDashboard(),loadHomeSummary(),loadDataIndex()]);
+  showToast('任務狀態已更新');
+ }catch(e){showToast('無法更新任務：'+e.message);}
+});
 const initialPage=location.hash.slice(1);
 if(['home','employees','projects','tasks','approvals','notifications','data','assistant'].includes(initialPage))showPage(initialPage);
 startSession();
