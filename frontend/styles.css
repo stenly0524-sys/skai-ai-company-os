@@ -895,3 +895,11 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  #page-home .home-action-card{padding:7px}
  #page-home .home-shortcuts .outline-btn{min-height:0}
 }
+
+@media(min-width:1201px) and (min-height:700px) and (max-height:850px){
+ #page-home .secondary-area{grid-template-rows:224px 164px 100px}
+ #page-home .progress-overview .project-progress-row{padding:3px 2px}
+ #page-home .progress-overview .project-bars{gap:0}
+ #page-home .home-ai-usage .home-ai-metric{padding:5px 5px}
+ #page-home .home-action-card .home-shortcuts .outline-btn{min-height:0;height:100%}
+}
