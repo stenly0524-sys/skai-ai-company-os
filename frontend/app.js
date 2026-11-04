@@ -33,7 +33,11 @@ $('closeEmployee').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
 function showPage(page){
  const target=$('page-'+page);if(!target)return;
- for(const section of document.querySelectorAll('.page'))section.classList.toggle('active',section===target);
+ for(const section of document.querySelectorAll('.page')){
+  const active=section===target;
+  section.classList.toggle('active',active);
+  section.hidden=!active;
+ }
  for(const nav of document.querySelectorAll('[data-page]')){
   const active=nav.dataset.page===page;nav.classList.toggle('active',active);
   if(active)nav.setAttribute('aria-current','page');else nav.removeAttribute('aria-current');

@@ -1088,7 +1088,7 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  max-width:100%;overflow:hidden;text-overflow:ellipsis;
  white-space:nowrap;line-height:1.4;padding:3px 0!important;
  font-size:clamp(10px,.88vw,12px)!important;
- transform:translateY(-4px);
+ transform:translateY(0);
 }
 .topbar .top-actions{display:flex;align-items:center;justify-self:end;min-width:0;gap:8px}
 #page-home .kpi-grid .kpi{display:flex;flex-direction:column;justify-content:center;gap:9px;min-height:0}
@@ -1193,4 +1193,104 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  #page-home .home-shortcuts .outline-btn{min-height:0!important;font-size:9px!important;gap:1px!important}
  #page-home .home-shortcuts .outline-btn .shortcut-emoji{width:32px!important;height:32px!important;margin:0 auto!important}
  #page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{padding:3px!important}
+}
+
+/* SKAI V0.13 — headquarters exclusive visual language */
+#page-home .home-todo-card,
+#page-home .progress-overview{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+}
+/* The two header bars share the identical silver-blue gradient and reach the card's upper edge. */
+#page-home .home-todo-card::before,
+#page-home .progress-overview::before{
+ content:"";
+ position:absolute;
+ z-index:0;
+ top:0;left:0;right:0;
+ height:61px;
+ border-radius:inherit;
+ background:linear-gradient(95deg,#e7eef8,#fafbff);
+ pointer-events:none;
+}
+#page-home .home-todo-card>.section-top,
+#page-home .progress-overview>.section-top{
+ position:relative;
+ z-index:1;
+ box-sizing:border-box;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ margin:0 0 12px!important;
+ padding:8px 10px!important;
+ min-height:43px;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+}
+#page-home .home-todo-card>.section-top h2,
+#page-home .progress-overview>.section-top h2{
+ line-height:1.25;
+ margin:0;
+}
+/* A quick action is just its label and a perfectly centered vector icon in one white circle. */
+#page-home .home-shortcuts .outline-btn{
+ align-items:center!important;
+ justify-content:center!important;
+ text-align:center!important;
+ gap:5px!important;
+}
+#page-home .home-shortcuts .outline-btn>.shortcut-emoji{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:none!important;
+ box-sizing:border-box!important;
+ aspect-ratio:1 / 1!important;
+ border-radius:50%!important;
+ padding:0!important;
+ margin:0 auto 4px!important;
+ background:linear-gradient(145deg,#fff 25%,#f5f9ff)!important;
+}
+#page-home .home-shortcuts .outline-btn>.shortcut-emoji>.skai-icon{
+ box-sizing:border-box!important;
+ width:65%!important;
+ height:65%!important;
+ min-width:0!important;
+ padding:0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+}
+#page-home .home-shortcuts .outline-btn>.shortcut-emoji>.skai-icon>svg{
+ width:100%!important;
+ height:100%!important;
+ display:block!important;
+ margin:0!important;
+}
+/* KPI cards and headquarters reports are never displayed by any other functional screen. */
+main > .page:not(.active){display:none!important}
+body:not([data-current-page="home"]) #page-home{display:none!important}
+@media(orientation:landscape) and (min-width:650px) and (max-height:590px){
+ #page-home .home-todo-card::before,
+ #page-home .progress-overview::before{height:40px}
+ #page-home .home-todo-card>.section-top,
+ #page-home .progress-overview>.section-top{
+  min-height:27px!important;
+  padding:2px 4px!important;
+  margin:0 0 5px!important;
+ }
+}
+@media(max-width:720px) and (orientation:portrait){
+ #page-home .home-todo-card::before,
+ #page-home .progress-overview::before{height:65px}
+ #page-home .home-todo-card>.section-top,
+ #page-home .progress-overview>.section-top{margin-bottom:15px!important}
 }
