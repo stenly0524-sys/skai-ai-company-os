@@ -1294,3 +1294,66 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
  #page-home .home-todo-card>.section-top,
  #page-home .progress-overview>.section-top{margin-bottom:15px!important}
 }
+
+/* V0.14: compact knowledge center, one horizontal row, same circular SVG language as HQ. */
+#page-data .knowledge-tiles{
+ display:grid!important;
+ grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ grid-template-rows:1fr!important;
+ gap:9px!important;
+ width:100%;
+ margin:16px 0 18px!important;
+ align-items:stretch;
+}
+#page-data .knowledge-tiles .knowledge-tile{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:5px!important;
+ min-width:0!important;
+ min-height:117px!important;
+ padding:10px 5px!important;
+ text-align:center;
+ border-radius:14px;
+}
+#page-data .knowledge-tile .knowledge-icon{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:49px!important;
+ height:49px!important;
+ min-width:49px!important;
+ border-radius:50%!important;
+ background:linear-gradient(145deg,#fff 25%,#eef5ff)!important;
+ border:1px solid #d4e3f6!important;
+ box-shadow:0 5px 13px #4678b32a!important;
+ color:#2679dd!important;
+}
+#page-data .knowledge-tile .knowledge-icon .skai-icon{
+ width:30px!important;height:30px!important;display:grid!important;
+ place-items:center!important;padding:3px!important;
+ margin:0!important;border:0!important;box-shadow:none!important;background:transparent!important;
+}
+#page-data .knowledge-tile .knowledge-icon .skai-icon svg{width:100%!important;height:100%!important}
+#page-data .knowledge-tile b{
+ font-size:clamp(11px,1vw,14px)!important;
+ line-height:1.25!important;white-space:nowrap;
+}
+#page-data .knowledge-tile small{font-size:10px!important;line-height:1.3;text-wrap:balance}
+@media(max-width:1000px){
+ #page-data .data-hub{overflow:hidden}
+ #page-data .knowledge-tiles{
+  grid-template-columns:repeat(6,minmax(104px,1fr))!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;
+  padding-bottom:9px!important;
+ }
+ #page-data .knowledge-tile{scroll-snap-align:start}
+}
+@media(max-width:720px){
+ #page-data .knowledge-tiles{grid-template-columns:repeat(6,112px)!important}
+ #page-data .knowledge-tile .knowledge-icon{width:46px!important;height:46px!important;min-width:46px!important}
+}
