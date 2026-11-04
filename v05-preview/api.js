@@ -14,6 +14,10 @@ function localRequest(path,method,body){
  if(method==='POST'&&path==='/projects')return {project:localCompany.createProject(body||{})};
  if(method==='PATCH'&&/^\/projects\/[^/]+$/.test(path))return {project:localCompany.updateProject(decodeURIComponent(path.split('/')[2]),body||{})};
  if(method==='GET'&&path==='/tasks')return {tasks:localCompany.tasks()};
+ if(method==='GET'&&path==='/documents')return {documents:localCompany.documents()};
+ if(method==='POST'&&path==='/documents')return {document:localCompany.addDocument(body||{})};
+ if(method==='DELETE'&&/^\/documents\/[^/]+$/.test(path))return {document:localCompany.removeDocument(decodeURIComponent(path.split('/')[2]))};
+ if(method==='GET'&&path==='/activity')return {activity:localCompany.activity()};
  if(method==='POST'&&path==='/tasks')return localCompany.createTask(body||{});
  if(method==='PATCH'&&/^\/tasks\/[^/]+$/.test(path))return {task:localCompany.updateTask(decodeURIComponent(path.split('/')[2]),body||{})};
  if(method==='GET'&&path==='/approvals')return {approvals:localCompany.approvals()};
