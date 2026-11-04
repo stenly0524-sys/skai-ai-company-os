@@ -5,7 +5,7 @@ export const ROLES = Object.freeze({
  brand:{title:'首席品牌創意官 CCO',scope:'品牌策略、視覺規範、品牌品質審查。'},
  marketing:{title:'首席行銷官 CMO',scope:'客群研究、行銷規劃與成效分析。'},
  operations:{title:'首席營運官 COO',scope:'營運 SOP、供應鏈、店務與品質管理。'},
- tech:{title:'首席技術官 CTO',scope:'系統架構、資訊安全、研發、測試與部署風險。'},
+ tech:{title:'資訊長 CIO',scope:'資訊系統架構、AI API 呼叫與 Token 用量監控、資訊安全、測試與部署風險。'},
  hr:{title:'首席人才管理官 CHRO',scope:'工作量、績效、訓練、職能與增員提案。'},
  legal:{title:'首席法務風控官 CLRO',scope:'法規、合約、隱私與風險分級；高風險須人工審核。'}
 });
