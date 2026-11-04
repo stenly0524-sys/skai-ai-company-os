@@ -846,7 +846,7 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
 #page-home .secondary-area{
  display:grid;
  grid-template-columns:minmax(0,1fr);
- grid-template-rows:minmax(260px,1.15fr) minmax(180px,.84fr) minmax(122px,.55fr);
+ grid-template-rows:minmax(220px,1.12fr) minmax(150px,.79fr) minmax(106px,.54fr);
  gap:14px;
  align-content:stretch;
  min-width:0;
@@ -882,4 +882,16 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  #page-home .home-ai-metric{min-height:68px}
  #page-home .home-action-card{min-height:112px}
  #page-home .home-shortcuts .outline-btn{min-height:90px}
+}
+
+/* Keep all three right-side panels inside the common 800px desktop viewport. */
+@media(min-width:1201px){
+ #page-home .secondary-area{gap:11px}
+ #page-home .progress-overview{padding:15px 18px}
+ #page-home .project-bars{gap:3px}
+ #page-home .project-progress-row{padding:5px 2px}
+ #page-home .home-ai-usage{padding:11px 15px;gap:6px}
+ #page-home .home-ai-metric{gap:5px;padding:7px 6px}
+ #page-home .home-action-card{padding:7px}
+ #page-home .home-shortcuts .outline-btn{min-height:0}
 }
