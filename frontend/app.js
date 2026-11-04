@@ -112,7 +112,7 @@ async function loadProjects(){
 async function loadTasks(){
  const data=await api('/tasks');
  renderList($('taskList'),data.tasks||[],'目前尚未建立任務。',t=>
-  listItem(t.title,t.brief,el('span','quiet-pill',statuses[t.status]||t.status)));
+  listItem(t.title,t.brief||'由幕僚長規劃處理事項',el('span','quiet-pill',statuses[t.status]||t.status)));
 }
 async function loadOrchestrations(){
  const list=$('orchestrationList'),selector=$('orchestrationTask');
@@ -426,10 +426,17 @@ $('taskForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
  const form=event.currentTarget;
  const fd=new FormData(form);
- const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||''),ceo_assign_to_chief:workspaceMode()==='cloud'};
  const button=form.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
- catch(e){showToast(e.message)}
+ try{
+  const created=await api('/tasks',{method:'POST',body});form.reset();
+  if(workspaceMode()==='cloud'&&created.chief_plan_required){
+   showToast('CEO 任務已建立；正在請幕僚長提出分析與成本預估。');
+   try{await api('/orchestrations/plan',{method:'POST',body:{task_id:created.task.id}});showToast('幕僚長已提出分工方案，等待 CEO 確認');}
+   catch(e){showToast('任務已保存，幕僚長規劃未成功：'+e.message+'。可從下方重新產生。');}
+  }else showToast('本機已保存任務；AI 幕僚長需要雲端模式');
+  await Promise.all([loadTasks(),loadApprovals(),loadDashboard(),loadOrchestrations()]);
+ }catch(e){showToast('任務建立失敗：'+e.message)}
  finally{button.disabled=false;}
 });
 async function chooseChat(role){
