@@ -1357,3 +1357,5 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
  #page-data .knowledge-tiles{grid-template-columns:repeat(6,112px)!important}
  #page-data .knowledge-tile .knowledge-icon{width:46px!important;height:46px!important;min-width:46px!important}
 }
+
+.project-notes-panel{padding:10px 0;margin-top:8px}.project-notes-panel[hidden],.project-notes-text[hidden]{display:none!important}.project-notes-panel .outline-btn{margin-bottom:10px}.project-notes-text{box-sizing:border-box;width:100%;max-height:440px;overflow-y:auto;overflow-x:hidden;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px 17px;margin:0;border:1px solid #d6e5f7;border-radius:14px;background:#f6f9ff;color:#1e3658;font:inherit;font-size:12px;line-height:1.75;text-align:left}
