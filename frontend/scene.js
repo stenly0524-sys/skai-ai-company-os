@@ -1,3 +1,4 @@
+import {makeIcon} from './icons.js';
 // SKAI interactive office uses the approved user-provided 3D reference artwork.
 // Clickable HTML hotspots are aligned to staff shown in the picture; other roles remain in the 9-role mobile grid.
 const visualPositions={
@@ -19,6 +20,10 @@ export function renderOffice(people,{office,grid,mobileGrid,onSelect}){
    b.append(document.createElement('span'));
    b.firstChild.className='office-hotspot-hint';
    b.firstChild.textContent='查看 '+(names[employee.id]||employee.name);
+   const visualLabel=document.createElement('span');
+   visualLabel.className='office-position-label';
+   visualLabel.append(makeIcon(employee.id),document.createTextNode(names[employee.id]||employee.name));
+   b.append(visualLabel);
   } else {
    b.className=kind==='mobile'?'mobile-office-person':'employee-card';
    const face=document.createElement('span');face.className='person-head';
