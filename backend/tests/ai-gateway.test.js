@@ -10,9 +10,15 @@ process.env.OPENAI_API_KEY='sk-test-ci-not-real';
 process.env.OPENAI_MODEL='gpt-4.1-mini';
 process.env.SKAI_DAILY_AI_CALL_LIMIT='1';
 const usage={reserved:0,completed:0,failed:0};
+let ledgerCount=0;
 const db={
+ async connect(){return {query:(sql,args)=>db.query(sql,args),release(){}};},
  async query(sql,args){
-  if(sql.includes('FROM ai_control_settings'))return {rowCount:1,rows:[{ai_enabled:true,daily_call_limit:1,daily_token_warning:100000}]};
+  if(['BEGIN','COMMIT','ROLLBACK'].includes(sql))return {rowCount:0,rows:[]};
+  if(sql.includes('FROM ai_control_settings'))return {rowCount:1,rows:[{ai_enabled:true,daily_call_limit:1,daily_token_warning:100000,daily_budget_usd:'1.00',monthly_budget_usd:'10.00'}]};
+  if(sql.includes('FROM ai_cost_ledger WHERE usage_month'))return {rowCount:1,rows:[{daily_usd:'0',monthly_usd:'0'}]};
+  if(sql.includes('INSERT INTO ai_cost_ledger'))return {rowCount:1,rows:[{id:'test-ledger-'+(++ledgerCount)}]};
+  if(sql.includes('UPDATE ai_cost_ledger'))return {rowCount:1,rows:[]};
   if(sql.includes('INSERT INTO ai_daily_usage')){
    if(usage.reserved>=1)return {rowCount:0,rows:[]};
    usage.reserved++;
