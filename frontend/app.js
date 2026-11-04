@@ -312,8 +312,8 @@ $('aiControlForm').addEventListener('submit',async event=>{
  $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
  try{
   await api('/operations/ai-settings',{method:'POST',body});
-  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
   await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
  }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
  finally{button.disabled=false}
 });
