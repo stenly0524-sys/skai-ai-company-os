@@ -59,7 +59,8 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await expect(page.locator('.desktop-nav')).toBeHidden();
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
- await page.locator('.mobile-nav [data-page="employees"]').click();
+ await page.locator('#mobileMore').click();
+ await page.locator('#mobileMoreMenu [data-page="employees"]').click();
  await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
