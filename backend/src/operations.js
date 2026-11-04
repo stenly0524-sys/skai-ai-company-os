@@ -49,18 +49,23 @@ export async function performChecks(db,now=new Date()){
  }
  return created;
 }
-export const DEFAULT_AI_CONTROLS=Object.freeze({ai_enabled:true,daily_call_limit:50,daily_token_warning:100000});
+export const DEFAULT_AI_CONTROLS=Object.freeze({ai_enabled:true,daily_call_limit:50,daily_token_warning:100000,daily_budget_usd:1,monthly_budget_usd:10});
 export function validateAiControls(input){
  if(!input||typeof input!=='object'||Array.isArray(input))throw Error('invalid_ai_settings');
- const allowed=['ai_enabled','daily_call_limit','daily_token_warning'];
+ const allowed=['ai_enabled','daily_call_limit','daily_token_warning','daily_budget_usd','monthly_budget_usd'];
  if(Object.keys(input).length!==allowed.length||Object.keys(input).some(key=>!allowed.includes(key)))throw Error('invalid_ai_settings');
- const {ai_enabled,daily_call_limit,daily_token_warning}=input;
+ const {ai_enabled,daily_call_limit,daily_token_warning,daily_budget_usd,monthly_budget_usd}=input;
  if(typeof ai_enabled!=='boolean'||!Number.isSafeInteger(daily_call_limit)||daily_call_limit<1||daily_call_limit>500||
- !Number.isSafeInteger(daily_token_warning)||daily_token_warning<1000||daily_token_warning>10000000)throw Error('invalid_ai_settings');
- return {ai_enabled,daily_call_limit,daily_token_warning};
+ !Number.isSafeInteger(daily_token_warning)||daily_token_warning<1000||daily_token_warning>10000000||
+ typeof daily_budget_usd!=='number'||!Number.isFinite(daily_budget_usd)||daily_budget_usd<0.01||daily_budget_usd>1000||
+ typeof monthly_budget_usd!=='number'||!Number.isFinite(monthly_budget_usd)||monthly_budget_usd<0.01||monthly_budget_usd>10000||
+ Math.round(daily_budget_usd*100)!==daily_budget_usd*100||
+ Math.round(monthly_budget_usd*100)!==monthly_budget_usd*100||
+ daily_budget_usd>monthly_budget_usd)throw Error('invalid_ai_settings');
+ return {ai_enabled,daily_call_limit,daily_token_warning,daily_budget_usd,monthly_budget_usd};
 }
 export async function readAiControls(db){
- const q=await db.query('SELECT ai_enabled,daily_call_limit,daily_token_warning,updated_at FROM ai_control_settings WHERE id=1');
+ const q=await db.query('SELECT ai_enabled,daily_call_limit,daily_token_warning,daily_budget_usd,monthly_budget_usd,updated_at FROM ai_control_settings WHERE id=1');
  if(!q.rowCount)throw Error('ai_settings_missing');
  return q.rows[0];
 }
