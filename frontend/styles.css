@@ -713,3 +713,9 @@ body:not([data-current-page="home"]) #page-tasks .listing-card{min-height:calc(1
 #page-home .scene-card{background:linear-gradient(140deg,#fff,#edf3fc)}
 #page-home .scene-card .office-scene{overflow:hidden}
 @media(max-width:720px){.topbar .offline-chip{display:none}.topbar{min-height:62px!important}}
+
+/* Workspace switch is accessible from all pages; office hotspots align with full contained art. */
+.workspace-toggle{position:fixed!important;top:72px!important;right:32px!important;z-index:200!important}
+#page-home .office-people{width:54%;left:50%;transform:translateX(-50%)}
+#page-home .office-position-label{font-size:8px!important;padding:3px 4px!important}
+@media(max-width:720px){#page-home .office-people{width:min(82%,205px)}.workspace-toggle{right:8px!important;top:68px!important}}
