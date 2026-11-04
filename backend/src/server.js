@@ -148,6 +148,10 @@ app.post('/api/tasks/:id/transition',async(req,res)=>{
   const t=await client.query('SELECT id,status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
   if(!t.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
   try{requireTransition(t.rows[0].status,status);}catch{await client.query('ROLLBACK');return res.status(409).json({error:'invalid_task_transition'});}
+  // AI work must use /api/orchestrations routes so it always produces an auditable plan, outputs, and CEO acceptance.
+  if(['in_progress','review','done'].includes(status)){
+   await client.query('ROLLBACK');return res.status(409).json({error:'ai_execution_requires_orchestration',notice:'請先在任務詳情建立智能助理方案；核准預算後由部門執行並產生成果，才能驗收。'});
+  }
   const updated=await client.query('UPDATE tasks SET status=$2,updated_at=NOW() WHERE id=$1 RETURNING *',[id,status]);
   await record(client,'task.transition','task',id,{from:t.rows[0].status,to:status});
   await client.query('COMMIT');res.json({task:updated.rows[0]});
