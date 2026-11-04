@@ -157,3 +157,29 @@ test('CEO cloud project and task creation reset forms only after async API saves
  await expect(page.locator('#projectList')).toContainText('SKAI 系統測試');
  expect(errors).toEqual([]);
 });
+
+
+test('SKAI V0.6 mobile navigation keeps five primary pages and accessible More menu',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ await page.goto('/');
+ await expect(page.locator('.mobile-nav [data-page]')).toHaveCount(5);
+ const more=page.locator('#mobileMore'),menu=page.locator('#mobileMoreMenu');
+ await expect(menu).toBeHidden();
+ await more.click();
+ await expect(menu).toBeVisible();
+ await expect(more).toHaveAttribute('aria-expanded','true');
+ await menu.locator('[data-page="employees"]').click();
+ await expect(page.locator('#page-employees')).toHaveClass(/active/);
+ await expect(menu).toBeHidden();
+ await expect(more).toHaveClass(/active/);
+ await more.click();
+ await menu.locator('[data-page="notifications"]').click();
+ await expect(page.locator('#page-notifications')).toHaveClass(/active/);
+ await more.click();
+ await page.keyboard.press('Escape');
+ await expect(menu).toBeHidden();
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+ expect(overflow).toBeLessThanOrEqual(2);
+ await context.close();
+});
