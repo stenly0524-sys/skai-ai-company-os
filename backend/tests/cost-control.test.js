@@ -12,7 +12,7 @@ const db={
   if(['BEGIN','COMMIT','ROLLBACK'].includes(sql))return {rowCount:0,rows:[]};
   if(sql.includes('FROM ai_control_settings')&&sql.includes('FOR UPDATE'))
    return {rowCount:1,rows:[{...state.settings}]};
-  if(sql.includes('FROM ai_cost_ledger WHERE usage_month')){
+  if(sql.includes('FROM ai_cost_ledger WHERE usage_month')&&!sql.includes('COUNT(*) FILTER')){
    const [day,month]=args;
    const cost=(e)=>e.status==='settled'?e.estimated_usd:e.reserved_usd;
    const entries=state.entries.filter(e=>e.month===month);
