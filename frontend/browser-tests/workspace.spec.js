@@ -233,14 +233,13 @@ test('all 24 SKAI icons use SVG and primary mobile tabs retain their navigation 
  await context.close();
 });
 
-test('CEO AI settings page is mobile accessible and saves approved settings through authenticated mocked API',async({browser})=>{
+test('CIO Token and CFO USD pages are separate and CEO settings persist (mocked API)',async({browser})=>{
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  const page=await context.newPage();
  let saved={ai_enabled:true,daily_call_limit:50,daily_token_warning:100000,daily_budget_usd:1,monthly_budget_usd:10};
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/api/**',async route=>{
-  const path=new URL(route.request().url()).pathname;
-  const method=route.request().method();
+  const path=new URL(route.request().url()).pathname,method=route.request().method();
   let body={};
   if(path==='/api/session')body={authenticated:true,csrf_token:'mock-ceo-csrf'};
   else if(path==='/api/dashboard')body={counts:{projects:0,active:0,pending:0}};
@@ -249,7 +248,7 @@ test('CEO AI settings page is mobile accessible and saves approved settings thro
   else if(path==='/api/approvals')body={approvals:[]};
   else if(path==='/api/operations/notifications')body={notifications:[]};
   else if(path==='/api/orchestrations')body={runs:[]};
-  else if(path==='/api/operations/usage')body={day:'2026-11-04',cap:saved.daily_call_limit,ai_enabled:saved.ai_enabled,cost:{day_usd:0.001,month_usd:0.007,unverified_count:0},usage:{reserved_calls:2,total_input_tokens:100,total_output_tokens:100}};
+  else if(path==='/api/operations/usage')body={day:'2026-11-04',cap:saved.daily_call_limit,ai_enabled:saved.ai_enabled,cost:{day_usd:0.001,month_usd:0.007,unverified_count:0},usage:{reserved_calls:2,completed_calls:2,failed_calls:0,total_input_tokens:100,total_output_tokens:200}};
   else if(path==='/api/operations/ai-settings'){
    if(method==='POST'){
     expect(route.request().headers()['x-csrf-token']).toBe('mock-ceo-csrf');
@@ -261,23 +260,34 @@ test('CEO AI settings page is mobile accessible and saves approved settings thro
   return route.fulfill({status:200,json:body});
  });
  await page.goto('/');
+ await expect(page.locator('#page-ai-controls')).toHaveCount(0);
  await page.locator('#mobileMore').click();
- await page.locator('#mobileMoreMenu [data-page="ai-controls"]').click();
- await expect(page.locator('#page-ai-controls')).toHaveClass(/active/);
- await expect(page.locator('#controlUsage')).toContainText('2／50');
+ await page.locator('#mobileMoreMenu [data-page="department-tech"]').click();
+ await expect(page.locator('#page-department-tech')).toHaveClass(/active/);
+ await expect(page.locator('#techCallCount')).toContainText('2 / 50');
+ await expect(page.locator('#techInputTokens')).toContainText('100');
+ await expect(page.locator('#techOutputTokens')).toContainText('200');
  await page.locator('#aiControlEnabled').uncheck();
  await page.locator('#aiControlLimit').fill('10');
  await page.locator('#aiTokenWarning').fill('9000');
+ await page.locator('#aiControlForm button[type="submit"]').click();
+ await expect(page.locator('#aiControlFeedback')).toContainText('已保存');
+ expect(saved).toEqual({ai_enabled:false,daily_call_limit:10,daily_token_warning:9000,daily_budget_usd:1,monthly_budget_usd:10});
+ await page.locator('#mobileMore').click();
+ await page.locator('#mobileMoreMenu [data-page="department-finance"]').click();
+ await expect(page.locator('#page-department-finance')).toHaveClass(/active/);
+ await expect(page.locator('#financeDailyUsd')).toContainText('US$0.0010');
+ await expect(page.locator('#financeMonthlyUsd')).toContainText('US$0.0070');
  await page.locator('#aiDailyUsd').fill('0.50');
  await page.locator('#aiMonthlyUsd').fill('5.00');
- await page.locator('#aiControlForm button[type="submit"]').click();
- await expect(page.locator('#aiControlFeedback')).toContainText('設定已保存');
+ await page.locator('#aiFinanceForm button[type="submit"]').click();
+ await expect(page.locator('#aiFinanceFeedback')).toContainText('已保存');
  expect(saved).toEqual({ai_enabled:false,daily_call_limit:10,daily_token_warning:9000,daily_budget_usd:0.5,monthly_budget_usd:5});
  await page.reload();
  await page.locator('#mobileMore').click();
- await page.locator('#mobileMoreMenu [data-page="ai-controls"]').click();
- await expect(page.locator('#aiControlLimit')).toHaveValue('10');
- await expect(page.locator('#aiControlEnabled')).not.toBeChecked();
+ await page.locator('#mobileMoreMenu [data-page="department-finance"]').click();
+ await expect(page.locator('#aiDailyUsd')).toHaveValue('0.50');
+ await expect(page.locator('#page-department-finance')).not.toContainText('輸入 Tokens');
  expect(errors).toEqual([]);
  await context.close();
 });
