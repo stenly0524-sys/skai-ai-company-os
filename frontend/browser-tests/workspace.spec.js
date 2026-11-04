@@ -59,9 +59,9 @@ test('local backup export and import restores saved projects',async({page})=>{
 test('iPhone landscape: navigation and content remain accessible without horizontal overflow',async({browser})=>{
  const context=await browser.newContext({viewport:{width:932,height:430},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await context.newPage();
+ await page.addInitScript(()=>sessionStorage.setItem('skai_v05_workspace_mode','local'));
  await page.goto('/');
- await page.locator(page.viewportSize()?.width<=720?'#openSettingsMobile':'#openSettings').click();
- await page.getByRole('button',{name:'本機模式'}).click();
+ await expect(page.locator('#connectionStatus')).toContainText('本機工作區');
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
  await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(5);
@@ -352,6 +352,7 @@ test('visual audit: reference layout across five screens',async({page})=>{
  await page.locator('#openSettings').click();
  await page.locator('#useLocal').click();
  await page.locator('#openSettings').click();
+ await page.locator('#toast').evaluate(node=>node.hidden=true);
  for(const screen of ['home','projects','tasks','data','assistant']){
   await page.locator('.desktop-nav [data-page="'+screen+'"]').click();
   await expect(page.locator('#page-'+screen)).toBeVisible();
