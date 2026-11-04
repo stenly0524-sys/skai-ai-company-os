@@ -68,7 +68,7 @@ function setConnection(connected){
  isSignedIn=connected;
  $('connectionStatus').textContent=workspaceMode()==='local'?'● 本機工作區':connected?'● 系統已登入':'● 未連線';
  $('connectionStatus').setAttribute('aria-label',connected?'後端已登入':'未連線');
- document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'SKAI V0.5 · 本機保存（非雲端同步）':connected?'SKAI V0.5 · 雲端測試環境':'SKAI V0.5 · 未連線預覽';
+ document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'SKAI V0.7 · 本機保存（非雲端同步）':connected?'SKAI V0.7 · 雲端測試環境':'SKAI V0.7 · 未連線預覽';
 }
 async function startSession(){
  if(workspaceMode()==='local'){setConnection(true);await refreshAll();return;}
@@ -371,7 +371,8 @@ function renderProjectCards(){
  if(!rows.length){root.append(el('p','helper','沒有符合條件的專案。'));return;}
  for(const p of rows){
   const button=el('button','visual-project-row');button.type='button';button.addEventListener('click',()=>openQuickProject(p));
-  const graphic=el('span','project-graphic','▣');const body=el('span','project-row-main');
+  const visual=p.name.match(/POS|收銀/i)?'▣':p.name.match(/AI|SKAI/i)?'✦':p.name.match(/盆栽|森林|植物/i)?'🌳':p.name.match(/FFM|品牌|食食/i)?'◈':'▤';
+  const graphic=el('span','project-graphic',visual);const body=el('span','project-row-main');
   body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
   const stage=el('span','status-pill',p.status==='closed'?'已完成':p.stage==='active'?'進行中':'規劃中');
   const amount=Number(p.progress);const known=p.progress!==undefined&&p.progress!==null&&Number.isFinite(amount);
@@ -416,8 +417,12 @@ document.querySelectorAll('[data-project-filter]').forEach(b=>b.addEventListener
 document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{
  taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTaskCards();
 }));
-$('jumpProjectCreate')?.addEventListener('click',()=>$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'}));
-$('jumpTaskCreate')?.addEventListener('click',()=>$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'}));
+$('jumpProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
+$('closeProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=true;});
+$('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
+$('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=true;});
+$('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
+$('toggleChiefPlans')?.addEventListener('click',()=>{const x=$('chiefPlanContent');x.hidden=!x.hidden;$('chiefPlanToggleIcon').textContent=x.hidden?'展開':'收合';});
 async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await loadDashboard();
