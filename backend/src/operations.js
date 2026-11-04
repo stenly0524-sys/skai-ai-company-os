@@ -49,9 +49,27 @@ export async function performChecks(db,now=new Date()){
  }
  return created;
 }
+export const DEFAULT_AI_CONTROLS=Object.freeze({ai_enabled:true,daily_call_limit:50,daily_token_warning:100000});
+export function validateAiControls(input){
+ if(!input||typeof input!=='object'||Array.isArray(input))throw Error('invalid_ai_settings');
+ const allowed=['ai_enabled','daily_call_limit','daily_token_warning'];
+ if(Object.keys(input).length!==allowed.length||Object.keys(input).some(key=>!allowed.includes(key)))throw Error('invalid_ai_settings');
+ const {ai_enabled,daily_call_limit,daily_token_warning}=input;
+ if(typeof ai_enabled!=='boolean'||!Number.isSafeInteger(daily_call_limit)||daily_call_limit<1||daily_call_limit>500||
+ !Number.isSafeInteger(daily_token_warning)||daily_token_warning<1000||daily_token_warning>10000000)throw Error('invalid_ai_settings');
+ return {ai_enabled,daily_call_limit,daily_token_warning};
+}
+export async function readAiControls(db){
+ const q=await db.query('SELECT ai_enabled,daily_call_limit,daily_token_warning,updated_at FROM ai_control_settings WHERE id=1');
+ if(!q.rowCount)throw Error('ai_settings_missing');
+ return q.rows[0];
+}
+export function effectiveCallLimit(settings){return Math.min(capFromEnv(process.env.SKAI_DAILY_AI_CALL_LIMIT),Number(settings.daily_call_limit));}
 export async function reserveAiCall(db){
  const {day}=taipeiParts();
- const cap=capFromEnv(process.env.SKAI_DAILY_AI_CALL_LIMIT);
+ const settings=await readAiControls(db);
+ if(!settings.ai_enabled)throw new Error('ai_disabled_by_ceo');
+ const cap=effectiveCallLimit(settings);
  const q=await db.query(`INSERT INTO ai_daily_usage(usage_day,reserved_calls) VALUES($1,1)
  ON CONFLICT(usage_day) DO UPDATE SET reserved_calls=ai_daily_usage.reserved_calls+1
  WHERE ai_daily_usage.reserved_calls < $2 RETURNING usage_day,reserved_calls`,[day,cap]);
@@ -59,9 +77,22 @@ export async function reserveAiCall(db){
  return day;
 }
 export async function finalizeAiCall(db,day,usage,success){
- await db.query(`UPDATE ai_daily_usage SET completed_calls=completed_calls+$2,failed_calls=failed_calls+$3,
- total_input_tokens=total_input_tokens+$4,total_output_tokens=total_output_tokens+$5 WHERE usage_day=$1`,[
+ const completed=await db.query(`UPDATE ai_daily_usage SET completed_calls=completed_calls+$2,failed_calls=failed_calls+$3,
+ total_input_tokens=total_input_tokens+$4,total_output_tokens=total_output_tokens+$5 WHERE usage_day=$1
+ RETURNING total_input_tokens,total_output_tokens`,[
  day,success?1:0,success?0:1,
  Number(usage?.prompt_tokens)||0,Number(usage?.completion_tokens)||0
  ]);
+ if(completed.rowCount){
+  const settings=await readAiControls(db);
+  const used=Number(completed.rows[0].total_input_tokens)+Number(completed.rows[0].total_output_tokens);
+  if(used>=Number(settings.daily_token_warning)){
+   // Alert only: current tokens are recorded after the API has returned.
+   await db.query(`INSERT INTO notification_events(event_key,severity,title,body)
+    VALUES($1,'warning','AI Token 使用警示',$2)
+    ON CONFLICT(event_key) DO NOTHING`,[
+     'ai-token-warning:'+day,'今日已記錄 '+used+' tokens，達到 CEO 設定的提醒門檻 '+settings.daily_token_warning+' tokens。此提醒非美元費用或硬性 Token 上限。'
+   ]);
+  }
+ }
 }
