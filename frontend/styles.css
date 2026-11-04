@@ -937,6 +937,8 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
   }
   .mobile-nav .mobileitem{gap:4px;padding:3px 0 1px;font-size:10px;font-weight:700;min-height:57px}
   .mobile-nav .mobileitem .skai-icon{
+    max-width:none;
+    min-width:36px;
     width:clamp(36px,9.7vw,43px);
     height:clamp(36px,9.7vw,43px);
     border-radius:50%;
