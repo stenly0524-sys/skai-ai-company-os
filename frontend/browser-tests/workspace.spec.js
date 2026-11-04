@@ -64,7 +64,7 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await expect(page.locator('#connectionStatus')).toContainText('本機工作區');
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
- await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(6);
+ await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(7);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
  await page.locator('.desktop-nav [data-page="employees"]').click();
@@ -556,4 +556,43 @@ test('Assistant, Departments, Projects, Tasks and Data never repeat HQ dashboard
  await page.locator('.desktop-nav [data-page="home"]').click();
  await expect(page.locator('#page-home')).toBeVisible();
  await expect(page.locator('#page-home .home-shortcuts')).toBeVisible();
+});
+
+test('V0.14 data has six aligned circular SVG categories in one row',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/');
+ await page.locator('.desktop-nav [data-page="data"]').click();
+ const tiles=page.locator('#page-data .knowledge-tiles .knowledge-tile');
+ await expect(tiles).toHaveCount(6);
+ await expect(page.locator('#page-data .knowledge-icon .skai-icon svg')).toHaveCount(6);
+ const positions=await tiles.evaluateAll(elements=>elements.map(element=>{
+  const box=element.getBoundingClientRect(),circle=element.querySelector('.knowledge-icon').getBoundingClientRect(),svg=element.querySelector('svg').getBoundingClientRect();
+  return {left:box.left,top:box.top,right:box.right,w:box.width,round:circle.width,circleHeight:circle.height,dx:Math.abs(circle.left+circle.width/2-(svg.left+svg.width/2)),dy:Math.abs(circle.top+circle.height/2-(svg.top+svg.height/2))};
+ }));
+ for(let i=1;i<positions.length;i++){expect(Math.abs(positions[i].top-positions[0].top)).toBeLessThan(2);expect(positions[i].left).toBeGreaterThan(positions[i-1].right);}
+ for(const x of positions){expect(x.w).toBeGreaterThan(90);expect(x.round).toBeCloseTo(x.circleHeight,0);expect(x.dx).toBeLessThan(2);expect(x.dy).toBeLessThan(2);}
+ const png=await page.screenshot({type:'jpeg',quality:52,fullPage:false});console.log('SKAI_V014_DATA_BASE64='+png.toString('base64'));
+});
+
+test('V0.14 approvals is a real main sidebar tab and department footer duplicates are removed',async({page})=>{
+ await page.goto('/');
+ const nav=page.locator('.desktop-nav .nav-list [data-page="approvals"]');
+ await expect(nav).toBeVisible();
+ await expect(nav).toContainText('CEO 待審批');
+ await expect(page.locator('#page-employees .department-links')).toHaveCount(0);
+ await nav.click();
+ await expect(page.locator('#page-approvals')).toBeVisible();
+ await expect(page.locator('#page-approvals')).toHaveClass(/active/);
+ await page.locator('.desktop-nav [data-page="employees"]').click();
+ await expect(page.locator('#employeeGrid .employee-card')).toHaveCount(9);
+});
+
+test('V0.14 mobile category strip remains one horizontal scroll row',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/');
+ await page.locator('.mobile-nav [data-page="data"]').click();
+ const tiles=page.locator('#page-data .knowledge-tiles .knowledge-tile');
+ await expect(tiles).toHaveCount(6);
+ const positions=await tiles.evaluateAll(elements=>elements.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y})));
+ expect(Math.max(...positions.map(p=>p.y))-Math.min(...positions.map(p=>p.y))).toBeLessThan(2);
 });

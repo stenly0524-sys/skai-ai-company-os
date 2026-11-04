@@ -22,6 +22,11 @@ export function applyInterfaceIcons(){
  if(more){const old=more.querySelector('span');if(old)old.replaceWith(makeIcon('more'));}
  const shortcuts={statApprovals:'approvals'};
  for(const [id,icon] of Object.entries(shortcuts)){const card=document.getElementById(id)?.closest('button');if(card)card.prepend(makeIcon(icon));}
+ const knowledgeIcons=['projects','brand','legal','finance','operations','knowledge'];
+ document.querySelectorAll('#page-data .knowledge-tiles .knowledge-tile').forEach((button,index)=>{
+  const container=button.querySelector('.knowledge-icon');
+  if(container)container.replaceChildren(makeIcon(knowledgeIcons[index]||'knowledge'));
+ });
  const quickIcons=['plus','projects','search','metrics'];
  document.querySelectorAll('#page-home .home-shortcuts .outline-btn').forEach((button,index)=>{
   const target=button.querySelector('.shortcut-emoji');if(target)target.replaceChildren(makeIcon(quickIcons[index]||'metrics'));
