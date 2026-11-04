@@ -19,3 +19,6 @@ This backend serves the existing `v05-preview` frontend from the **same origin**
 - AI orchestration / chat is **not** wired to provider APIs and deliberately returns unavailable.
 - Local browser records are **not automatically merged** into Neon. Export JSON locally first and plan a separate authenticated migration with review/deduplication.
 - Schema migration is not automatically executed by the server.
+
+## Frontend mode selection
+The public GitHub Pages preview remains local-only. On the independently deployed backend, select **切換雲端模式**, log in with the CEO password, and use the same-origin API. Switching modes does **not** automatically migrate data between browsers or storage systems.
