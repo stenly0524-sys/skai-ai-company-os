@@ -12,6 +12,10 @@ function localRequest(path,method,body){
  if(method==='GET'&&path==='/dashboard')return {counts:localCompany.dashboard(),source:'localStorage'};
  if(method==='GET'&&path==='/projects')return {projects:localCompany.projects()};
  if(method==='POST'&&path==='/projects')return {project:localCompany.createProject(body||{})};
+ if(method==='GET'&&/^\/projects\/[^/]+\/deletion-preview$/.test(path))return localCompany.deletionPreview(decodeURIComponent(path.split('/')[2]));
+ if(method==='DELETE'&&/^\/projects\/[^/]+$/.test(path))return {project:localCompany.deleteProject(decodeURIComponent(path.split('/')[2]))};
+ if(method==='DELETE'&&/^\/tasks\/[^/]+$/.test(path))return {task:localCompany.deleteTask(decodeURIComponent(path.split('/')[2]))};
+ if(method==='POST'&&/^\/tasks\/[^/]+\/transition$/.test(path))return {task:localCompany.transitionTask(decodeURIComponent(path.split('/')[2]),body?.status)};
  if(method==='GET'&&path==='/tasks')return {tasks:localCompany.tasks()};
  if(method==='POST'&&path==='/tasks')return localCompany.createTask(body||{});
  if(method==='GET'&&path==='/approvals')return {approvals:localCompany.approvals()};
