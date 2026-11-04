@@ -32,11 +32,28 @@ function showPage(page){
   const active=nav.dataset.page===page;nav.classList.toggle('active',active);
   if(active)nav.setAttribute('aria-current','page');else nav.removeAttribute('aria-current');
  }
+ const more=$('mobileMore');
+ if(more){more.classList.toggle('active',page==='employees'||page==='notifications');closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
  if(history.replaceState)history.replaceState(null,'','#'+page);
  if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
 }
 for(const button of document.querySelectorAll('[data-page]'))button.addEventListener('click',()=>showPage(button.dataset.page));
+function closeMobileMore(){
+ const menu=$('mobileMoreMenu'),button=$('mobileMore');
+ if(menu)menu.hidden=true;
+ if(button)button.setAttribute('aria-expanded','false');
+}
+$('mobileMore')?.addEventListener('click',()=>{
+ const menu=$('mobileMoreMenu'),button=$('mobileMore');
+ menu.hidden=!menu.hidden;
+ button.setAttribute('aria-expanded',String(!menu.hidden));
+});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileMore();});
+document.addEventListener('click',event=>{
+ if(!event.target.closest('#mobileMore')&&!event.target.closest('#mobileMoreMenu'))closeMobileMore();
+});
+
 for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>showPage(button.dataset.jump));
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
@@ -122,7 +139,17 @@ async function loadOrchestrations(){
     const member=EMPLOYEES.find(e=>e.id===step.role_id);
     const description=el('p','helper',(member?.name||step.role_id)+' · '+(step.status||'pending')+' · '+step.instruction);
     detail.append(description);
-    if(step.result){const result=el('p','orchestration-result',step.result);detail.append(result);}
+    if(step.result){
+     const toggle=el('button','outline-btn report-toggle','查看 '+(member?.name||step.role_id)+' 分析報告');
+     toggle.type='button';toggle.setAttribute('aria-expanded','false');
+     const result=el('div','orchestration-result',step.result);result.hidden=true;
+     toggle.addEventListener('click',()=>{
+      result.hidden=!result.hidden;
+      toggle.setAttribute('aria-expanded',String(!result.hidden));
+      toggle.textContent=(result.hidden?'查看 ':'收合 ')+(member?.name||step.role_id)+' 分析報告';
+     });
+     detail.append(toggle,result);
+    }
     if(step.last_error)detail.append(el('p','helper','錯誤：'+step.last_error));
    }
    if(current.consolidated_report){
