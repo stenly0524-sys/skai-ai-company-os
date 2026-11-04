@@ -345,12 +345,12 @@ test('local CEO can select, approve, review and delete tasks and projects',async
  page.on('dialog',dialog=>dialog.accept());
  await page.locator('#taskCards .task-row-actions button',{hasText:'核准'}).click();
  await expect(page.locator('#taskCards')).toContainText('已核准');
- await page.locator('#taskCards .task-row-actions button',{hasText:'開始'}).click();
- await expect(page.locator('#taskCards')).toContainText('執行中');
- await page.locator('#taskCards .task-row-actions button',{hasText:'提交審核'}).click();
- await expect(page.locator('#taskCards')).toContainText('待驗收');
- await page.locator('#taskCards .task-row-actions button',{hasText:'驗收完成'}).click();
- await expect(page.locator('#taskCards')).toContainText('完成');
+ await expect(page.locator('#taskCards .task-row-actions button',{hasText:'開始'})).toHaveCount(0);
+ await expect(page.locator('#taskCards .task-row-actions button',{hasText:'驗收完成'})).toHaveCount(0);
+ await page.locator('#taskCards .task-row-actions button',{hasText:'查看內容'}).click();
+ await expect(page.locator('#taskCards .task-evidence-panel')).toContainText('測試可勾選及審核任務');
+ await expect(page.locator('#taskCards .task-evidence-panel')).toContainText('本機模式沒有 AI 規劃及成果紀錄');
+ await expect(page.locator('#taskCards')).not.toContainText('待驗收');
  await page.locator('#taskCards .task-select-label input').first().check();
  await expect(page.locator('#bulkDeleteTasks')).toBeEnabled();
  await page.locator('#bulkDeleteTasks').click();
@@ -620,4 +620,32 @@ test('SKAI project details can reveal full imported project plan notes without r
  await expect(page.locator('#quickProjectNotes')).toContainText('合作條件');
  await page.locator('#toggleProjectNotes').click();
  await expect(page.locator('#quickProjectNotes')).toBeHidden();
+});
+
+test('cloud task details display real brief, warn on missing evidence, and do not fake completion',async({page})=>{
+ await page.route('**/api/**',async route=>{
+  const p=new URL(route.request().url()).pathname;
+  const body=p==='/api/session'?{authenticated:true,csrf_token:'test'}:
+   p==='/api/tasks'?{tasks:[
+    {id:'test-task',project_id:'test-project',title:'埔里合作權益分析',brief:'檢查分紅、退出條款與出資責任',status:'done'},
+    {id:'test-task2',project_id:'test-project',title:'埔里投資模型',brief:'建立估算表',status:'approved'}]}:
+   p==='/api/projects'?{projects:[{id:'test-project',name:'埔里立和'}]}:
+   p==='/api/orchestrations'?{runs:[]}:
+   p==='/api/dashboard'?{counts:{projects:1,pending:0}}:
+   p==='/api/approvals'?{approvals:[]}:
+   p==='/api/operations/notifications'?{notifications:[]}:null;
+  if(body)await route.fulfill({status:200,json:body});
+  else await route.fulfill({status:404,json:{error:'not_found'}});
+ });
+ await page.goto('/');
+ await page.locator('.desktop-nav [data-page="tasks"]').click();
+ const buttons=page.locator('#taskCards .task-row-actions button',{hasText:'查看內容'});
+ await expect(buttons).toHaveCount(2);
+ await buttons.first().click();
+ await expect(page.locator('#taskCards .task-evidence-panel:visible')).toContainText('檢查分紅、退出條款與出資責任');
+ await expect(page.locator('#taskCards .task-evidence-panel:visible')).toContainText('沒有 AI 方案或交付成果');
+ await expect(page.locator('#taskCards .task-row-actions button',{hasText:'驗收完成'})).toHaveCount(0);
+ await buttons.nth(1).click();
+ await expect(page.locator('#taskCards .task-evidence-panel:visible')).toContainText('目前沒有 AI 工作方案');
+ await expect(page.locator('#taskCards .task-evidence-panel:visible button',{hasText:'請智能助理產生執行方案'})).toBeVisible();
 });
