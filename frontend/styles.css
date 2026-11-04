@@ -263,3 +263,113 @@ body{background:linear-gradient(125deg,#dfe6f5,#f0f3fb 55%,#dce5f3);color:#1e2e4
  #page-home .secondary-area .empty-state{min-height:70px}
  #page-home .secondary-area .empty-state.compact{min-height:50px}
 }
+
+
+/* SKAI V0.6 reference-faithful LIGHT silver-blue dashboard.
+   Actual approved reference office illustration, not emoji-based simulated artwork. */
+:root{--skai-navy:#283b60;--skai-blue:#7297c6;--skai-mist:#f3f6fc}
+html,body{background:#f1f4fa;color:#263750}
+.app-shell{background:linear-gradient(135deg,#f9fbff,#e8eef8);box-shadow:0 20px 60px #667fa126}
+.desktop-nav{background:linear-gradient(160deg,#fafbff,#edf2fb);border-right:1px solid #dbe3f1;box-shadow:none}
+.brand{color:#283955}
+.brand small{color:#8a9db5}
+.logo{background:linear-gradient(155deg,#c1d2e9,#638ac4);color:white;box-shadow:0 4px 12px #9eb8db66}
+.navitem{color:#536580;border-color:transparent}
+.navitem:hover{background:#e4ecf8}
+.navitem.active{background:linear-gradient(135deg,#bbcde6,#e5ebf7);color:#344e78;border-color:#d1dff0;box-shadow:0 4px 14px #90a5c75c}
+.nav-footer{color:#94a4b8}
+.topbar{background:linear-gradient(145deg,#ffffff,#f5f8fe);color:#233855;border:1px solid #dbe5f3;box-shadow:0 6px 20px #7a91b31c}
+.topbar h1{color:#253855}
+.topbar .eyebrow,.topbar .subhead{color:#8a9db8}
+.topbar .offline-chip{color:#5e799a;background:#eaf1fa}
+.topbar .mode-toggle{color:#54749a;background:#f6f9ff;border-color:#d8e4f3}
+.topbar .avatar-ceo{border-color:#8fb6e5;background:linear-gradient(155deg,#e0edff,#96b7e9);color:#2f517e}
+.card{border:1px solid #dce5f2;background:linear-gradient(150deg,#fff,#f5f8fe);box-shadow:0 10px 27px #7390b220}
+.secondary-area .card{background:linear-gradient(160deg,#fff,#f1f5fc);border-color:#d9e4f3}
+.secondary-area .section-top{background:linear-gradient(95deg,#e7eef8,#fafbff)}
+.quiet-pill{background:#e9f0f8;color:#6683a8}
+#page-home .scene-card{background:linear-gradient(155deg,#fff,#f2f6ff);border-color:#d4e1f1;box-shadow:0 13px 28px #5f7b9c24}
+#page-home .scene-heading h2{color:#263d62}
+#page-home .scene-card>.helper{color:#748ca8}
+#page-home .office-scene{
+ position:relative;
+ height:auto;
+ aspect-ratio:606 / 504;
+ background-color:#f7f9fd;
+ background-image:url('./assets/skai-office-reference.webp');
+ background-size:100% 100%;
+ background-position:center;
+ background-repeat:no-repeat;
+ border:1px solid #dfe8f4;
+ border-radius:20px;
+ box-shadow:0 9px 24px #7896b123;
+ overflow:hidden;
+}
+#page-home .office-art,#page-home .office-backdrop{display:none!important}
+#page-home .office-people{position:absolute;inset:0;z-index:2}
+#page-home .office-hotspot{
+ position:absolute;display:block;
+ transform:translate(-50%,-50%);
+ width:25%;height:18%;min-width:0;padding:0;
+ border:2px solid transparent;border-radius:17px;
+ background:transparent;box-shadow:none;
+ text-shadow:none;filter:none;cursor:pointer;
+}
+#page-home .office-hotspot.office-person:before{display:none!important}
+#page-home .office-hotspot:hover,#page-home .office-hotspot:focus-visible{
+ background:#b8d3f51c;border-color:#689bd9;outline:0;
+ box-shadow:0 0 0 3px #ffffff8c,0 5px 20px #7195bd55;
+}
+#page-home .office-hotspot-hint{
+ position:absolute;bottom:calc(100% + 3px);left:50%;
+ transform:translateX(-50%);
+ white-space:nowrap;pointer-events:none;
+ border-radius:12px;padding:5px 9px;
+ background:#fffffff0;color:#355b8b;border:1px solid #c1d6ed;
+ box-shadow:0 4px 15px #708ca64d;font-size:12px;font-weight:700;
+ opacity:0;transition:opacity .15s;
+}
+#page-home .office-hotspot:hover .office-hotspot-hint,#page-home .office-hotspot:focus-visible .office-hotspot-hint{opacity:1}
+#page-home .scene-bottom{color:#6b839f}
+#page-home .kpi{background:linear-gradient(135deg,#fff,#f0f5fc)}
+#page-home .kpi strong{color:#355d8f}
+.mobile-office-person .person-head{color:#466999}
+.mobile-office-person .person-name{color:#345175}
+@media(min-width:1100px){
+ #page-home .content-grid{grid-template-columns:minmax(0,1.55fr) minmax(250px,.7fr)}
+}
+@media(max-width:720px){
+ html,body{background:#f0f4fa}
+ .app-shell{background:#f1f5fb}
+ .topbar{background:#fcfdff;padding:10px 13px;border-color:#e2e9f4}
+ .topbar h1{color:#253958}
+ #page-home .office-scene{height:auto;aspect-ratio:606 / 504;max-height:290px}
+ #page-home .office-hotspot{min-width:0;width:26%;height:19%;border-radius:8px}
+ #page-home .office-hotspot-hint{font-size:10px;padding:3px 6px}
+ #page-home .mobile-office-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #page-home .mobile-office-person{
+  grid-column:auto;min-height:76px;
+  display:grid;align-content:center;justify-items:center;gap:4px;
+  background:linear-gradient(148deg,#fff,#e9f0fb);
+  border:1px solid #d5e1ef;border-radius:14px;
+  box-shadow:0 5px 12px #7896b030;
+ }
+ #page-home .mobile-office-person:first-child{
+  grid-column:auto;min-height:76px;display:grid;gap:4px;
+  background:linear-gradient(148deg,#fff,#e9f0fb)
+ }
+ #page-home .mobile-office-person .person-head{
+  width:35px;height:35px;border-radius:11px;font-size:21px;
+  display:grid;place-items:center;border:1px solid #dde7f3;
+  background:linear-gradient(145deg,#fff,#dfeafb);
+ }
+ #page-home .mobile-office-person .person-name,#page-home .mobile-office-person:first-child .person-name{font-size:11px}
+ .mobile-nav{background:#fff;border-color:#e0e7f1;box-shadow:0 -5px 20px #667f9f24}
+ .mobileitem{color:#8295b1}
+ .mobileitem.active{background:linear-gradient(150deg,#dce8f8,#edf3fc);color:#4c74a3}
+ .mobileitem:hover{background:#eaf0f8}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ #page-home .office-scene{height:auto;aspect-ratio:606 / 504}
+ #page-home .mobile-office-grid{display:none}
+}
