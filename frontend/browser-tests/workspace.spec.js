@@ -201,3 +201,19 @@ test('SKAI command center shows nine functional manager tiles on portrait phone'
  expect(overflow).toBeLessThanOrEqual(2);
  await context.close();
 });
+
+
+test('SKAI HQ loads approved light office artwork and interactive staff hotspots',async({page})=>{
+ await page.goto('/');
+ const office=page.locator('#officeScene');
+ await expect(office).toBeVisible();
+ await expect(office.locator('.office-hotspot')).toHaveCount(7);
+ const image=await page.request.get('/assets/skai-office-reference.webp');
+ expect(image.status()).toBe(200);
+ expect(image.headers()['content-type']).toMatch(/image\/webp/);
+ const bg=await office.evaluate(node=>getComputedStyle(node).backgroundImage);
+ expect(bg).toContain('skai-office-reference.webp');
+ await office.locator('.office-hotspot').first().click();
+ await expect(page.locator('#employeeDialog')).toBeVisible();
+ await page.locator('#closeEmployee').click();
+});
