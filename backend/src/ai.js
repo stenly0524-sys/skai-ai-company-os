@@ -8,7 +8,7 @@ export class AiGatewayError extends Error{
 export async function askModel({role,messages,maxTokens=1400,format}){
  if(!usageDb)throw new AiGatewayError('ai_usage_db_not_configured');
  let usageDay;
- try{usageDay=await reserveAiCall(usageDb)}catch(e){throw new AiGatewayError(e.message==='ai_daily_limit_reached'?'ai_daily_limit_reached':'ai_budget_unavailable')}
+ try{usageDay=await reserveAiCall(usageDb)}catch(e){throw new AiGatewayError(['ai_daily_limit_reached','ai_disabled_by_ceo'].includes(e.message)?e.message:'ai_budget_unavailable')}
  let succeeded=false, usage=null;
  const controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),30000);
