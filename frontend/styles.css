@@ -1088,7 +1088,7 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  max-width:100%;overflow:hidden;text-overflow:ellipsis;
  white-space:nowrap;line-height:1.4;padding:3px 0!important;
  font-size:clamp(10px,.88vw,12px)!important;
- transform:translateY(-4px);
+ transform:translateY(0);
 }
 .topbar .top-actions{display:flex;align-items:center;justify-self:end;min-width:0;gap:8px}
 #page-home .kpi-grid .kpi{display:flex;flex-direction:column;justify-content:center;gap:9px;min-height:0}
