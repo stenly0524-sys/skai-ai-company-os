@@ -294,7 +294,15 @@ async function loadAiControls(){
   $('controlUsage').textContent='今日已嘗試 '+used+'／'+usage.cap+' 次，已記錄 '+total.toLocaleString()+' Tokens。';
   const usd=usage.cost||{};
   const dayUsd=Number(usd.day_usd)||0,monthUsd=Number(usd.month_usd)||0;
-  $('controlUsdUsage').textContent='今日預算占用約 US
+  $('controlUsdUsage').textContent='今日預算占用約 USD '+dayUsd.toFixed(4)+' / USD '+Number(s.daily_budget_usd).toFixed(2)+
+    '；本月約 USD '+monthUsd.toFixed(4)+' / USD '+Number(s.monthly_budget_usd).toFixed(2)+
+    '。待核實請求 '+(Number(usd.unverified_count)||0)+' 筆。';
+  $('aiDailyUsd').value=Number(s.daily_budget_usd).toFixed(2);
+  $('aiMonthlyUsd').value=Number(s.monthly_budget_usd).toFixed(2);
+  const pricing=data.pricing;
+  $('aiCostDetails').textContent='計價模型 '+data.pricing_model+
+    (pricing?'（每百萬輸入 Tokens：USD '+pricing.input+'；輸出：USD '+pricing.output+'）':'（模型尚未設定價格，AI 呼叫會被阻擋）')+
+    '。SKAI 為保守估算，非 OpenAI 帳單；預算以台灣日期計算。';
   $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
   $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
   feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
