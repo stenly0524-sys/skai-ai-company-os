@@ -207,7 +207,7 @@ test('SKAI command center shows nine functional manager tiles on portrait phone'
  await expect(page.locator('#employeeGrid .employee-card')).toHaveCount(9);
  await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
- await expect(page.locator('#employeeTitle')).toHaveText('AI 幕僚長');
+ await expect(page.locator('#employeeTitle')).toHaveText('幕僚戰略部');
  await page.locator('#closeEmployee').click();
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
