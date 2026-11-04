@@ -960,3 +960,85 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
   .main-column{padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
   .app-shell{margin-bottom:0}
 }
+
+/* V0.11 Mobile icons / spacing — two screenshots consolidated into real UI. */
+#page-home .kpi[data-jump="projects"] > .skai-icon,
+#page-home .kpi[data-jump="tasks"] > .skai-icon {display:none!important}
+#page-home .section-top .text-btn[data-no-icon] .skai-icon{display:none!important}
+#page-home .section-top .text-btn[data-no-icon]{
+ display:inline-flex;align-items:center;gap:0;white-space:nowrap;
+ padding:5px 7px;border-radius:8px;
+}
+/* Shortcuts use the same vector icon family as the primary navigation, not Unicode glyphs. */
+#page-home .home-shortcuts .outline-btn .shortcut-emoji{
+ display:grid;place-items:center;
+ width:52px;height:52px;min-width:52px;
+ margin:0 auto 6px;border-radius:50%;
+ background:linear-gradient(145deg,#fff 25%,#e8f2ff);
+ border:1px solid #d3e3f7;
+ box-shadow:0 5px 12px #4775b02a;
+ color:#2279e9;
+}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{
+ width:34px;height:34px;
+ padding:5px;border:0;border-radius:0;box-shadow:none;background:transparent;
+ display:grid;place-items:center;
+}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon svg{
+ width:100%;height:100%;
+}
+/* Only in portrait: large true circular nav icons and a compact bottom dock. */
+@media (max-width:720px) and (orientation:portrait) {
+ html,body{min-height:100%;overflow-x:hidden}
+ .app-shell{min-height:100dvh;margin:0;border-bottom:0}
+ .main-column{
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;
+ }
+ .mobile-nav{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  bottom:0;left:0;right:0;
+  gap:0!important;
+  align-items:center;
+  padding:6px max(4px,env(safe-area-inset-right,0px)) calc(3px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))!important;
+  border-radius:17px 17px 0 0!important;
+  background:#fffffff4!important;
+  box-shadow:0 -6px 22px #5e83b51b;
+ }
+ .mobile-nav .mobileitem{
+  display:flex!important;flex-direction:column;justify-content:center;align-items:center;
+  min-width:0!important;min-height:66px!important;
+  padding:2px 0!important;gap:4px!important;
+  background:transparent!important;
+  font-size:10px!important;font-weight:750;
+  letter-spacing:0!important;line-height:1.1;
+  color:#405b80;
+ }
+ .mobile-nav .mobileitem .skai-icon,
+ .mobile-nav .mobileitem .skai-icon:nth-child(1){
+  width:clamp(37px,10vw,47px)!important;
+  height:clamp(37px,10vw,47px)!important;
+  min-width:0;max-width:none!important;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#fff,#eaf3ff)!important;
+  border:1px solid #d7e5f8!important;
+  border-radius:50%!important;
+  box-shadow:0 4px 11px #4775b02b!important;
+  padding:8px!important;color:#1f76de;
+ }
+ .mobile-nav .mobileitem .skai-icon svg{width:100%;height:100%;stroke-width:1.9}
+ .mobile-nav .mobileitem.active .skai-icon{
+  background:linear-gradient(145deg,#d8e9ff,#edf6ff)!important;
+  border-color:#bfdbff!important;
+  color:#106bdd!important;
+ }
+ .mobile-nav .mobileitem.active{color:#135aa7!important}
+ .mobile-nav .mobileitem:hover{background:transparent!important}
+ #page-home .home-shortcuts .outline-btn{padding:8px 2px;min-height:92px;gap:3px;font-size:10px}
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji{
+  width:clamp(36px,10vw,47px);height:clamp(36px,10vw,47px);
+  min-width:0;margin:0 auto 4px;
+ }
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{width:30px;height:30px;padding:4px}
+ .mobile-more-menu:not([hidden]){bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
+}

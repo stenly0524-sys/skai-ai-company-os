@@ -430,50 +430,34 @@ test('HQ local mode clearly labels unavailable API usage without inventing numbe
  await expect(page.locator('#homeAiStatus')).toContainText('本機模式不包含 AI API 用量');
 });
 
-test('marked HQ icons share round style and link to correct destinations',async({page})=>{
- await page.setViewportSize({width:430,height:932});
- await page.goto('/');
- const icons=await page.evaluate(()=>{
-  const selectors=[
-   '#page-home .kpi[data-jump="projects"] > .skai-icon',
-   '#page-home .kpi[data-jump="tasks"] > .skai-icon',
-   '#page-home .home-todo-card [data-jump="tasks"] > .skai-icon',
-   '#page-home .progress-overview [data-jump="projects"] > .skai-icon'
-  ];
-  return selectors.map(selector=>{
-   const node=document.querySelector(selector);
-   if(!node)return null;
-   const style=getComputedStyle(node),rect=node.getBoundingClientRect();
-   return {width:rect.width,height:rect.height,radius:style.borderRadius,path:node.querySelector('path')?.getAttribute('d')};
-  });
- });
- expect(icons).not.toContain(null);
- expect(icons.every(x=>x.width>=35&&x.height>=35&&x.radius==='50%')).toBeTruthy();
- expect(icons[0].path).toBe(icons[3].path);
- expect(icons[1].path).toBe(icons[2].path);
- expect(icons[0].path).not.toBe(icons[1].path);
-});
 
-test('portrait mobile bottom dock has larger circular icons and no excessive spacer',async({page})=>{
+test('portrait: circular bottom icons, clean KPI and header links, unified quick icons and compact dock',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto('/');
- const info=await page.evaluate(()=>{
-  const nav=document.querySelector('.mobile-nav'),items=[...nav.querySelectorAll('.mobileitem')];
-  const icons=items.map(x=>x.querySelector('.skai-icon')).filter(Boolean);
-  const boxes=icons.map(x=>x.getBoundingClientRect());
-  return {
-   count:icons.length,
-   radii:icons.map(x=>getComputedStyle(x).borderRadius),
-   size:boxes.map(x=>x.width),
-   dockTop:nav.getBoundingClientRect().top,
-   dockBottom:nav.getBoundingClientRect().bottom,
-   viewportHeight:innerHeight,
-   scrollPadding:getComputedStyle(document.querySelector('.main-column')).paddingBottom
-  };
+ const nav=page.locator('.mobile-nav');
+ await expect(nav).toBeVisible();
+ const items=nav.locator('.mobileitem');
+ await expect(items).toHaveCount(7);
+ await expect(page.locator('#page-home .kpi[data-jump="projects"] > .skai-icon')).toHaveCount(0);
+ await expect(page.locator('#page-home .kpi[data-jump="tasks"] > .skai-icon')).toHaveCount(0);
+ await expect(page.locator('#page-home .section-top .text-btn[data-no-icon] > .skai-icon')).toHaveCount(0);
+ const icons=page.locator('#page-home .home-shortcuts .shortcut-emoji .skai-icon svg');
+ await expect(icons).toHaveCount(4);
+ const metrics=await page.evaluate(()=>{
+  const nav=document.querySelector('.mobile-nav').getBoundingClientRect();
+  const icons=[...document.querySelectorAll('.mobile-nav .mobileitem .skai-icon')];
+  const v=icons.map(x=>{const r=x.getBoundingClientRect(),st=getComputedStyle(x);return {w:r.width,h:r.height,borderRadius:st.borderRadius,svg:!!x.querySelector('svg')}});
+  const footerHeight=window.innerHeight-nav.top;
+  const root=document.querySelector('.main-column');
+  const padBottom=parseFloat(getComputedStyle(root).paddingBottom);
+  return {v,navBottom:Math.round(window.innerHeight-nav.bottom),navHeight:nav.height,footerHeight,padBottom,quickIcons:[...document.querySelectorAll('.home-shortcuts .skai-icon')].length};
  });
- expect(info.count).toBe(7);
- expect(info.radii.every(x=>x==='50%')).toBeTruthy();
- expect(info.size.every(x=>x>=36&&x<=45)).toBeTruthy();
- expect(Math.abs(info.viewportHeight-info.dockBottom)).toBeLessThanOrEqual(1);
- expect(parseFloat(info.scrollPadding)).toBeLessThanOrEqual(90);
+ expect(metrics.v).toHaveLength(7);
+ for(const v of metrics.v){expect(v.w).toBeGreaterThanOrEqual(36);expect(v.h).toBeCloseTo(v.w,0);expect(v.borderRadius).toBe('50%');expect(v.svg).toBe(true);}
+ expect(metrics.navBottom).toBe(0);
+ expect(metrics.footerHeight).toBeLessThanOrEqual(100);
+ expect(metrics.padBottom).toBeLessThanOrEqual(100);
+ expect(metrics.quickIcons).toBe(4);
+ const png=await page.screenshot({type:'jpeg',quality:54,fullPage:false});
+ console.log('SKAI_MOBILE_V11_BASE64='+png.toString('base64'));
 });
