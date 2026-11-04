@@ -700,3 +700,16 @@ body:not([data-current-page="home"]) #page-tasks .listing-card{min-height:calc(1
 @media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
  .mobile-settings-button{display:inline-flex}
 }
+
+/* Reference: compact unboxed greeting and unobtrusive notification bell. */
+.topbar{background:transparent!important;box-shadow:none!important;border:0!important;padding:0 4px!important;min-height:68px!important}
+.topbar .eyebrow{display:none}
+.topbar h1{margin:0 0 4px!important}
+.topbar .offline-chip{background:transparent!important;font-size:10px}
+.header-bell{border:0;background:transparent;position:relative;color:#647d9b;font-size:23px;padding:5px 10px;line-height:1}
+.header-bell::first-letter{color:#6484a7}
+.header-bell-count{position:absolute;top:0;right:0;min-width:17px;height:17px;display:grid;place-items:center;border-radius:50%;background:#f04452;color:#fff;font-size:10px;box-shadow:0 2px 6px #d33b4530}
+.header-bell-count[hidden]{display:none}
+#page-home .scene-card{background:linear-gradient(140deg,#fff,#edf3fc)}
+#page-home .scene-card .office-scene{overflow:hidden}
+@media(max-width:720px){.topbar .offline-chip{display:none}.topbar{min-height:62px!important}}
