@@ -55,12 +55,12 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  const page=await context.newPage();
  await page.goto('/');
  await page.getByRole('button',{name:'本機模式'}).click();
- await expect(page.locator('.mobile-nav')).toBeVisible();
- await expect(page.locator('.desktop-nav')).toBeHidden();
+ await expect(page.locator('.desktop-nav')).toBeVisible();
+ await expect(page.locator('.mobile-nav')).toBeHidden();
+ await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(7);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
- await page.locator('#mobileMore').click();
- await page.locator('#mobileMoreMenu [data-page="employees"]').click();
+ await page.locator('.desktop-nav [data-page="employees"]').click();
  await page.locator('#employeeGrid .employee-card').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
@@ -216,4 +216,17 @@ test('SKAI HQ loads approved light office artwork and interactive staff hotspots
  await office.locator('.office-hotspot').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
+});
+
+
+test('all 24 SKAI icons use SVG and primary mobile tabs retain their navigation actions',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+ const page=await context.newPage();await page.goto('/');
+ await expect(page.locator('.mobile-nav .mobileitem .skai-icon svg')).toHaveCount(6);
+ await expect(page.locator('#mobileOfficeGrid .mobile-office-person .skai-icon svg')).toHaveCount(9);
+ await page.locator('.mobile-nav [data-page="projects"]').click();
+ await expect(page.locator('#page-projects')).toHaveClass(/active/);
+ await page.locator('.mobile-nav [data-page="home"]').click();
+ await expect(page.locator('#officeScene')).toBeVisible();
+ await context.close();
 });
