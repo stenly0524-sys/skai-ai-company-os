@@ -61,6 +61,69 @@ export function orchestrationRouter(db){
   try{const r=await read(req.params.id);if(!r)return res.status(404).json({error:'run_not_found'});res.json(r)}
   catch(e){fail(res,e)}
  });
+
+ // CEO can edit the department assignment manually or ask the chief of staff
+ // to revise for lower costs, shorter time, changed scope or department mix.
+ // Both paths require a draft, an unchanged revision and explicit CEO approval.
+ async function saveRevisedDraft(id,expectedVersion,proposal,feedback,eventName,res){
+  const client=await db.connect();
+  try{
+   await client.query('BEGIN');
+   const q=await client.query('SELECT * FROM orchestration_runs WHERE id=$1 FOR UPDATE',[id]);
+   if(!q.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'run_not_found'})}
+   if(q.rows[0].plan_status!=='draft'||q.rows[0].plan_version!==expectedVersion){
+    await client.query('ROLLBACK');return res.status(409).json({error:'plan_changed_reload'});
+   }
+   const taskId=q.rows[0].task_id;
+   const updated=await client.query(`UPDATE orchestration_runs
+    SET summary=$2,plan_estimate=$3,ceo_feedback=$4,plan_version=plan_version+1,updated_at=NOW()
+    WHERE id=$1 AND plan_status='draft' RETURNING *`,[id,proposal.summary,JSON.stringify(proposal.estimate),feedback]);
+   await client.query('DELETE FROM orchestration_steps WHERE run_id=$1',[id]);
+   for(const step of proposal.steps)await client.query(
+    'INSERT INTO orchestration_steps(run_id,sequence_no,role_id,instruction,estimated_minutes,estimated_input_tokens,max_output_tokens,estimated_usd) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
+    [id,step.sequence_no,step.role_id,step.instruction,step.estimated_minutes,step.estimated_input_tokens,step.max_output_tokens,step.estimated_usd]
+   );
+   await client.query('INSERT INTO audit_log(actor,event,target_type,target_id,details) VALUES($1,$2,$3,$4,$5)',
+    ['ceo',eventName,'task',taskId,JSON.stringify({version:updated.rows[0].plan_version,feedback,estimated_usd:proposal.estimate.estimated_usd})]);
+   await client.query('COMMIT');
+   return res.json({run:updated.rows[0],steps:proposal.steps,notice:'已更新幕僚長方案，仍待 CEO 核准；尚未啟動部門執行。'});
+  }catch(e){await client.query('ROLLBACK');return fail(res,e)}finally{client.release()}
+ }
+ api.post('/:id/revise',async(req,res)=>{
+  const id=req.params.id,feedback=compactText(req.body?.feedback,2000);
+  if(!validUuid(id)||!feedback)return res.status(400).json({error:'invalid_revision_request'});
+  try{
+   const data=await read(id);if(!data)return res.status(404).json({error:'run_not_found'});
+   if(data.run.plan_status!=='draft')return res.status(409).json({error:'draft_only'});
+   const taskQ=await db.query('SELECT t.*,p.goal AS project_goal FROM tasks t JOIN projects p ON p.id=t.project_id WHERE t.id=$1',[data.run.task_id]);
+   if(!taskQ.rowCount)return res.status(404).json({error:'task_not_found'});
+   const task=taskQ.rows[0];
+   const previous={summary:data.run.summary,steps:data.steps.map(s=>({role_id:s.role_id,instruction:s.instruction,estimated_minutes:s.estimated_minutes,max_output_tokens:s.max_output_tokens}))};
+   const raw=await askModel({role:'chief_of_staff',format:'json',maxTokens:1800,messages:[{role:'user',content:chiefPlanPrompt(task,{feedback,previous})}]});
+   let validated;
+   try{
+    const plan=validateDetailedPlan(JSON.parse(raw));
+    validated={...estimateDetailedPlan(plan,{taskTitle:task.title,taskBrief:task.brief,model:process.env.OPENAI_MODEL||'gpt-4.1-mini'}),summary:plan.summary};
+   }catch{return res.status(502).json({error:'invalid_ai_plan'})}
+   return saveRevisedDraft(id,data.run.plan_version,validated,feedback,'plan.revised_by_ceo_instruction',res);
+  }catch(e){fail(res,e)}
+ });
+ api.post('/:id/edit',async(req,res)=>{
+  const id=req.params.id,expectedVersion=req.body?.plan_version;
+  if(!validUuid(id)||!Number.isInteger(expectedVersion)||expectedVersion<1)return res.status(400).json({error:'invalid_revision_request'});
+  try{
+   const data=await read(id);if(!data)return res.status(404).json({error:'run_not_found'});
+   if(data.run.plan_status!=='draft'||data.run.plan_version!==expectedVersion)return res.status(409).json({error:'plan_changed_reload'});
+   const taskQ=await db.query('SELECT title,brief FROM tasks WHERE id=$1',[data.run.task_id]);
+   if(!taskQ.rowCount)return res.status(404).json({error:'task_not_found'});
+   let validated;
+   try{
+    const plan=validateDetailedPlan({summary:req.body?.summary,steps:req.body?.steps});
+    validated={...estimateDetailedPlan(plan,{taskTitle:taskQ.rows[0].title,taskBrief:taskQ.rows[0].brief,model:process.env.OPENAI_MODEL||'gpt-4.1-mini'}),summary:plan.summary};
+   }catch{return res.status(400).json({error:'invalid_department_plan'})}
+   return saveRevisedDraft(id,expectedVersion,validated,'CEO 手動修改分工','plan.edited_by_ceo',res);
+  }catch(e){fail(res,e)}
+ });
  api.post('/:id/approve',async(req,res)=>{
   const id=req.params.id;
   if(!validUuid(id))return res.status(400).json({error:'invalid_run_id'});
