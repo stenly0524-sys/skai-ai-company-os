@@ -13,7 +13,7 @@ function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
  toastTimer=setTimeout(()=>{toast.hidden=true},4000);
 }
-renderOffice(EMPLOYEES,{office:$('officePeople'),grid:$('employeeGrid'),onSelect:showEmployee});
+renderOffice(EMPLOYEES,{office:$('officePeople'),grid:$('employeeGrid'),mobileGrid:$('mobileOfficeGrid'),onSelect:showEmployee});
 function showEmployee(employee){
  currentEmployee=employee;
  $('employeeTitle').textContent=employee.name;
