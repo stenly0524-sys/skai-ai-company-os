@@ -73,6 +73,7 @@ export const localCompany={
   return change(st=>{
    const task=st.tasks.find(t=>t.id===taskId);if(!task)throw Error('找不到任務');
    if(!allowed[task.status]?.includes(status))throw Error('任務狀態不允許此操作');
+   if(['in_progress','review','done'].includes(status))throw Error('本機模式無 AI 執行成果，不能直接標記執行或驗收完成');
    task.status=status;task.updated_at=new Date().toISOString();return task;
   });
  },
