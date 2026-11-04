@@ -57,7 +57,7 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await page.getByRole('button',{name:'本機模式'}).click();
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
- await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(7);
+ await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(8);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
  await page.locator('.desktop-nav [data-page="employees"]').click();
@@ -230,5 +230,52 @@ test('all 24 SKAI icons use SVG and primary mobile tabs retain their navigation 
  await expect(page.locator('#page-projects')).toHaveClass(/active/);
  await page.locator('.mobile-nav [data-page="home"]').click();
  await expect(page.locator('#officeScene')).toBeVisible();
+ await context.close();
+});
+
+test('CEO AI settings page is mobile accessible and saves approved settings through authenticated mocked API',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ let saved={ai_enabled:true,daily_call_limit:50,daily_token_warning:100000};
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/api/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  const method=route.request().method();
+  let body={};
+  if(path==='/api/session')body={authenticated:true,csrf_token:'mock-ceo-csrf'};
+  else if(path==='/api/dashboard')body={counts:{projects:0,active:0,pending:0}};
+  else if(path==='/api/projects')body={projects:[]};
+  else if(path==='/api/tasks')body={tasks:[]};
+  else if(path==='/api/approvals')body={approvals:[]};
+  else if(path==='/api/operations/notifications')body={notifications:[]};
+  else if(path==='/api/orchestrations')body={runs:[]};
+  else if(path==='/api/operations/usage')body={day:'2026-11-04',cap:saved.daily_call_limit,ai_enabled:saved.ai_enabled,usage:{reserved_calls:2,total_input_tokens:100,total_output_tokens:100}};
+  else if(path==='/api/operations/ai-settings'){
+   if(method==='POST'){
+    expect(route.request().headers()['x-csrf-token']).toBe('mock-ceo-csrf');
+    saved=route.request().postDataJSON();
+    body={settings:saved,effective_daily_limit:saved.daily_call_limit};
+   }else body={settings:saved,effective_daily_limit:saved.daily_call_limit,deployment_ceiling:50};
+  }else if(path==='/api/conversations')body={conversations:[]};
+  else return route.fulfill({status:404,json:{error:'not_found'}});
+  return route.fulfill({status:200,json:body});
+ });
+ await page.goto('/');
+ await page.locator('#mobileMore').click();
+ await page.locator('#mobileMoreMenu [data-page="ai-controls"]').click();
+ await expect(page.locator('#page-ai-controls')).toHaveClass(/active/);
+ await expect(page.locator('#controlUsage')).toContainText('2／50');
+ await page.locator('#aiControlEnabled').uncheck();
+ await page.locator('#aiControlLimit').fill('10');
+ await page.locator('#aiTokenWarning').fill('9000');
+ await page.locator('#aiControlForm button[type="submit"]').click();
+ await expect(page.locator('#aiControlFeedback')).toContainText('設定已保存');
+ expect(saved).toEqual({ai_enabled:false,daily_call_limit:10,daily_token_warning:9000});
+ await page.reload();
+ await page.locator('#mobileMore').click();
+ await page.locator('#mobileMoreMenu [data-page="ai-controls"]').click();
+ await expect(page.locator('#aiControlLimit')).toHaveValue('10');
+ await expect(page.locator('#aiControlEnabled')).not.toBeChecked();
+ expect(errors).toEqual([]);
  await context.close();
 });
