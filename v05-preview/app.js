@@ -125,14 +125,15 @@ async function loadDashboard(){
 }
 async function refreshPage(page){
  if(!isSignedIn)return;
- if(page==='home')await loadDashboard();
+ if(page==='home')await Promise.all([loadDashboard(),loadHomeSummary()]);
+ if(page==='data')await loadDataIndex();
  if(page==='projects')await loadProjects();
  if(page==='tasks'){await loadProjects();await loadTasks();}
  if(page==='approvals')await loadApprovals();
  if(page==='notifications')await loadNotifications();
 }
 async function refreshAll(){
- await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications()]);
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadHomeSummary(),loadDataIndex()]);
 }
 $('projectForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
@@ -209,6 +210,25 @@ $('importWorkspace').addEventListener('change',async e=>{
  }catch(error){showToast(error.message);}
  finally{e.target.value='';}
 });
+async function loadHomeSummary(){
+ try{
+  const [p,t,a]=await Promise.all([api('/projects'),api('/tasks'),api('/approvals')]);
+  const projects=(p.projects||[]).slice(0,4),tasks=(t.tasks||[]).filter(x=>x.status!=='approved'&&x.status!=='rejected').slice(0,3),approvals=(a.approvals||[]).slice(0,2);
+  renderList($('homeProjects'),projects,'尚無專案。可從「專案」建立。',x=>listItem(x.name,x.goal||'尚無簡介',el('span','quiet-pill',x.stage||'規劃中')));
+  renderList($('homeHighlights'),[...approvals.map(x=>({title:'待審批：'+x.title,brief:'需要 CEO 核准'})),...tasks.map(x=>({title:x.title,brief:'任務進度：'+(statuses[x.status]||x.status)}))],'目前沒有待處理事項。',x=>listItem(x.title,x.brief));
+ }catch(e){$('homeHighlights').textContent='目前無法讀取任務摘要';$('homeProjects').textContent='目前無法讀取專案摘要';}
+}
+async function loadDataIndex(){
+ const target=$('dataResults');if(!target)return;
+ try{
+  const [p,t]=await Promise.all([api('/projects'),api('/tasks')]);
+  const q=$('dataSearch').value.trim().toLocaleLowerCase('zh-TW');
+  const all=[...(p.projects||[]).map(x=>({title:'專案｜'+x.name,body:x.goal||'未填寫目標'})),...(t.tasks||[]).map(x=>({title:'任務｜'+x.title,body:x.brief||'無任務說明'}))];
+  const matched=all.filter(x=>(x.title+' '+x.body).toLocaleLowerCase('zh-TW').includes(q)).slice(0,100);
+  renderList(target,matched,'找不到符合的專案或任務紀錄。',x=>listItem(x.title,x.body));
+ }catch(e){target.textContent='無法讀取資料：'+e.message;}
+}
+$('dataSearch').addEventListener('input',()=>loadDataIndex());
 const initialPage=location.hash.slice(1);
-if(['home','employees','projects','tasks','approvals','notifications'].includes(initialPage))showPage(initialPage);
+if(['home','employees','projects','tasks','approvals','notifications','data','assistant'].includes(initialPage))showPage(initialPage);
 startSession();
