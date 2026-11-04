@@ -640,3 +640,82 @@ body{background:linear-gradient(135deg,#e8eef7 0%,#f6f8fd 57%,#e8effb 100%);colo
 }
 
 .project-quick-detail{padding:16px 19px;margin:16px 0 24px;border-radius:17px;background:linear-gradient(135deg,#edf5ff,#fff);border:1px solid #cfe0f4}.project-quick-detail[hidden]{display:none}.project-quick-detail h3{font-size:16px;margin:0;color:#27466e}.project-quick-detail .section-heading{margin:12px 0}.project-quick-detail .data-list{margin-top:10px}
+
+/* V0.7 fidelity correction: keep screenshot-style primary screens clean.
+   Creation forms and advanced workflows remain accessible, but are collapsed until requested. */
+.creation-panel[hidden],#chiefPlanContent[hidden],.workspace-toggle[hidden]{display:none!important}
+.sidebar-ceo{display:flex;align-items:center;gap:10px;padding:17px 9px 2px;margin-top:10px;border-top:1px solid #e1eaf5;font-size:13px}
+.sidebar-ceo-avatar{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:#e2eaf8;font-size:24px}
+.sidebar-settings{border:0;background:transparent;color:#758da9;margin-left:auto;font-size:17px}
+.desktop-nav .nav-footer{margin-top:auto;padding-bottom:6px}
+.workspace-toggle{position:absolute;right:36px;top:77px;z-index:20;display:flex;gap:8px;border:1px solid #d4e1f0;background:#fff;border-radius:15px;box-shadow:0 10px 30px #375b8530;padding:8px}
+#page-projects .creation-panel,#page-tasks .creation-panel{margin-top:24px;border:1px solid #dae6f3;border-radius:14px;background:#f4f8ff;padding:14px}
+#page-projects .creation-panel .section-heading,#page-tasks .creation-panel .section-heading{margin:4px 0 13px}
+.chief-plan-collapsible{padding:13px 17px}
+#toggleChiefPlans{width:100%;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800}
+#chiefPlanContent{padding-top:12px}
+#page-home .scene-heading{display:none}
+#page-home .scene-bottom{display:none}
+#page-home .scene-card{padding:8px}
+#page-home .office-scene{height:183px!important;max-height:183px!important;background-size:cover!important}
+#page-home .mobile-office-grid{display:none!important}
+#page-home .home-todo-card{min-height:167px}
+#page-home .progress-overview{min-height:215px}
+#page-home .home-action-card{min-height:112px}
+#page-assistant .chief-avatar{background:linear-gradient(125deg,#f6faff,#dbe7fb);border-radius:21px;overflow:hidden;box-shadow:none}
+#page-assistant .chief-avatar img{object-fit:contain;width:100%;height:100%}
+#page-assistant .assistant-hero{max-width:930px}
+#page-assistant .assistant-hero-body{grid-template-columns:170px 1fr}
+#page-projects .listing-card,#page-tasks .listing-card{min-height:580px}
+#page-projects .visual-project-list{gap:9px}
+#page-projects .visual-project-row{min-height:70px}
+#page-projects .visual-project-row .project-graphic{font-size:30px}
+#page-data .knowledge-tiles .knowledge-tile{min-height:141px}
+@media(max-width:720px){
+ .sidebar-ceo{display:none}
+ .workspace-toggle{position:fixed;right:8px;top:67px}
+ #page-home .office-scene{height:175px!important;max-height:175px!important}
+ #page-assistant .assistant-hero-body{grid-template-columns:100px 1fr}
+ #page-projects .listing-card,#page-tasks .listing-card{min-height:0}
+}
+
+.mobile-settings-button{display:none;border:1px solid #dae4f3;border-radius:12px;background:#f4f8fc;padding:7px 10px;color:#58728e;font-size:17px}@media(max-width:720px){.mobile-settings-button{display:inline-flex}.top-actions{gap:6px}.topbar .offline-chip{font-size:10px;padding:5px 7px}}
+
+/* V0.7 screenshot findings: remove duplicated top headers and avoid office crop. */
+body:not([data-current-page="home"]) .topbar{display:none!important}
+body:not([data-current-page="home"]) .main-column{padding-top:25px}
+body:not([data-current-page="home"]) #page-projects .listing-card,
+body:not([data-current-page="home"]) #page-tasks .listing-card{min-height:calc(100dvh - 85px)}
+#page-home .office-scene{background-size:contain!important;background-position:center!important;filter:none!important}
+#page-home .office-hotspot .office-position-label{font-size:9px}
+.compact-home-kpis .kpi{min-height:83px;padding:10px 12px;gap:5px}
+#page-home .content-grid{gap:12px}
+#page-home .primary-area,#page-home .secondary-area{gap:10px}
+.nav-notification{min-width:18px!important;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;border-radius:30px;background:#f64c52;color:#fff;font-size:11px!important;padding:2px 5px;line-height:1.2}
+.nav-notification[hidden]{display:none!important}
+#page-assistant>.card:nth-of-type(1){margin-bottom:0;border-bottom:0;border-radius:19px 19px 0 0;box-shadow:none}
+#page-assistant>.card:nth-of-type(2){margin-top:-14px;border-top:0;border-radius:0 0 19px 19px;box-shadow:none}
+#page-assistant>.card:nth-of-type(2)>.section-top{display:none}
+#page-assistant>.card:nth-of-type(2)>.helper{display:none}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .mobile-settings-button{display:inline-flex}
+}
+
+/* Reference: compact unboxed greeting and unobtrusive notification bell. */
+.topbar{background:transparent!important;box-shadow:none!important;border:0!important;padding:0 4px!important;min-height:68px!important}
+.topbar .eyebrow{display:none}
+.topbar h1{margin:0 0 4px!important}
+.topbar .offline-chip{background:transparent!important;font-size:10px}
+.header-bell{border:0;background:transparent;position:relative;color:#647d9b;font-size:23px;padding:5px 10px;line-height:1}
+.header-bell::first-letter{color:#6484a7}
+.header-bell-count{position:absolute;top:0;right:0;min-width:17px;height:17px;display:grid;place-items:center;border-radius:50%;background:#f04452;color:#fff;font-size:10px;box-shadow:0 2px 6px #d33b4530}
+.header-bell-count[hidden]{display:none}
+#page-home .scene-card{background:linear-gradient(140deg,#fff,#edf3fc)}
+#page-home .scene-card .office-scene{overflow:hidden}
+@media(max-width:720px){.topbar .offline-chip{display:none}.topbar{min-height:62px!important}}
+
+/* Workspace switch is accessible from all pages; office hotspots align with full contained art. */
+.workspace-toggle{position:fixed!important;top:72px!important;right:32px!important;z-index:200!important}
+#page-home .office-people{width:54%;left:50%;transform:translateX(-50%)}
+#page-home .office-position-label{font-size:8px!important;padding:3px 4px!important}
+@media(max-width:720px){#page-home .office-people{width:min(82%,205px)}.workspace-toggle{right:8px!important;top:68px!important}}

@@ -4,14 +4,17 @@ test('iPhone portrait: create project, propose and approve task, preserve across
  const ctx=await browser.newContext({viewport:{width:430,height:932},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await ctx.newPage();
  await page.goto('/');
+ await page.locator(page.viewportSize()?.width<=720||page.viewportSize()?.height<550?'#openSettingsMobile':'#openSettings').click();
  await page.getByRole('button',{name:'本機模式'}).click();
  await expect(page.locator('#connectionStatus')).toContainText('本機工作區');
  await page.locator('.mobile-nav [data-page="projects"]').click();
+ await page.locator('#jumpProjectCreate').click();
  await page.locator('#projectForm [name="name"]').fill('埔里潮流盆栽專案');
  await page.locator('#projectForm [name="goal"]').fill('籌備供應鏈和營運計畫');
  await page.locator('#projectForm [type="submit"]').click();
  await expect(page.locator('#projectList')).toContainText('埔里潮流盆栽專案');
  await page.locator('.mobile-nav [data-page="tasks"]').click();
+ await page.locator('#jumpTaskCreate').click();
  await page.locator('#taskProject').selectOption({label:'埔里潮流盆栽專案'});
  await page.locator('#taskForm [name="title"]').fill('整理供應商名單');
  await page.locator('#taskForm [type="submit"]').click();
@@ -33,8 +36,10 @@ test('iPhone portrait: create project, propose and approve task, preserve across
 
 test('local backup export and import restores saved projects',async({page})=>{
  await page.goto('/');
+ await page.locator(page.viewportSize()?.width<=720?'#openSettingsMobile':'#openSettings').click();
  await page.getByRole('button',{name:'本機模式'}).click();
  await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#jumpProjectCreate').click();
  await page.locator('#projectForm [name="name"]').fill('備份專案');
  await page.locator('#projectForm [type="submit"]').click();
  await expect(page.locator('#projectList')).toContainText('備份專案');
@@ -54,15 +59,15 @@ test('local backup export and import restores saved projects',async({page})=>{
 test('iPhone landscape: navigation and content remain accessible without horizontal overflow',async({browser})=>{
  const context=await browser.newContext({viewport:{width:932,height:430},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await context.newPage();
+ await page.addInitScript(()=>sessionStorage.setItem('skai_v05_workspace_mode','local'));
  await page.goto('/');
- await page.getByRole('button',{name:'本機模式'}).click();
+ await expect(page.locator('#connectionStatus')).toContainText('本機工作區');
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
  await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(5);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
- await page.locator('[data-jump="employees"]').click();
- await page.locator('#employeeGrid .employee-card').first().click();
+ await page.locator('#officeScene .office-hotspot').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
  await context.close();
@@ -70,7 +75,9 @@ test('iPhone landscape: navigation and content remain accessible without horizon
 
 test('offline workspace never fabricates AI response',async({page})=>{
  await page.goto('/');
+ await page.locator(page.viewportSize()?.width<=720?'#openSettingsMobile':'#openSettings').click();
  await page.getByRole('button',{name:'本機模式'}).click();
+ await page.locator('.desktop-nav [data-page="assistant"]').click();
  await page.locator('.desktop-nav [data-page="assistant"]').click();
  await page.locator('#chatText').fill('請完成真實市場研究');
  await page.locator('#chatPreviewForm [type="submit"]').click();
@@ -141,6 +148,7 @@ test('CEO cloud project and task creation reset forms only after async API saves
  await page.goto('/');
  await expect(page.locator('#connectionStatus')).toContainText('系統已登入');
  await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#jumpProjectCreate').click();
  await page.locator('#projectForm [name="name"]').fill('SKAI 系統測試');
  await page.locator('#projectForm [name="goal"]').fill('驗證儲存與重新登入');
  await page.locator('#projectForm [type="submit"]').click();
@@ -148,6 +156,7 @@ test('CEO cloud project and task creation reset forms only after async API saves
  await expect(page.locator('#projectForm [name="name"]')).toHaveValue('');
  expect(projects).toHaveLength(1);
  await page.locator('.desktop-nav [data-page="tasks"]').click();
+ await page.locator('#jumpTaskCreate').click();
  await page.locator('#taskProject').selectOption(projectId);
  await page.locator('#taskForm [name="title"]').fill('核准第一項任務');
  await page.locator('#taskForm [type="submit"]').click();
@@ -194,8 +203,8 @@ test('SKAI command center shows nine functional manager tiles on portrait phone'
  await page.goto('/');
  await expect(page.locator('#officeScene')).toBeVisible();
  await expect(page.locator('#mobileOfficeGrid .mobile-office-person')).toHaveCount(9);
- await expect(page.locator('#mobileOfficeGrid')).toBeVisible();
- await page.locator('#mobileOfficeGrid .mobile-office-person').first().click();
+ await expect(page.locator('#officeScene .office-hotspot').first()).toBeVisible();
+ await page.locator('#officeScene .office-hotspot').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await expect(page.locator('#employeeTitle')).toHaveText('AI 幕僚長');
  await page.locator('#closeEmployee').click();
@@ -321,4 +330,32 @@ test('CEO tasks replace independent AI collaboration and offer chief plan revisi
  await expect(page.locator('#orchestrationList')).toContainText('US$0.0092');
  await expect(page.locator('#orchestrationList')).toContainText('CEO 直接修改分工與資源');
  await expect(page.locator('#orchestrationList')).toContainText('請幕僚長重新調整方案');
+});
+
+// Screenshot-based visual inspection of the actual integrated frontend (no private user data).
+test('visual audit: reference layout across five screens',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/');
+ // Screenshot fixture ONLY: no sample records are written to live SKAI or Neon.
+ await page.evaluate(()=>{
+  const now=new Date().toISOString();
+  const names=['SKAI POS 系統','SKAI AI 管理平台','品牌開發案（FFM）','埔里盆栽咖啡案','FFM 官網優化'];
+  const progress=[65,40,80,55,90];
+  const projects=names.map((name,i)=>({id:'visual-p'+i,name,goal:'工作進度與里程碑管理',stage:'active',status:'planning',progress:progress[i],created_at:now}));
+  const titles=['POS 前台功能開發進度確認','整理行銷提案大綱','完成 FFM 官網內容調整','更新本週專案進度報告','審核 AI 成本與用量'];
+  const statuses=['in_progress','approved','proposed','in_progress','done'];
+  const tasks=titles.map((title,i)=>({id:'visual-t'+i,project_id:projects[i].id,title,brief:'內部測試紀錄',status:statuses[i],updated_at:now,created_at:now}));
+  const approvals=[{id:'visual-a1',task_id:'visual-t2',project_id:projects[2].id,title:titles[2],status:'pending',created_at:now}];
+  localStorage.setItem('skai_v05_local_company_v1',JSON.stringify({version:1,projects,tasks,approvals,notifications:[],shared:''}));
+ });
+ await page.locator('#openSettings').click();
+ await page.locator('#useLocal').click();
+ await expect(page.locator('#workspaceToggle')).toBeHidden();
+ await page.locator('#toast').evaluate(node=>node.hidden=true);
+ for(const screen of ['home','projects','tasks','data','assistant']){
+  await page.locator('.desktop-nav [data-page="'+screen+'"]').click();
+  await expect(page.locator('#page-'+screen)).toBeVisible();
+  const png=await page.screenshot({type:'jpeg',quality:52,fullPage:false});
+  console.log('SKAI_VISUAL_'+screen.toUpperCase()+'_BASE64='+png.toString('base64'));
+ }
 });

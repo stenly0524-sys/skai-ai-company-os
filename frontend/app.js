@@ -41,6 +41,7 @@ function showPage(page){
  const more=$('mobileMore');
  if(more){more.classList.toggle('active',['employees','approvals','notifications','department-tech','department-finance'].includes(page));closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
+ document.body.dataset.currentPage=page;
  if(history.replaceState)history.replaceState(null,'','#'+page);
  const headings={home:['早安，CEO','SKAI OS｜個人企業智慧管理中心'],projects:['專案中心','管理所有專案、進度與里程碑'],tasks:['任務中心','管理與追蹤所有任務執行進度'],data:['資料中心','集中管理知識與工作紀錄'],assistant:['AI 幕僚長','你的專屬策略與執行助理']};
  const heading=headings[page]||['SKAI 指揮中心','管理功能'];$('pageTitle').textContent=heading[0];$('pageSubtitle').textContent=heading[1];
@@ -62,13 +63,13 @@ document.addEventListener('click',event=>{
  if(!event.target.closest('#mobileMore')&&!event.target.closest('#mobileMoreMenu'))closeMobileMore();
 });
 
-for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>showPage(button.dataset.jump));
+for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(which==='task'){$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(button.dataset.jump==='data')$('dataSearch')?.focus();});
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
  isSignedIn=connected;
  $('connectionStatus').textContent=workspaceMode()==='local'?'● 本機工作區':connected?'● 系統已登入':'● 未連線';
  $('connectionStatus').setAttribute('aria-label',connected?'後端已登入':'未連線');
- document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'SKAI V0.5 · 本機保存（非雲端同步）':connected?'SKAI V0.5 · 雲端測試環境':'SKAI V0.5 · 未連線預覽';
+ document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'SKAI V0.7 · 本機保存（非雲端同步）':connected?'SKAI V0.7 · 雲端測試環境':'SKAI V0.7 · 未連線預覽';
 }
 async function startSession(){
  if(workspaceMode()==='local'){setConnection(true);await refreshAll();return;}
@@ -312,6 +313,9 @@ async function loadDashboard(){
  const data=result.counts||{};
  for(const [id,key] of [['statProjects','projects'],['statTasks','active'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
  $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='已保存任務';$('approvalLabel').textContent='已保存審批';
+ const badge=$('taskNavBadge'),bell=$('headerNotificationCount');const n=Number(data.pending)||0;
+ if(badge){badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
+ if(bell){bell.hidden=n<=0;bell.textContent=n>99?'99+':String(n);}
  $('companyDataSource').textContent=workspaceMode()==='local'?'本機工作區 · 非跨裝置同步':'SKAI 雲端資料 · 已登入';
  const highlights=$('todayHighlights');
  highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
@@ -371,7 +375,8 @@ function renderProjectCards(){
  if(!rows.length){root.append(el('p','helper','沒有符合條件的專案。'));return;}
  for(const p of rows){
   const button=el('button','visual-project-row');button.type='button';button.addEventListener('click',()=>openQuickProject(p));
-  const graphic=el('span','project-graphic','▣');const body=el('span','project-row-main');
+  const visual=p.name.match(/POS|收銀/i)?'▣':p.name.match(/AI|SKAI/i)?'✦':p.name.match(/盆栽|森林|植物/i)?'🌳':p.name.match(/FFM|品牌|食食/i)?'◈':'▤';
+  const graphic=el('span','project-graphic',visual);const body=el('span','project-row-main');
   body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
   const stage=el('span','status-pill',p.status==='closed'?'已完成':p.stage==='active'?'進行中':'規劃中');
   const amount=Number(p.progress);const known=p.progress!==undefined&&p.progress!==null&&Number.isFinite(amount);
@@ -416,8 +421,13 @@ document.querySelectorAll('[data-project-filter]').forEach(b=>b.addEventListener
 document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{
  taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTaskCards();
 }));
-$('jumpProjectCreate')?.addEventListener('click',()=>$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'}));
-$('jumpTaskCreate')?.addEventListener('click',()=>$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'}));
+$('jumpProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
+$('closeProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=true;});
+$('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
+$('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=true;});
+$('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
+$('openSettingsMobile')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
+$('toggleChiefPlans')?.addEventListener('click',()=>{const x=$('chiefPlanContent');x.hidden=!x.hidden;$('chiefPlanToggleIcon').textContent=x.hidden?'展開':'收合';});
 async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await loadDashboard();
@@ -597,6 +607,7 @@ $('chatPreviewForm').addEventListener('submit',async event=>{
  finally{button.disabled=false;}
 });
 $('useLocal').addEventListener('click',async()=>{
+ $('workspaceToggle').hidden=true;
  useLocalWorkspace();
  roleConversations.clear();
  await chooseChat(currentEmployee);
@@ -606,6 +617,7 @@ $('useLocal').addEventListener('click',async()=>{
  showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
 });
 $('useCloud').addEventListener('click',async()=>{
+ $('workspaceToggle').hidden=true;
  useCloudWorkspace();
  roleConversations.clear();
  await chooseChat(currentEmployee);
@@ -653,4 +665,5 @@ $('dataSearch').addEventListener('input',()=>loadDataIndex());
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
 if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','assistant','data'].includes(initialPage))showPage(initialPage);
+else document.body.dataset.currentPage='home';
 startSession();
