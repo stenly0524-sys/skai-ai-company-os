@@ -228,7 +228,7 @@ test('SKAI HQ removes scene and Department page manages nine roles',async({page}
 test('all 24 SKAI icons use SVG and primary mobile tabs retain their navigation actions',async({browser})=>{
  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await context.newPage();await page.goto('/');
- await expect(page.locator('.mobile-nav .mobileitem .skai-icon svg')).toHaveCount(6);
+ await expect(page.locator('.mobile-nav .mobileitem .skai-icon svg')).toHaveCount(7);
  await page.locator('.mobile-nav [data-page="employees"]').click();
  await expect(page.locator('#employeeGrid .employee-card .skai-icon svg')).toHaveCount(9);
  await page.locator('.mobile-nav [data-page="projects"]').click();
