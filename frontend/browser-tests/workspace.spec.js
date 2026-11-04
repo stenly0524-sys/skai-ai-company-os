@@ -208,11 +208,13 @@ test('SKAI HQ loads approved light office artwork and interactive staff hotspots
  const office=page.locator('#officeScene');
  await expect(office).toBeVisible();
  await expect(office.locator('.office-hotspot')).toHaveCount(7);
- const image=await page.request.get('/assets/skai-office-reference.webp');
+ const image=await page.request.get('/assets/skai-office-hd.svg');
  expect(image.status()).toBe(200);
- expect(image.headers()['content-type']).toMatch(/image\/webp/);
+ expect(image.headers()['content-type']).toMatch(/image\/svg\+xml/);
+ const source=await image.text();
+ expect(source).toContain('viewBox="0 0 1200 1000"');
  const bg=await office.evaluate(node=>getComputedStyle(node).backgroundImage);
- expect(bg).toContain('skai-office-reference.webp');
+ expect(bg).toContain('skai-office-hd.svg');
  await office.locator('.office-hotspot').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
