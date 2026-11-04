@@ -79,3 +79,6 @@
 
 /* Live local management controls */
 .detail-edit{margin-top:18px!important;background:#f6f9fd;border-color:#dce6f0}.detail-edit[hidden]{display:none}.detail-edit .stack-form{margin-bottom:0}.detail-edit .stack-form input[readonly]{color:#6a7b88;background:#ecf1f5}.home-kpis .kpi{min-height:98px}
+
+/* Project detail, linked records, and document index */
+#projectDetails[hidden]{display:none}#projectDetails h3{font-size:14px;margin:22px 0 8px;color:#44617b}.detail-metrics{padding:12px;background:#edf4fc;border-radius:12px;font-size:13px;color:#426787}.document-form{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(140px,1fr) minmax(200px,1.5fr) auto;gap:9px;margin:17px 0 22px}.document-form input,.document-form select{min-width:0;border:1px solid #dce5ee;background:#f7f9fb;border-radius:12px;padding:11px;color:#38526b;font-size:14px}.data-item a.outline-btn{text-decoration:none;display:inline-flex;align-items:center}.detail-edit .data-list{margin:8px 0}.document-form .primary-btn{white-space:nowrap}@media(max-width:950px){.document-form{grid-template-columns:1fr 1fr}.document-form input[name=url]{grid-column:span 2}}@media(max-width:620px){.document-form{grid-template-columns:1fr}.document-form input[name=url]{grid-column:auto}}
