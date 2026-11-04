@@ -20,7 +20,7 @@
       <button class="navitem" data-page="tasks"><span>☷</span> 任務</button>
       <button class="navitem" data-page="approvals"><span>✓</span> 待審批</button>
       <button class="navitem" data-page="notifications"><span>◌</span> 通知</button>
-      <button class="navitem" data-page="ai-controls"><span>⚙</span> AI 管理</button>
+
     </nav>
     <div class="nav-footer">SKAI V0.5 <span>連線確認中</span><br>僅顯示已驗證資料</div>
   </aside>
@@ -67,11 +67,7 @@
               <button class="kpi" data-jump="tasks"><span>進行中任務</span><strong id="statTasks">—</strong><small id="taskLabel">等待連線</small></button>
               <button class="kpi" data-jump="approvals"><span>待 CEO 審批</span><strong id="statApprovals">—</strong><small id="approvalLabel">等待連線</small></button>
             </div>
-            <section class="card" aria-label="AI API 使用狀態">
-              <div class="section-top"><h2>AI API 使用狀態</h2><span class="quiet-pill" id="usageDay">台灣時間 · 今日</span></div>
-              <p class="helper" id="usageSummary">登入後讀取實際雲端使用量。</p>
-              <p class="helper" id="usageDetails">成功、失敗與 Token 使用量分開統計；呼叫次數防護不是金額預算。</p>
-            </section>
+
             <section class="card">
               <div class="section-top"><h2>AI 幕僚長</h2><span class="quiet-pill">對話入口</span></div>
               <p class="helper">你可以先預覽對話介面；登入後可以開始幕僚長對話。AI 回覆僅為建議，並不自動執行操作。</p>
@@ -91,7 +87,7 @@
           </aside>
         </div>
       </section>
-      <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選員工卡片查看工作職責。實際工作成果請至「AI 協作」查看；績效評估尚未開放。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
+      <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選財務部可查看 AI 美元成本專欄；點選資訊部可查看 API 與 Tokens 使用專欄。其他主管可查看職責並對話。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
       <section class="page" id="page-projects"><div class="card"><h2>專案管理</h2><p class="helper">建議先與幕僚長討論，確認後再送出專案建立指令。這裡提供 CEO 核准建立的操作入口。</p>
 <form id="projectForm" class="stack-form"><label>專案名稱<input name="name" maxlength="120" required placeholder="例如：埔里潮流盆栽咖啡"></label><label>確認後的目標<textarea name="goal" maxlength="8000" placeholder="填入與幕僚長討論後確認的目標"></textarea></label><button class="primary-btn" type="submit">CEO 建立專案</button></form>
 <div class="actions" id="localBackupTools"><button type="button" class="outline-btn" id="exportWorkspace">匯出本機資料</button><label class="outline-btn" for="importWorkspace">匯入本機備份</label><input type="file" id="importWorkspace" accept=".json,application/json" hidden></div><div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></section>
@@ -111,37 +107,48 @@
 </section>
 <section class="page" id="page-approvals"><div class="card"><div class="section-top"><h2>CEO 待審批</h2><button class="text-btn" data-refresh="approvals">重新整理</button></div><p class="helper">此頁保留既有待審批紀錄。新任務由 CEO 直接交辦幕僚長，分工方案可在「任務」頁審核或修訂。</p><div class="data-list" id="approvalList"><p class="helper">等待連線…</p></div></div></section>
       <section class="page" id="page-notifications"><div class="card"><div class="section-top"><h2>管理通知</h2><button class="text-btn" data-refresh="notifications">重新整理</button></div><p class="helper">SKAI 內部通知，並非 ChatGPT App 推播。</p><div class="data-list" id="notificationList"><p class="helper">等待連線…</p></div></div></section>
-      <section class="page" id="page-ai-controls">
-       <div class="card">
-        <div class="section-top"><h2>CEO AI 管理後台</h2><span class="quiet-pill">需要 CEO 登入</span></div>
-        <p class="helper">管理 SKAI 內部 AI 呼叫；這些設定不會修改 OpenAI 官方帳戶額度。所有變更保存於 PostgreSQL 並留下稽核紀錄。</p>
-        <div class="card ai-control-status" aria-live="polite">
-         <h2>目前 AI 使用狀況</h2>
-         <p id="controlStatus" class="helper">登入後讀取控制設定。</p>
-         <p id="controlUsage" class="helper">尚未讀取今日實際使用量。</p>
-         <p id="controlUsdUsage" class="helper">美元費用估算尚未載入。</p>
+      <section class="page" id="page-department-tech">
+        <div class="card">
+          <div class="section-top"><h2>資訊部｜AI API 與 Token 使用管理</h2><span class="quiet-pill">資訊部 · 技術監控</span></div>
+          <p class="helper">由資訊部統計 AI API 呼叫次數、成功與失敗次數、輸入及輸出 Token，並監控警示門檻。資料為 SKAI 雲端後端已紀錄的使用量。</p>
+          <div class="department-stats">
+            <div class="department-stat"><span>今日 API 呼叫</span><strong id="techCallCount">—</strong></div>
+            <div class="department-stat"><span>輸入 Tokens</span><strong id="techInputTokens">—</strong></div>
+            <div class="department-stat"><span>輸出 Tokens</span><strong id="techOutputTokens">—</strong></div>
+            <div class="department-stat"><span>今日總 Tokens</span><strong id="techTotalTokens">—</strong></div>
+          </div>
+          <p class="helper" id="techUsageDetails">登入後讀取資訊部 AI API 使用狀態。</p>
+          <form id="aiControlForm" class="stack-form">
+            <h3>資訊部｜API 與 Token 控管設定</h3>
+            <label class="ai-switch"><input type="checkbox" id="aiControlEnabled" name="ai_enabled" checked> CEO 授權啟用 AI 呼叫</label>
+            <label>每日 AI API 呼叫上限<input type="number" id="aiControlLimit" name="daily_call_limit" min="1" max="50" step="1" value="50" required></label>
+            <p class="helper" id="aiControlCeiling">部署環境呼叫安全上限由系統決定。</p>
+            <label>每日 Token 警示門檻<input type="number" id="aiTokenWarning" name="daily_token_warning" min="1000" max="10000000" step="1000" value="100000" required></label>
+            <p class="helper">Token 警示僅產生 SKAI 內部通知，並非 Token 硬性停止額度。設定變更需 CEO 登入。</p>
+            <button class="primary-btn" type="submit">CEO 儲存資訊部 AI 設定</button>
+          </form>
+          <p id="aiControlFeedback" class="helper" role="status"></p>
         </div>
-        <form id="aiControlForm" class="stack-form">
-         <label class="ai-switch"><input type="checkbox" id="aiControlEnabled" name="ai_enabled" checked> 啟用 AI 回覆與部門分析</label>
-         <label>每日 AI 呼叫次數上限
-          <input type="number" id="aiControlLimit" name="daily_call_limit" min="1" max="50" step="1" value="50" required>
-         </label>
-         <p id="aiControlCeiling" class="helper">部署環境安全上限：50 次／日。降低數值可立即限制後續請求。</p>
-         <label>每日 Token 使用警示門檻（提醒用）
-          <input type="number" id="aiTokenWarning" name="daily_token_warning" min="1000" max="10000000" step="1000" value="100000" required>
-         </label>
-         <p class="helper">Token 警示在 AI 請求完成後觸發，僅產生 SKAI 內部通知，不會強制停止呼叫。</p>
-         <label>每日美元預算上限（USD）
-          <input type="number" id="aiDailyUsd" name="daily_budget_usd" min="0.01" max="1000" step="0.01" value="1.00" required>
-         </label>
-         <label>每月美元預算上限（USD）
-          <input type="number" id="aiMonthlyUsd" name="monthly_budget_usd" min="0.01" max="10000" step="0.01" value="10.00" required>
-         </label>
-         <p id="aiCostDetails" class="helper">預設模型 GPT-4.1 mini；根據公開單價估算，採呼叫前預留預算。美元限制只涵蓋這個 SKAI 後端的 AI 文字請求，不含其他應用、不同帳戶使用或供應商帳單調整。</p>
-         <button type="submit" class="primary-btn">CEO 保存 AI 設定</button>
-        </form>
-        <p id="aiControlFeedback" class="helper" role="status"></p>
-       </div>
+      </section>
+      <section class="page" id="page-department-finance">
+        <div class="card">
+          <div class="section-top"><h2>財務部｜AI 美元成本控管</h2><span class="quiet-pill">財務部 · 成本預算</span></div>
+          <p class="helper">由財務部統計 AI API 美元成本估算、每日與每月預算占用。實際預算上限仍由 CEO 核准調整。</p>
+          <div class="department-stats">
+            <div class="department-stat"><span>今日美元成本估算</span><strong id="financeDailyUsd">—</strong></div>
+            <div class="department-stat"><span>本月美元成本估算</span><strong id="financeMonthlyUsd">—</strong></div>
+          </div>
+          <p id="financeBudgetUsage" class="helper">登入後讀取財務部 AI 美元使用紀錄。</p>
+          <p id="financePending" class="helper">待核實金額會保留預算占用。</p>
+          <form id="aiFinanceForm" class="stack-form">
+            <h3>財務部｜美元預算控管設定</h3>
+            <label>每日美元預算上限（USD）<input type="number" id="aiDailyUsd" name="daily_budget_usd" min="0.01" max="1000" step="0.01" value="1.00" required></label>
+            <label>每月美元預算上限（USD）<input type="number" id="aiMonthlyUsd" name="monthly_budget_usd" min="0.01" max="10000" step="0.01" value="10.00" required></label>
+            <p id="aiCostDetails" class="helper">費用按已設定模型價格及 Token 用量估算，並非 OpenAI 官方帳單；預算採呼叫前檢查。</p>
+            <button class="primary-btn" type="submit">CEO 儲存財務部美元預算</button>
+          </form>
+          <p id="aiFinanceFeedback" class="helper" role="status"></p>
+        </div>
       </section>
     </main>
   </div>
@@ -157,7 +164,8 @@
 <div class="mobile-more-menu" id="mobileMoreMenu" hidden>
   <button class="mobile-more-link" data-page="employees"><span>♙</span> AI 員工</button>
   <button class="mobile-more-link" data-page="notifications"><span>◌</span> 公司通知</button>
-  <button class="mobile-more-link" data-page="ai-controls"><span>⚙</span> AI 管理後台</button>
+  <button class="mobile-more-link" data-page="department-tech"><span>⌘</span> 資訊部 · Tokens</button>
+  <button class="mobile-more-link" data-page="department-finance"><span>◆</span> 財務部 · USD</button>
 </div>
 <dialog id="employeeDialog" class="employee-dialog" aria-labelledby="employeeTitle">
   <div class="dialog-top"><span class="overline">SKAI / EMPLOYEE</span><button id="closeEmployee" class="icon-close" aria-label="關閉員工資訊">×</button></div>
