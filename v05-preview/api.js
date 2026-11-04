@@ -12,8 +12,10 @@ function localRequest(path,method,body){
  if(method==='GET'&&path==='/dashboard')return {counts:localCompany.dashboard(),source:'localStorage'};
  if(method==='GET'&&path==='/projects')return {projects:localCompany.projects()};
  if(method==='POST'&&path==='/projects')return {project:localCompany.createProject(body||{})};
+ if(method==='PATCH'&&/^\/projects\/[^/]+$/.test(path))return {project:localCompany.updateProject(decodeURIComponent(path.split('/')[2]),body||{})};
  if(method==='GET'&&path==='/tasks')return {tasks:localCompany.tasks()};
  if(method==='POST'&&path==='/tasks')return localCompany.createTask(body||{});
+ if(method==='PATCH'&&/^\/tasks\/[^/]+$/.test(path))return {task:localCompany.updateTask(decodeURIComponent(path.split('/')[2]),body||{})};
  if(method==='GET'&&path==='/approvals')return {approvals:localCompany.approvals()};
  if(method==='POST'&&/^\/approvals\/[^/]+\/decision$/.test(path))return {approval:localCompany.decide(path.split('/')[2],body?.decision)};
  if(method==='GET'&&path==='/operations/notifications')return {notifications:localCompany.notifications(),source:'localStorage'};
