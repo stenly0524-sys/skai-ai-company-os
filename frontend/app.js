@@ -428,6 +428,18 @@ async function openQuickProject(project){
  notesPanel.hidden=!String(project.notes||'').trim();fullNotes.hidden=true;
  $('toggleProjectNotes').textContent='查看完整方案';$('toggleProjectNotes').setAttribute('aria-expanded','false');
  $('quickProjectStatus').textContent='階段：'+(project.stage||'未設定')+'｜進度：'+(project.progress===undefined||project.progress===null?'未設定':project.progress+'%');
+ const linkHost=$('quickProjectDriveFolders');
+ if(linkHost){linkHost.replaceChildren();
+  if(workspaceMode()!=='local'){
+   try{const folderData=await api('/projects/'+encodeURIComponent(project.id)+'/drive-folders');
+    for(const item of folderData.folders||[]){
+     if(!/^https:\/\/drive\.google\.com\/drive\/folders\//.test(item.folder_url))continue;
+     const label=EMPLOYEES.find(x=>x.id===item.role_id)?.name||item.role_id;
+     const a=el('a','project-folder-link',label+' · Google Drive');a.href=item.folder_url;a.target='_blank';a.rel='noopener noreferrer';linkHost.append(a);
+    }
+   }catch(e){linkHost.append(el('p','helper','Drive 資料夾尚未連線'));}
+  }
+ }
  try{
   const data=await api('/tasks');
   const linked=(data.tasks||[]).filter(t=>t.project_id===project.id);
@@ -487,6 +499,43 @@ function taskDetailLine(label,value){
  line.append(el('strong','',label),el('div','',value||'未提供'));
  return line;
 }
+async function appendTaskDeliverables(task,container){
+ const section=el('section','task-drive-deliverables'),title=el('h4','','工作交付檔案／Google Drive');
+ section.append(title);
+ if(workspaceMode()==='local'){section.append(el('p','helper','本機工作區沒有雲端文件儲存功能。'));container.append(section);return;}
+ try{
+  const data=await api('/tasks/'+encodeURIComponent(task.id)+'/deliverables');
+  const files=data.documents||[];
+  const list=el('div','task-drive-links');
+  if(!files.length)list.append(el('p','helper','尚無上傳至 Google Drive 的實際成果檔案。'));
+  for(const file of files){
+   if(!/^https:\/\/(drive|docs)\.google\.com\//.test(file.drive_url||''))continue;
+   const a=el('a','task-drive-file',file.format.toUpperCase()+'｜'+file.title+'　'+(file.review_state==='needs_review'?'（待 CEO／律師複核）':''));
+   a.href=file.drive_url;a.target='_blank';a.rel='noopener noreferrer';
+   list.append(a);
+  }
+  section.append(list);
+  const f=el('div','task-format-choice');
+  f.append(el('strong','','CEO 選擇成果檔案格式（可複選）'));
+  const checkboxList=el('div','task-format-inputs'),fields=[];
+  for(const [value,label] of [['pdf','PDF'],['docx','Word'],['xlsx','Excel']]){
+   const input=document.createElement('input');input.type='checkbox';input.value=value;input.checked=(data.formats||['pdf']).includes(value);
+   const wrap=el('label','task-format-option');wrap.append(input,document.createTextNode(label));checkboxList.append(wrap);fields.push(input);
+  }
+  f.append(checkboxList);
+  const save=el('button','outline-btn','儲存格式選擇');save.type='button';
+  save.addEventListener('click',async()=>{
+   const formats=fields.filter(x=>x.checked).map(x=>x.value);
+   if(!formats.length)return showToast('請至少選擇一種交付格式');
+   save.disabled=true;
+   try{await api('/tasks/'+encodeURIComponent(task.id)+'/delivery-preferences',{method:'PUT',body:{formats}});showToast('已保存：'+formats.join('、'));}
+   catch(e){showToast('儲存失敗：'+e.message);}finally{save.disabled=false;}
+  });f.append(save);
+  f.append(el('p','helper','已儲存的格式會作為此任務的交付要求。SKAI 雲端伺服器尚未完成 Google Drive 授權與自動生成服務；此選擇不代表已建立檔案。'));
+  section.append(f);
+ }catch(e){section.append(el('p','helper','雲端交付紀錄讀取失敗：'+e.message));}
+ container.append(section);
+}
 async function openTaskDetails(task,container){
  const willOpen=container.hidden;
  document.querySelectorAll('#taskCards .task-evidence-panel').forEach(p=>p.hidden=true);
@@ -500,6 +549,7 @@ async function openTaskDetails(task,container){
  body.append(taskDetailLine('任務名稱',task.title));
  body.append(taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作說明與交付要求',task.brief||'尚未輸入工作說明，請先補齊要求。'));
  container.replaceChildren(heading,body);
+ await appendTaskDeliverables(task,container);
  if(workspaceMode()==='local'){
   container.append(el('p','task-evidence-warning','本機模式沒有 AI 規劃及成果紀錄，不能執行或驗收。切換雲端並登入 CEO 才能開始正式 AI 工作。'));
   return;
