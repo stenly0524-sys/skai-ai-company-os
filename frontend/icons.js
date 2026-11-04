@@ -35,7 +35,7 @@ export function applyInterfaceIcons(){
  document.querySelectorAll('#employeeGrid .employee-card,#mobileOfficeGrid .mobile-office-person').forEach(button=>{
   const label=button.getAttribute('aria-label')||'';
   const ids=['chief_of_staff','admin','finance','brand','marketing','operations','tech','hr','legal'];
-  const names=['AI 幕僚長','行政管理官','財務長','品牌創意長','行銷長','營運長','資訊長','人才管理長','法務風控長'];
+  const names=['幕僚戰略部','行政後勤部','財務部','視覺設計部','行銷企劃部','營運策略部','資訊技術部','人事管理部','法務部'];
   const id=ids[names.findIndex(name=>label.includes(name))];
   if(!id)return;
   const existing=button.querySelector('.person-head');
