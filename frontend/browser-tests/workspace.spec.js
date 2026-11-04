@@ -350,7 +350,7 @@ test('visual audit: reference layout across five screens',async({page})=>{
  });
  await page.locator('#openSettings').click();
  await page.locator('#useLocal').click();
- await page.locator('#openSettings').click();
+ await expect(page.locator('#workspaceToggle')).toBeHidden();
  await page.locator('#toast').evaluate(node=>node.hidden=true);
  for(const screen of ['home','projects','tasks','data','assistant']){
   await page.locator('.desktop-nav [data-page="'+screen+'"]').click();
