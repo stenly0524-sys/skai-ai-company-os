@@ -423,6 +423,10 @@ async function openQuickProject(project){
  const panel=$('projectQuickDetail');if(!panel)return;
  panel.hidden=false;$('quickProjectName').textContent=project.name;
  $('quickProjectGoal').textContent=project.goal||'尚未設定專案目標';
+ const notesPanel=$('quickProjectNotesPanel');const fullNotes=$('quickProjectNotes');
+ fullNotes.textContent=project.notes||'';
+ notesPanel.hidden=!String(project.notes||'').trim();fullNotes.hidden=true;
+ $('toggleProjectNotes').textContent='查看完整方案';$('toggleProjectNotes').setAttribute('aria-expanded','false');
  $('quickProjectStatus').textContent='階段：'+(project.stage||'未設定')+'｜進度：'+(project.progress===undefined||project.progress===null?'未設定':project.progress+'%');
  try{
   const data=await api('/tasks');
@@ -432,6 +436,7 @@ async function openQuickProject(project){
  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 $('closeQuickDetail')?.addEventListener('click',()=>{$('projectQuickDetail').hidden=true;});
+$('toggleProjectNotes')?.addEventListener('click',()=>{const pre=$('quickProjectNotes');pre.hidden=!pre.hidden;const open=!pre.hidden;$('toggleProjectNotes').textContent=open?'收起完整方案':'查看完整方案';$('toggleProjectNotes').setAttribute('aria-expanded',String(open));});
 function filteredTasks(){
  const q=$('taskSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
  return taskCache.filter(t=>{
