@@ -4,7 +4,7 @@ test('iPhone portrait: create project, propose and approve task, preserve across
  const ctx=await browser.newContext({viewport:{width:430,height:932},deviceScaleFactor:3,isMobile:true,hasTouch:true});
  const page=await ctx.newPage();
  await page.goto('/');
- await page.locator(page.viewportSize()?.width<=720?'#openSettingsMobile':'#openSettings').click();
+ await page.locator(page.viewportSize()?.width<=720||page.viewportSize()?.height<550?'#openSettingsMobile':'#openSettings').click();
  await page.getByRole('button',{name:'本機模式'}).click();
  await expect(page.locator('#connectionStatus')).toContainText('本機工作區');
  await page.locator('.mobile-nav [data-page="projects"]').click();
@@ -204,8 +204,8 @@ test('SKAI command center shows nine functional manager tiles on portrait phone'
  await page.goto('/');
  await expect(page.locator('#officeScene')).toBeVisible();
  await expect(page.locator('#mobileOfficeGrid .mobile-office-person')).toHaveCount(9);
- await expect(page.locator('#mobileOfficeGrid')).toBeVisible();
- await page.locator('#mobileOfficeGrid .mobile-office-person').first().click();
+ await expect(page.locator('#officeScene .office-hotspot').first()).toBeVisible();
+ await page.locator('#officeScene .office-hotspot').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await expect(page.locator('#employeeTitle')).toHaveText('AI 幕僚長');
  await page.locator('#closeEmployee').click();
@@ -337,8 +337,21 @@ test('CEO tasks replace independent AI collaboration and offer chief plan revisi
 test('visual audit: reference layout across five screens',async({page})=>{
  await page.setViewportSize({width:1280,height:800});
  await page.goto('/');
+ // Screenshot fixture ONLY: no sample records are written to live SKAI or Neon.
+ await page.evaluate(()=>{
+  const now=new Date().toISOString();
+  const names=['SKAI POS 系統','SKAI AI 管理平台','品牌開發案（FFM）','埔里盆栽咖啡案','FFM 官網優化'];
+  const progress=[65,40,80,55,90];
+  const projects=names.map((name,i)=>({id:'visual-p'+i,name,goal:'工作進度與里程碑管理',stage:'active',status:'planning',progress:progress[i],created_at:now}));
+  const titles=['POS 前台功能開發進度確認','整理行銷提案大綱','完成 FFM 官網內容調整','更新本週專案進度報告','審核 AI 成本與用量'];
+  const statuses=['in_progress','approved','proposed','in_progress','done'];
+  const tasks=titles.map((title,i)=>({id:'visual-t'+i,project_id:projects[i].id,title,brief:'內部測試紀錄',status:statuses[i],updated_at:now,created_at:now}));
+  const approvals=[{id:'visual-a1',task_id:'visual-t2',project_id:projects[2].id,title:titles[2],status:'pending',created_at:now}];
+  localStorage.setItem('skai_v05_local_company_v1',JSON.stringify({version:1,projects,tasks,approvals,notifications:[],shared:''}));
+ });
  await page.locator('#openSettings').click();
  await page.locator('#useLocal').click();
+ await page.locator('#openSettings').click();
  for(const screen of ['home','projects','tasks','data','assistant']){
   await page.locator('.desktop-nav [data-page="'+screen+'"]').click();
   await expect(page.locator('#page-'+screen)).toBeVisible();
