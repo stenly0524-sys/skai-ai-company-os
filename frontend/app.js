@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
 let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0;
-const orchestrationStatuses={draft:'待 CEO 核准分工',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
+const orchestrationStatuses={draft:'待 CEO 審核提案',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
  toastTimer=setTimeout(()=>{toast.hidden=true},4000);
@@ -35,7 +35,7 @@ function showPage(page){
   if(active)nav.setAttribute('aria-current','page');else nav.removeAttribute('aria-current');
  }
  const more=$('mobileMore');
- if(more){more.classList.toggle('active',page==='employees'||page==='notifications');closeMobileMore();}
+ if(more){more.classList.toggle('active',page==='employees'||page==='notifications'||page==='ai-controls');closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
  if(history.replaceState)history.replaceState(null,'','#'+page);
  if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
@@ -117,84 +117,163 @@ async function loadTasks(){
 async function loadOrchestrations(){
  const list=$('orchestrationList'),selector=$('orchestrationTask');
  if(workspaceMode()==='local'){
-  selector.replaceChildren(new Option('請切換至已部署的雲端後端',''));
-  renderList(list,[],'AI 跨部門協作需要真實後端、PostgreSQL 與 AI API；本機模式不會模擬 AI 工作。',()=>null);
+  selector.replaceChildren(new Option('需切換至雲端模式',''));
+  renderList(list,[],'幕僚長規劃需使用雲端 AI。此本機工作區只保留基本專案／任務功能。',()=>null);
   return;
  }
  const [tasksResult,runsResult]=await Promise.all([api('/tasks'),api('/orchestrations')]);
- const runs=runsResult.runs||[],eligible=(tasksResult.tasks||[]).filter(t=>t.status==='approved'&&!runs.some(r=>r.task_id===t.id));
- const old=selector.value;selector.replaceChildren(new Option('選擇已核准、未建立計畫的任務',''));
- for(const task of eligible)selector.add(new Option(task.title,task.id));
+ const runs=runsResult.runs||[];
+ const eligible=(tasksResult.tasks||[]).filter(t=>t.status==='approved'&&!runs.some(r=>r.task_id===t.id));
+ const old=selector.value;
+ selector.replaceChildren(new Option('選擇尚未規劃的任務',''));
+ for(const t of eligible)selector.add(new Option(t.title,t.id));
  selector.value=eligible.some(t=>t.id===old)?old:'';
- renderList(list,runs,'目前沒有跨部門協作計畫。請先建立任務並完成 CEO 核准。',run=>{
+ renderList(list,runs,'尚未建立幕僚長提案。建立 CEO 任務後會自動請幕僚長規劃。',run=>{
   const container=el('div','orchestration-entry');
   const status=orchestrationStatuses[run.plan_status]||run.plan_status;
-  const info=listItem(run.task_title,run.summary||'幕僚長計畫',el('span','quiet-pill',status));
+  const info=listItem(run.task_title,run.summary||'幕僚長提案',el('span','quiet-pill',status));
   const detail=el('div','orchestration-detail');
-  const report=el('div','orchestration-report');
   const actions=el('div','inline-actions');
+  const view=el('button','outline-btn','查看幕僚長提案');
+  view.type='button';
+  let opened=run.plan_status==='draft';
+  const apiPath='/orchestrations/'+encodeURIComponent(run.id);
+  const roleOptions=EMPLOYEES.filter(e=>e.id!=='chief_of_staff');
+  function editorRow(s){
+   const row=el('div','chief-step-editor');
+   const label=el('label','','執行部門');
+   const role=document.createElement('select');role.className='chief-field';
+   for(const e of roleOptions)role.add(new Option(e.name,e.id));
+   role.value=s.role_id||roleOptions[0].id;
+   label.append(role);
+   const instructionLabel=el('label','','具體工作及交付成果');
+   const instruction=document.createElement('textarea');instruction.maxLength=2000;
+   instruction.rows=3;instruction.value=s.instruction||'';
+   instructionLabel.append(instruction);
+   const row2=el('div','chief-estimate-row');
+   const timeLabel=el('label','','預估分鐘');
+   const time=document.createElement('input');time.type='number';time.min='1';time.max='240';time.required=true;
+   time.value=String(s.estimated_minutes||10);timeLabel.append(time);
+   const tokenLabel=el('label','','輸出 Token 上限');
+   const tokens=document.createElement('input');tokens.type='number';tokens.min='600';tokens.max='2400';tokens.required=true;
+   tokens.value=String(s.max_output_tokens||1200);tokenLabel.append(tokens);
+   const remove=el('button','outline-btn','移除部門');remove.type='button';remove.addEventListener('click',()=>row.remove());
+   row2.append(timeLabel,tokenLabel,remove);row.append(label,instructionLabel,row2);
+   row.getStep=()=>({role_id:role.value,instruction:instruction.value.trim(),estimated_minutes:Number(time.value),max_output_tokens:Number(tokens.value)});
+   return row;
+  }
   const draw=async()=>{
-   const data=await api('/orchestrations/'+encodeURIComponent(run.id));
+   const data=await api(apiPath);
    const current=data.run,steps=data.steps||[];
-   detail.replaceChildren(el('p','helper','分工：'+steps.length+' 個部門 · 目前狀態：'+(orchestrationStatuses[current.plan_status]||current.plan_status)));
+   detail.replaceChildren();
+   const projection=current.plan_estimate||{};
+   detail.append(el('p','helper','目前狀態：'+(orchestrationStatuses[current.plan_status]||current.plan_status)+' · 方案版本 V'+(current.plan_version||1)));
+   const amount=Number(projection.estimated_usd)||steps.reduce((sum,s)=>sum+Number(s.estimated_usd||0),0);
+   const time=Number(projection.total_minutes)||steps.reduce((sum,s)=>sum+Number(s.estimated_minutes||0),0);
+   const tokens=Number(projection.total_tokens)||steps.reduce((sum,s)=>sum+Number(s.estimated_input_tokens||0)+Number(s.max_output_tokens||0),0);
+   detail.append(el('div','chief-budget-summary','規劃總計：約 '+time+' 分鐘 · '+tokens.toLocaleString()+' Tokens · US$'+amount.toFixed(4)+'（估算）'));
+   detail.append(el('p','helper','以下是規劃估計，非完成時間保證或正式帳單。AI 幕僚長的規劃／重提費用不包含在部門執行預算中；實際呼叫仍受每日及每月美元上限約束。'));
    for(const step of steps){
     const member=EMPLOYEES.find(e=>e.id===step.role_id);
-    const description=el('p','helper',(member?.name||step.role_id)+' · '+(step.status||'pending')+' · '+step.instruction);
-    detail.append(description);
+    const name=member?.name||step.role_id;
+    const card=el('div','chief-step-card');
+    card.append(el('b','',name+'｜'+(step.status==='done'?'已完成':step.status==='running'?'執行中':step.status==='failed'?'執行失敗':'待執行')));
+    card.append(el('p','helper',step.instruction));
+    card.append(el('p','helper','約 '+(step.estimated_minutes??'—')+' 分鐘 · 輸入約 '+(step.estimated_input_tokens??'—')+' Tokens · 輸出上限 '+(step.max_output_tokens??2400)+' Tokens · US$'+Number(step.estimated_usd||0).toFixed(4)));
     if(step.result){
-     const toggle=el('button','outline-btn report-toggle','查看 '+(member?.name||step.role_id)+' 分析報告');
-     toggle.type='button';toggle.setAttribute('aria-expanded','false');
-     const result=el('div','orchestration-result',step.result);result.hidden=true;
-     toggle.addEventListener('click',()=>{
-      result.hidden=!result.hidden;
-      toggle.setAttribute('aria-expanded',String(!result.hidden));
-      toggle.textContent=(result.hidden?'查看 ':'收合 ')+(member?.name||step.role_id)+' 分析報告';
-     });
-     detail.append(toggle,result);
+     const toggle=el('button','outline-btn','查看 '+name+' 成果');toggle.type='button';
+     const result=el('pre','orchestration-result',step.result);result.hidden=true;
+     toggle.addEventListener('click',()=>{result.hidden=!result.hidden;toggle.textContent=result.hidden?'查看 '+name+' 成果':'收合 '+name+' 成果';});
+     card.append(toggle,result);
     }
-    if(step.last_error)detail.append(el('p','helper','錯誤：'+step.last_error));
+    if(step.last_error)card.append(el('p','helper','錯誤：'+step.last_error));
+    detail.append(card);
    }
    if(current.consolidated_report){
-    const toggle=el('button','outline-btn','查看完整報告');toggle.type='button';
+    const toggle=el('button','outline-btn','查看完整成果');toggle.type='button';
     const full=el('pre','orchestration-result',current.consolidated_report);full.hidden=true;
-    toggle.addEventListener('click',()=>{full.hidden=!full.hidden;toggle.textContent=full.hidden?'查看完整報告':'收合完整報告';});
+    toggle.addEventListener('click',()=>{full.hidden=!full.hidden;toggle.textContent=full.hidden?'查看完整成果':'收合完整成果';});
     detail.append(toggle,full);
    }
    actions.replaceChildren();
-   const stepAction=(label,endpoint,confirmText)=>{
-    const button=el('button','outline-btn',label);button.type='button';
+   const action=(label,endpoint,message,css='outline-btn')=>{
+    const button=el('button',css,label);button.type='button';
     button.addEventListener('click',async()=>{
-     if(!confirm(confirmText))return;
+     if(!confirm(message))return;
      button.disabled=true;
-     try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/'+endpoint,{method:'POST'});await draw();showToast('已保存：'+label);await Promise.all([loadTasks(),loadDashboard()]);}
-     catch(e){showToast('未完成：'+e.message);button.disabled=false;}
+     try{await api(apiPath+'/'+endpoint,{method:'POST'});await draw();showToast('操作已完成：'+label);await Promise.all([loadTasks(),loadDashboard()]);}
+     catch(e){showToast('操作未完成：'+e.message);button.disabled=false;}
     });
     actions.append(button);
    };
-   if(current.plan_status==='draft')stepAction('CEO 核准分工','approve','確認核准 AI 幕僚長的部門分工？尚未執行分析。');
-   if(['ready','running','failed','paused'].includes(current.plan_status)){
-    stepAction('執行下一部門分析','advance','此操作將呼叫一次真實 AI API，可能產生費用。確定執行？');
-    stepAction('恢復中斷步驟','recover','只在步驟中斷超過兩分鐘時使用。確認標記為待重試？');
+   if(current.plan_status==='draft'){
+    const feedbackForm=el('form','chief-feedback-form');
+    const feedbackLabel=el('label','','向幕僚長要求修改方案');
+    const feedback=document.createElement('textarea');feedback.rows=3;feedback.maxLength=2000;feedback.required=true;
+    feedback.placeholder='例如：花費太高，請減少不必要部門，總預算壓在 US$0.01 以內；或時間太久，請縮短到 15 分鐘。';
+    feedbackLabel.append(feedback);
+    const submit=el('button','outline-btn','請幕僚長重新調整方案');submit.type='submit';
+    feedbackForm.append(feedbackLabel,submit);
+    feedbackForm.addEventListener('submit',async e=>{
+     e.preventDefault();if(!feedback.value.trim())return;
+     if(!confirm('重新生成方案會呼叫 AI 並產生費用。確定要求幕僚長修訂？'))return;
+     submit.disabled=true;
+     try{await api(apiPath+'/revise',{method:'POST',body:{feedback:feedback.value.trim()}});await draw();showToast('幕僚長已提出修訂版本，仍待 CEO 確認。');}
+     catch(err){showToast('修訂失敗：'+err.message);submit.disabled=false;}
+    });
+    detail.append(feedbackForm);
+    const editor=el('div','chief-edit-panel');
+    const editToggle=el('button','outline-btn','CEO 直接修改分工與資源');editToggle.type='button';
+    const editBody=el('div','chief-edit-body');editBody.hidden=true;
+    editToggle.addEventListener('click',()=>{editBody.hidden=!editBody.hidden;});
+    const summaryLabel=el('label','','計畫說明');
+    const summary=document.createElement('textarea');summary.maxLength=2000;summary.rows=3;summary.value=current.summary||'';summaryLabel.append(summary);
+    const rows=el('div','chief-editor-rows');
+    for(const step of steps)rows.append(editorRow(step));
+    const add=el('button','outline-btn','增加部門工作');add.type='button';
+    add.addEventListener('click',()=>{if(rows.children.length>=8)return showToast('最多 8 個部門工作');rows.append(editorRow({}));});
+    const save=el('button','primary-btn','儲存 CEO 修改後的方案');save.type='button';
+    save.addEventListener('click',async()=>{
+     const edited=Array.from(rows.children).map(row=>row.getStep());
+     if(edited.length<1||edited.length>8||!summary.value.trim()||edited.some(x=>!x.instruction||!Number.isInteger(x.estimated_minutes)||x.estimated_minutes<1||x.estimated_minutes>240||!Number.isInteger(x.max_output_tokens)||x.max_output_tokens<600||x.max_output_tokens>2400)){
+      return showToast('請確認部門數、工作說明、預估時間與 Token 上限。');
+     }
+     save.disabled=true;
+     try{await api(apiPath+'/edit',{method:'POST',body:{plan_version:current.plan_version,summary:summary.value.trim(),steps:edited}});await draw();showToast('CEO 修正已儲存，需再次核准才可執行。');}
+     catch(e){showToast('儲存失敗：'+e.message);save.disabled=false;}
+    });
+    editBody.append(summaryLabel,rows,add,save);editor.append(editToggle,editBody);
+    detail.append(editor);
+    action('CEO 確認並核准執行','approve','確定核准目前分工與時間／Token／美元估算？核准後可逐步啟動部門工作。','primary-btn');
+   }else if(['ready','running','failed','paused'].includes(current.plan_status)){
+    action('執行下一部門任務','advance','執行將呼叫 OpenAI API，產生實際 Token 與美元費用。確定？');
+    action('恢復中斷任務','recover','僅適用中斷超過 2 分鐘的步驟，確認恢復為可重試？');
+   }else if(current.plan_status==='review'){
+    action('CEO 驗收並結案','complete','確認已閱讀工作成果，標記內部任務結案？');
    }
-   if(current.plan_status==='review')stepAction('CEO 驗收結案','complete','已閱讀工作成果，確認僅將內部分析任務標記結案？');
+   actions.hidden=!opened;
   };
-  const view=el('button','outline-btn','查看分工／執行');view.type='button';let open=false;
   view.addEventListener('click',async()=>{
-   open=!open;detail.hidden=!open;actions.hidden=!open;view.textContent=open?'收合分工':'查看分工／執行';
-   if(open){try{await draw()}catch(e){showToast('讀取失敗：'+e.message);}}
+   opened=!opened;detail.hidden=!opened;actions.hidden=!opened;
+   view.textContent=opened?'收合幕僚長提案':'查看幕僚長提案';
+   if(opened){try{await draw()}catch(e){showToast('讀取失敗：'+e.message);}}
   });
-  detail.hidden=true;actions.hidden=true;container.append(info,view,detail,actions,report);return container;
+  detail.hidden=!opened;actions.hidden=!opened;
+  view.textContent=opened?'收合幕僚長提案':'查看幕僚長提案';
+  container.append(info,view,detail,actions);
+  if(opened)draw().catch(e=>showToast('讀取提案失敗：'+e.message));
+  return container;
  });
 }
 $('orchestrationForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
- if(workspaceMode()==='local')return showToast('AI 協作僅適用已部署的雲端後端');
+ if(workspaceMode()==='local')return showToast('幕僚長規劃僅可在雲端模式執行');
  const button=event.currentTarget.querySelector('button[type=submit]');
  const taskId=$('orchestrationTask').value;if(!taskId)return;
- if(!confirm('將呼叫真實 AI API，由幕僚長產生分工計畫，可能產生費用。是否繼續？'))return;
+ if(!confirm('產生提案會呼叫一次真實 AI API，可能產生費用。確定？'))return;
  button.disabled=true;
- try{await api('/orchestrations/plan',{method:'POST',body:{task_id:taskId}});showToast('分工計畫已儲存，請由 CEO 核准');await loadOrchestrations();}
- catch(e){showToast('建立計畫失敗：'+e.message);}
+ try{await api('/orchestrations/plan',{method:'POST',body:{task_id:taskId}});showToast('幕僚長已提出草案，等待 CEO 確認');await loadOrchestrations();}
+ catch(e){showToast('幕僚長規劃失敗：'+e.message);}
  finally{button.disabled=false;}
 });
 async function loadApprovals(){
@@ -266,9 +345,9 @@ async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await loadDashboard();
  if(page==='projects')await loadProjects();
- if(page==='tasks'){await loadProjects();await loadTasks();}
+ if(page==='tasks'){await loadProjects();await loadTasks();await loadOrchestrations();}
  if(page==='approvals')await loadApprovals();
- if(page==='orchestrations')await loadOrchestrations();
+ if(page==='chief-plans')await loadOrchestrations();
  if(page==='notifications')await loadNotifications();
  if(page==='ai-controls')await loadAiControls();
 }
@@ -446,6 +525,6 @@ $('importWorkspace').addEventListener('change',async e=>{
  }catch(error){showToast(error.message);}
  finally{e.target.value='';}
 });
-const initialPage=location.hash.slice(1);
-if(['home','employees','projects','tasks','orchestrations','approvals','notifications','ai-controls'].includes(initialPage))showPage(initialPage);
+const initialPage=location.hash.slice(1)==='orchestrations'?'tasks':location.hash.slice(1);
+if(['home','employees','projects','tasks','approvals','notifications','ai-controls'].includes(initialPage))showPage(initialPage);
 startSession();
