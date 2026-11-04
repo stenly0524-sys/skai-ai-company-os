@@ -903,3 +903,58 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  #page-home .home-ai-usage .home-ai-metric{padding:5px 5px}
  #page-home .home-action-card .home-shortcuts .outline-btn{min-height:0;height:100%}
 }
+
+/* V0.11 — unified icon language for red-marked KPI / action icons */
+#page-home .kpi>.skai-icon,
+#page-home .home-todo-card .section-top .text-btn>.skai-icon,
+#page-home .progress-overview .section-top .text-btn>.skai-icon{
+  display:inline-grid;
+  place-items:center;
+  flex:none;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  margin:0;
+  border:1px solid #d4e2f5;
+  background:linear-gradient(140deg,#ffffff 15%,#e8f2ff);
+  box-shadow:0 5px 12px #537ea326;
+  color:#2178dd;
+}
+#page-home .kpi>.skai-icon svg{width:23px;height:23px}
+#page-home .home-todo-card .section-top .text-btn>.skai-icon svg,
+#page-home .progress-overview .section-top .text-btn>.skai-icon svg{width:22px;height:22px}
+#page-home .home-todo-card .section-top .text-btn,
+#page-home .progress-overview .section-top .text-btn{display:inline-flex;align-items:center;gap:7px}
+#page-home .home-todo-card .section-top .text-btn .skai-icon,
+#page-home .progress-overview .section-top .text-btn .skai-icon{margin-right:0}
+@media(max-width:720px) and (orientation:portrait){
+  /* Bigger round icons without enlarging the navigation's total occupied height. */
+  .mobile-nav{
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    padding:5px max(4px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left))!important;
+    border-radius:18px 18px 0 0;
+    gap:0;
+  }
+  .mobile-nav .mobileitem{gap:4px;padding:3px 0 1px;font-size:10px;font-weight:700;min-height:57px}
+  .mobile-nav .mobileitem .skai-icon{
+    width:clamp(36px,9.7vw,43px);
+    height:clamp(36px,9.7vw,43px);
+    border-radius:50%;
+    background:linear-gradient(140deg,#fff,#e8f2ff);
+    border:1px solid #cfe0f7;
+    color:#2178dd;
+    box-shadow:0 3px 9px #6185ba2a;
+    margin:0;
+  }
+  .mobile-nav .mobileitem .skai-icon svg{width:62%;height:62%}
+  .mobile-nav .mobileitem.active{background:transparent;color:#1168d5}
+  .mobile-nav .mobileitem.active .skai-icon{
+    border-color:#a3c7f9;
+    background:linear-gradient(130deg,#cde3ff,#eef5ff);
+    color:#0567d8;
+    box-shadow:0 3px 11px #2c75d12a;
+  }
+  /* Remove the redundant white gap beneath the mobile content and dock. */
+  .main-column{padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
+  .app-shell{margin-bottom:0}
+}
