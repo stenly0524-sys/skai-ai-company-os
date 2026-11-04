@@ -638,3 +638,5 @@ body{background:linear-gradient(135deg,#e8eef7 0%,#f6f8fd 57%,#e8effb 100%);colo
  #page-home .office-scene{height:145px!important;min-height:0!important;max-height:145px!important;aspect-ratio:auto!important}
  .kpi-grid.compact-home-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+
+.project-quick-detail{padding:16px 19px;margin:16px 0 24px;border-radius:17px;background:linear-gradient(135deg,#edf5ff,#fff);border:1px solid #cfe0f4}.project-quick-detail[hidden]{display:none}.project-quick-detail h3{font-size:16px;margin:0;color:#27466e}.project-quick-detail .section-heading{margin:12px 0}.project-quick-detail .data-list{margin-top:10px}
