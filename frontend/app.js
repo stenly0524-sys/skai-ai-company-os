@@ -497,6 +497,7 @@ async function openTaskDetails(task,container){
  const title=el('h3','','任務內容與執行紀錄'),heading=el('div','task-detail-heading');
  heading.append(title,el('span','status-pill',statuses[task.status]||task.status));
  const body=el('div','task-detail-body');
+ body.append(taskDetailLine('任務名稱',task.title));
  body.append(taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作說明與交付要求',task.brief||'尚未輸入工作說明，請先補齊要求。'));
  container.replaceChildren(heading,body);
  if(workspaceMode()==='local'){
