@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f6f8">
+<meta name="theme-color" content="#14223d">
 <meta name="color-scheme" content="light">
-<title>SKAI V0.5 · CEO 指揮中心</title>
+<title>SKAI · CEO 指揮中心</title>
 <link rel="stylesheet" href="./styles.css">
 <script type="module" src="./app.js"></script>
 </head>
 <body>
 <div class="app-shell">
   <aside class="desktop-nav" aria-label="主要選單">
-    <a class="brand" href="#home"><span class="logo">S</span><span>SKAI <small>AI COMPANY OS</small></span></a>
+    <a class="brand" href="#home"><span class="logo">▥</span><span>SKAI <small>AI COMPANY OS</small></span></a>
     <nav class="nav-list">
       <button class="navitem active" data-page="home"><span>⌂</span> 總部</button>
       <button class="navitem" data-page="employees"><span>♙</span> AI 員工</button>
@@ -26,17 +26,17 @@
   </aside>
   <div class="main-column">
     <header class="topbar">
-      <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1>CEO 指揮中心</h1><p class="subhead">以簡單的方式，管理你的 AI 公司。</p></div>
+      <div><span class="eyebrow">SKAI / AI COMPANY OS</span><h1>SKAI 指揮中心</h1><p class="subhead">CEO · AI 公司營運總部</p></div>
       <div class="top-actions"><button class="text-btn mode-toggle" id="useLocal" type="button">本機模式</button><button class="text-btn mode-toggle" id="useCloud" type="button">雲端模式</button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態">CEO</button></div>
     </header>
     <main>
       <section class="page active" id="page-home">
         <div class="content-grid">
           <div class="primary-area">
-            <section class="card scene-card" aria-label="3D AI 辦公室示意">
-              <div class="section-top"><div><span class="overline">HEADQUARTERS</span><h2>AI 公司總部</h2></div><span class="quiet-pill">9 位常設角色</span></div>
-              <p class="helper">點選辦公室人物，查看主管資料及工作範圍。</p>
-              <div class="office-scene" id="officeScene" role="group" aria-label="可點選的 AI 部門主管辦公室">
+            <section class="card scene-card" aria-label="AI 公司總部互動辦公室">
+              <div class="section-top scene-heading"><div><span class="overline">VIRTUAL HEADQUARTERS</span><h2>AI 公司總部</h2></div><span class="quiet-pill">9 位 AI 主管</span></div>
+              <p class="helper">點選辦公室主管，即可查看職責與開啟專屬對話。</p>
+              <div class="office-scene" id="officeScene" role="group" aria-label="可點選的 AI 部門主管辦公室"><div class="office-backdrop" aria-hidden="true"><div class="office-window"></div><div class="office-sign">▥<strong>SKAI</strong><small>AI COMPANY OS</small></div><div class="office-floor"></div></div>
                 <svg class="office-art" viewBox="0 0 740 360" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                   <defs><linearGradient id="floor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f6f9fc"/><stop offset="1" stop-color="#e4eaf0"/></linearGradient><linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fdfefe"/><stop offset="1" stop-color="#ccd6e0"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#62758a" flood-opacity=".12"/></filter></defs>
                   <path d="M43 125 305 11 694 124 422 322Z" fill="#d9e0e7" opacity=".58"/>
@@ -59,7 +59,7 @@
                 </svg>
                 <div id="officePeople" class="office-people"></div>
               </div>
-              <div class="scene-bottom"><span><span class="status-dot green"></span> 角色資料已載入</span><span>按人物查看詳情</span></div>
+              <div class="scene-bottom"><span><span class="status-dot green"></span> AI 辦公室 · 角色入口</span><span>點選主管查看詳情</span></div><div id="mobileOfficeGrid" class="mobile-office-grid" aria-label="AI 主管快捷入口"></div>
             </section>
             <div class="section-heading"><h2>公司概況</h2><span id="companyDataSource">連線確認中</span></div>
             <div class="kpi-grid">
@@ -80,10 +80,10 @@
             </section>
           </div>
           <aside class="secondary-area">
-            <section class="card"><div class="section-top"><h2>今日重點</h2><span class="quiet-pill">摘要</span></div>
+            <section class="card"><div class="section-top"><h2>✦ 今日重點</h2><span class="quiet-pill">真實紀錄</span></div>
               <div id="todayHighlights" class="empty-state"><span class="empty-symbol">☷</span><p>等待雲端資料</p><small>登入後顯示已保存的任務與待審批摘要。</small></div>
             </section>
-            <section class="card"><div class="section-top"><h2>專案進度</h2><span class="quiet-pill">專案</span></div>
+            <section class="card"><div class="section-top"><h2>▤ 專案進度</h2><span class="quiet-pill">即時統計</span></div>
               <div id="projectSnapshot" class="empty-state compact"><span class="empty-symbol">▦</span><p>等待雲端專案資料</p><small>登入後顯示資料庫內的專案數量。</small></div>
             </section>
             <section class="card"><div class="section-top"><h2>公司通知</h2><span class="quiet-pill">提醒</span></div><p class="helper">可在「通知」頁查看已保存的 SKAI 內部提醒；尚未串接手機推播。</p>
