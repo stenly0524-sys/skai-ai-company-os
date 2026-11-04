@@ -515,3 +515,14 @@ button .skai-icon+span:not(.status-dot){vertical-align:middle}
 #chiefPlanPanel .chief-edit-body[hidden]{display:none}
 #chiefPlanPanel .orchestration-result{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
 @media(max-width:650px){#chiefPlanPanel .chief-estimate-row{grid-template-columns:1fr 1fr}#chiefPlanPanel .chief-estimate-row button{grid-column:1 / -1}}
+
+/* Department-owned observability; use existing SKAI white/silver-blue visual system. */
+#page-department-tech .card,#page-department-finance .card{max-width:100%;min-width:0}
+.department-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.department-stat{padding:16px;border:1px solid #d3e1ef;border-radius:14px;background:linear-gradient(145deg,#fff,#edf4fb);box-shadow:0 4px 14px #859db521;min-width:0}
+.department-stat span{display:block;font-size:12px;color:#59718f;margin-bottom:8px}
+.department-stat strong{font-size:clamp(18px,2.5vw,29px);font-weight:760;letter-spacing:-.02em;color:#2d4e74;overflow-wrap:anywhere}
+#page-department-tech .stack-form,#page-department-finance .stack-form{margin-top:16px}
+#page-department-tech .stack-form h3,#page-department-finance .stack-form h3{font-size:15px;color:#3c628d;margin:4px 0 12px}
+#page-department-tech .department-stats,#page-department-finance .department-stats{max-width:750px}
+@media(max-width:520px){.department-stats{gap:8px}.department-stat{padding:12px}.department-stat strong{font-size:18px}}
