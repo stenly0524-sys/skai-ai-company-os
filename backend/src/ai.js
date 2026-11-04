@@ -1,5 +1,6 @@
 import { systemPrompt } from './roles.js';
 import { reserveAiCall, finalizeAiCall } from './operations.js';
+import {reserveCost,settleCost} from './cost-control.js';
 let usageDb=null;
 export function configureAiUsage(db){usageDb=db;}
 export class AiGatewayError extends Error{
@@ -7,18 +8,29 @@ export class AiGatewayError extends Error{
 }
 export async function askModel({role,messages,maxTokens=1400,format}){
  if(!usageDb)throw new AiGatewayError('ai_usage_db_not_configured');
+ const request={
+  model:process.env.OPENAI_MODEL||'gpt-4.1-mini',
+  messages:[{role:'system',content:systemPrompt(role)},...messages],
+  max_completion_tokens:maxTokens
+ };
+ if(format==='json')request.response_format={type:'json_object'};
+ let costReservation;
+ try{costReservation=await reserveCost(usageDb,{model:request.model,messages:request.messages,maxOutputTokens:maxTokens})}
+ catch(e){
+  const known=['ai_disabled_by_ceo','ai_daily_usd_budget_reached','ai_monthly_usd_budget_reached','ai_model_pricing_unconfigured'];
+  throw new AiGatewayError(known.includes(e.message)?e.message:'ai_budget_unavailable');
+ }
  let usageDay;
- try{usageDay=await reserveAiCall(usageDb)}catch(e){throw new AiGatewayError(['ai_daily_limit_reached','ai_disabled_by_ceo'].includes(e.message)?e.message:'ai_budget_unavailable')}
- let succeeded=false, usage=null;
+ try{usageDay=await reserveAiCall(usageDb)}
+ catch(e){
+  try{await settleCost(usageDb,costReservation,{notSent:true})}
+  catch(err){console.error('AI reserved cost release error:',err?.message||err)}
+  throw new AiGatewayError(['ai_daily_limit_reached','ai_disabled_by_ceo'].includes(e.message)?e.message:'ai_budget_unavailable');
+ }
+ let succeeded=false,usage=null;
  const controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),30000);
  try{
-  const request={
-   model:process.env.OPENAI_MODEL||'gpt-4.1-mini',
-   messages:[{role:'system',content:systemPrompt(role)},...messages],
-   max_completion_tokens:maxTokens
-  };
-  if(format==='json')request.response_format={type:'json_object'};
   const response=await fetch('https://api.openai.com/v1/chat/completions',{
    method:'POST',signal:controller.signal,
    headers:{Authorization:'Bearer '+process.env.OPENAI_API_KEY,'Content-Type':'application/json'},
@@ -32,5 +44,11 @@ export async function askModel({role,messages,maxTokens=1400,format}){
   succeeded=true;
   return output.trim();
  }catch(e){if(e.name==='AbortError')throw new AiGatewayError('ai_timeout');throw e}
- finally{clearTimeout(timeout);try{await finalizeAiCall(usageDb,usageDay,usage,succeeded)}catch(e){console.error('AI budget finalization error:',e?.message||e)}}
+ finally{
+  clearTimeout(timeout);
+  try{await settleCost(usageDb,costReservation,{usage})}
+  catch(e){console.error('AI USD budget settlement error:',e?.message||e)}
+  try{await finalizeAiCall(usageDb,usageDay,usage,succeeded)}
+  catch(e){console.error('AI usage finalization error:',e?.message||e)}
+ }
 }
