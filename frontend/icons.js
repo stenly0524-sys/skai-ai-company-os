@@ -11,7 +11,7 @@ export function makeIcon(name){
  svg.append(path);span.append(svg);
  return span;
 }
-const navPages={home:'home',employees:'employees',projects:'projects',tasks:'tasks',orchestrations:'orchestrations',approvals:'approvals',notifications:'notifications'};
+const navPages={home:'home',employees:'employees',projects:'projects',tasks:'tasks',orchestrations:'orchestrations',approvals:'approvals',notifications:'notifications','ai-controls':'settings'};
 export function applyInterfaceIcons(){
  document.querySelectorAll('.navitem[data-page],.mobileitem[data-page],.mobile-more-link[data-page]').forEach(button=>{
   const icon=navPages[button.dataset.page]||'home';
@@ -67,7 +67,7 @@ export function applyInterfaceIcons(){
   ['#ceoInfo','ceo'],['#closeEmployee','settings'],['#useLocal','settings'],['#useCloud','relationships'],
   ['#employeeChat','relationships'],['#projectForm [type="submit"]','projects'],
   ['#taskForm [type="submit"]','tasks'],['#orchestrationForm [type="submit"]','orchestrations'],
-  ['#chatPreviewForm [type="submit"]','chief_of_staff'],['#loginForm [type="submit"]','validation']
+  ['#chatPreviewForm [type="submit"]','chief_of_staff'],['#loginForm [type="submit"]','validation'],['#aiControlForm [type="submit"]','settings']
  ];
  for(const [selector,icon] of other){const button=document.querySelector(selector);if(button)button.prepend(makeIcon(icon));}
 }
