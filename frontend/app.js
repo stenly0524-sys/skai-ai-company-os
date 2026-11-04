@@ -422,6 +422,7 @@ $('closeProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').h
 $('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
 $('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=true;});
 $('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
+$('openSettingsMobile')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
 $('toggleChiefPlans')?.addEventListener('click',()=>{const x=$('chiefPlanContent');x.hidden=!x.hidden;$('chiefPlanToggleIcon').textContent=x.hidden?'展開':'收合';});
 async function refreshPage(page){
  if(!isSignedIn)return;
