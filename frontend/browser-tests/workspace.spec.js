@@ -649,3 +649,29 @@ test('cloud task details display real brief, warn on missing evidence, and do no
  await expect(page.locator('#taskCards .task-evidence-panel:visible')).toContainText('目前沒有 AI 工作方案');
  await expect(page.locator('#taskCards .task-evidence-panel:visible button',{hasText:'請智能助理產生執行方案'})).toBeVisible();
 });
+
+test('SKAI task deliverables display Drive links and allow multiple CEO formats',async({page})=>{
+ await page.route('**/api/**',async route=>{
+  const url=new URL(route.request().url());const path=url.pathname;
+  const payload=path==='/api/session'?{authenticated:true,csrf_token:'test'}:
+   path==='/api/dashboard'?{counts:{projects:1,active:0,pending:0}}:
+   path==='/api/projects'?{projects:[{id:'project-1',name:'埔里立和',goal:'測試'}]}:
+   path==='/api/tasks'?{tasks:[{id:'task-1',project_id:'project-1',title:'合作架構',brief:'撰寫合約',status:'done'}]}:
+   path==='/api/tasks/task-1/deliverables'?{documents:[{format:'pdf',title:'合作協議書',drive_url:'https://drive.google.com/file/d/example/view',review_state:'needs_review'}],formats:['pdf','docx']}:
+   path==='/api/approvals'?{approvals:[]}:
+   path==='/api/orchestrations'?{runs:[]}:
+   path==='/api/operations/notifications'?{notifications:[]}:null;
+  if(route.request().method()==='PUT'&&path==='/api/tasks/task-1/delivery-preferences'){
+   const body=route.request().postDataJSON();expect(body.formats).toEqual(['pdf','docx','xlsx']);return route.fulfill({status:200,json:{formats:body.formats}});
+  }
+  if(payload)return route.fulfill({status:200,json:payload});
+  return route.fulfill({status:404,json:{error:'not_found'}});
+ });
+ await page.goto('/');
+ await page.locator('.desktop-nav [data-page="tasks"]').click();
+ await page.locator('#taskCards .task-row-actions button',{hasText:'查看內容'}).click();
+ await expect(page.locator('.task-drive-deliverables .task-drive-file')).toContainText('合作協議書');
+ const excel=page.locator('.task-format-option',{hasText:'Excel'}).locator('input');await excel.check();
+ await page.locator('.task-format-choice button',{hasText:'儲存格式選擇'}).click();
+ await expect(page.locator('#toast')).toContainText('已保存');
+});
