@@ -2,6 +2,7 @@ import { EMPLOYEES, TASK_STATUS } from './data.js';
 import { api,workspaceMode,useLocalWorkspace,useCloudWorkspace,setCsrfToken } from './api.js';
 import { localCompany } from './storage.js';
 import {renderOffice} from './scene.js';
+import { applyInterfaceIcons, makeIcon } from './icons.js';
 import {el,listItem,renderList} from './ui.js';
 
 const $=id=>document.getElementById(id);
@@ -14,12 +15,13 @@ function showToast(message){
  toastTimer=setTimeout(()=>{toast.hidden=true},4000);
 }
 renderOffice(EMPLOYEES,{office:$('officePeople'),grid:$('employeeGrid'),mobileGrid:$('mobileOfficeGrid'),onSelect:showEmployee});
+applyInterfaceIcons();
 function showEmployee(employee){
  currentEmployee=employee;
  $('employeeTitle').textContent=employee.name;
  $('employeeCode').textContent=employee.title;
  $('employeeDescription').textContent=employee.scope;
- $('employeeFace').textContent=employee.symbol;
+ $('employeeFace').replaceChildren(makeIcon(employee.id));
  $('employeeFace').style.background='linear-gradient(145deg,#fff,'+employee.color+')';
  dialog.showModal();
 }
