@@ -596,3 +596,28 @@ test('V0.14 mobile category strip remains one horizontal scroll row',async({page
  const positions=await tiles.evaluateAll(elements=>elements.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y})));
  expect(Math.max(...positions.map(p=>p.y))-Math.min(...positions.map(p=>p.y))).toBeLessThan(2);
 });
+
+test('SKAI project details can reveal full imported project plan notes without running AI',async({page})=>{
+ await page.goto('/');
+ await page.locator('#openSettings').click();
+ await page.locator('#useLocal').click();
+ await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#jumpProjectCreate').click();
+ await page.locator('#projectForm [name="name"]').fill('方案展開測試');
+ await page.locator('#projectForm [type="submit"]').click();
+ // Seed only this browser test with a safe sample long-form plan.
+ await page.evaluate(()=>{
+  const key='skai_v05_local_company_v1';const state=JSON.parse(localStorage.getItem(key));
+  state.projects.find(p=>p.name==='方案展開測試').notes='# 品牌定位\n潮流盆栽咖啡。\n# 合作條件\n回本分紅依契約';
+  localStorage.setItem(key,JSON.stringify(state));
+ });
+ await page.reload();
+ await page.locator('.desktop-nav [data-page="projects"]').click();
+ await page.locator('#projectCards .visual-project-row',{hasText:'方案展開測試'}).click();
+ await expect(page.locator('#toggleProjectNotes')).toBeVisible();
+ await page.locator('#toggleProjectNotes').click();
+ await expect(page.locator('#quickProjectNotes')).toContainText('潮流盆栽咖啡');
+ await expect(page.locator('#quickProjectNotes')).toContainText('合作條件');
+ await page.locator('#toggleProjectNotes').click();
+ await expect(page.locator('#quickProjectNotes')).toBeHidden();
+});
