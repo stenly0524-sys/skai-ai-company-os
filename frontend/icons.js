@@ -50,7 +50,11 @@ export function applyInterfaceIcons(){
    [/對話|詢問|AI/, 'chief_of_staff'],
    [/任務/, 'tasks']
   ];
-  const icon=rules.find(([regexp])=>regexp.test(name))?.[1];
+  // Context-specific navigation: "查看任務" should not look like an unrelated book.
+  // Match each action's destination to its primary-navigation icon family.
+  const jump=button.dataset.jump;
+  const icon=(jump==='tasks'?'tasks':jump==='projects'?'projects':jump==='department-tech'?'tech':null)
+    ||rules.find(([regexp])=>regexp.test(name))?.[1];
   if(icon)button.prepend(makeIcon(icon));
  }
  function updateActionIcons(root=document){

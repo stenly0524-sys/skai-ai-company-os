@@ -429,3 +429,51 @@ test('HQ local mode clearly labels unavailable API usage without inventing numbe
  await expect(page.locator('#homeAiTotalTokens')).toHaveText('—');
  await expect(page.locator('#homeAiStatus')).toContainText('本機模式不包含 AI API 用量');
 });
+
+test('marked HQ icons share round style and link to correct destinations',async({page})=>{
+ await page.setViewportSize({width:430,height:932});
+ await page.goto('/');
+ const icons=await page.evaluate(()=>{
+  const selectors=[
+   '#page-home .kpi[data-jump="projects"] > .skai-icon',
+   '#page-home .kpi[data-jump="tasks"] > .skai-icon',
+   '#page-home .home-todo-card [data-jump="tasks"] > .skai-icon',
+   '#page-home .progress-overview [data-jump="projects"] > .skai-icon'
+  ];
+  return selectors.map(selector=>{
+   const node=document.querySelector(selector);
+   if(!node)return null;
+   const style=getComputedStyle(node),rect=node.getBoundingClientRect();
+   return {width:rect.width,height:rect.height,radius:style.borderRadius,path:node.querySelector('path')?.getAttribute('d')};
+  });
+ });
+ expect(icons).not.toContain(null);
+ expect(icons.every(x=>x.width>=35&&x.height>=35&&x.radius==='50%')).toBeTruthy();
+ expect(icons[0].path).toBe(icons[3].path);
+ expect(icons[1].path).toBe(icons[2].path);
+ expect(icons[0].path).not.toBe(icons[1].path);
+});
+
+test('portrait mobile bottom dock has larger circular icons and no excessive spacer',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/');
+ const info=await page.evaluate(()=>{
+  const nav=document.querySelector('.mobile-nav'),items=[...nav.querySelectorAll('.mobileitem')];
+  const icons=items.map(x=>x.querySelector('.skai-icon')).filter(Boolean);
+  const boxes=icons.map(x=>x.getBoundingClientRect());
+  return {
+   count:icons.length,
+   radii:icons.map(x=>getComputedStyle(x).borderRadius),
+   size:boxes.map(x=>x.width),
+   dockTop:nav.getBoundingClientRect().top,
+   dockBottom:nav.getBoundingClientRect().bottom,
+   viewportHeight:innerHeight,
+   scrollPadding:getComputedStyle(document.querySelector('.main-column')).paddingBottom
+  };
+ });
+ expect(info.count).toBe(7);
+ expect(info.radii.every(x=>x==='50%')).toBeTruthy();
+ expect(info.size.every(x=>x>=36&&x<=45)).toBeTruthy();
+ expect(Math.abs(info.viewportHeight-info.dockBottom)).toBeLessThanOrEqual(1);
+ expect(parseFloat(info.scrollPadding)).toBeLessThanOrEqual(90);
+});
