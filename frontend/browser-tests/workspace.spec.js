@@ -514,3 +514,46 @@ test('HQ landscape phone is a single visible screen with all four actions',async
  const png=await page.screenshot({type:'jpeg',quality:55,fullPage:false});
  console.log('SKAI_V12_LANDSCAPE_BASE64='+png.toString('base64'));
 });
+
+test('HQ title bars share flush-to-top background and circular quick icons center SVG',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  const selectors=['#page-home .home-todo-card','#page-home .progress-overview'];
+  const cards=selectors.map(sel=>{
+   const card=document.querySelector(sel),heading=card.querySelector('.section-top');
+   const rect=card.getBoundingClientRect(),head=heading.getBoundingClientRect();
+   const barStyle=getComputedStyle(card,'::before');
+   return {background:barStyle.backgroundImage,top:barStyle.top,left:barStyle.left,right:barStyle.right,height:parseFloat(barStyle.height),headVisible:head.height>0,cardTop:rect.top};
+  });
+  const shortcuts=[...document.querySelectorAll('#page-home .home-shortcuts .outline-btn')].map(button=>{
+   const circle=button.querySelector('.shortcut-emoji').getBoundingClientRect();
+   const icon=button.querySelector('.shortcut-emoji .skai-icon').getBoundingClientRect();
+   const svg=button.querySelector('svg').getBoundingClientRect();
+   return {circleWidth:circle.width,circleHeight:circle.height,dx:Math.abs(icon.left+icon.width/2-(circle.left+circle.width/2)),dy:Math.abs(icon.top+icon.height/2-(circle.top+circle.height/2)),svgDx:Math.abs(svg.left+svg.width/2-(circle.left+circle.width/2)),svgDy:Math.abs(svg.top+svg.height/2-(circle.top+circle.height/2))};
+  });
+  return {cards,shortcuts};
+ });
+ expect(result.cards[0].background).toBe(result.cards[1].background);
+ for(const card of result.cards){expect(card.top).toBe('0px');expect(card.left).toBe('0px');expect(card.right).toBe('0px');expect(card.height).toBeGreaterThan(30);expect(card.headVisible).toBe(true);}
+ expect(result.shortcuts).toHaveLength(4);
+ for(const shortcut of result.shortcuts){expect(Math.abs(shortcut.circleWidth-shortcut.circleHeight)).toBeLessThanOrEqual(1);expect(shortcut.dx).toBeLessThan(1);expect(shortcut.dy).toBeLessThan(1);expect(shortcut.svgDx).toBeLessThan(1);expect(shortcut.svgDy).toBeLessThan(1);}
+ const png=await page.screenshot({type:'jpeg',quality:54,fullPage:false});
+ console.log('SKAI_V13_HQ_BASE64='+png.toString('base64'));
+});
+test('Assistant, Departments, Projects, Tasks and Data never repeat HQ dashboard widgets',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.goto('/');
+ const selectors=['#page-home .compact-home-kpis','#page-home .home-todo-card','#page-home .progress-overview','#page-home .home-ai-usage','#page-home .home-shortcuts'];
+ for(const screen of ['assistant','employees','projects','tasks','data']){
+  await page.locator('.desktop-nav [data-page="'+screen+'"]').click();
+  await expect(page.locator('#page-'+screen)).toBeVisible();
+  await expect(page.locator('#page-home')).toBeHidden();
+  for(const selector of selectors)await expect(page.locator(selector)).toBeHidden();
+  const duplicated=await page.locator('#page-'+screen+' .compact-home-kpis, #page-'+screen+' .home-todo-card, #page-'+screen+' .progress-overview, #page-'+screen+' .home-ai-usage, #page-'+screen+' .home-shortcuts').count();
+  expect(duplicated).toBe(0);
+ }
+ await page.locator('.desktop-nav [data-page="home"]').click();
+ await expect(page.locator('#page-home')).toBeVisible();
+ await expect(page.locator('#page-home .home-shortcuts')).toBeVisible();
+});
