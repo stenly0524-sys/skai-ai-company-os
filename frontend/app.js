@@ -514,7 +514,7 @@ async function openTaskDetails(task,container){
    planBtn.type='button';planBtn.addEventListener('click',async()=>{
     if(!confirm('這會呼叫真實 AI API 並可能產生費用。只產生工作分配、時間／Token／美元估算；不會開始部門執行。確定？'))return;
     planBtn.disabled=true;
-    try{await api('/orchestrations/plan',{method:'POST',body:{task_id:task.id}});showToast('智能助理提案已建立，等待 CEO 第二次核准');await openTaskDetails(task,container);}
+    try{await api('/orchestrations/plan',{method:'POST',body:{task_id:task.id}});showToast('智能助理提案已建立，等待 CEO 第二次核准');container.hidden=true;await openTaskDetails(task,container);}
     catch(e){showToast('無法產生方案：'+e.message);}
     finally{planBtn.disabled=false;}
    });container.append(planBtn);
