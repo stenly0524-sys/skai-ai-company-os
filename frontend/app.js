@@ -8,7 +8,7 @@ import {el,listItem,renderList} from './ui.js';
 const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
-let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0,projectFilter='all',taskFilter='all',taskCache=[];
+let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0,projectFilter='all',taskFilter='all',taskCache=[],selectedTaskIds=new Set(),approvalCache=[];
 const orchestrationStatuses={draft:'待 CEO 審核提案',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
@@ -43,7 +43,7 @@ function showPage(page){
  window.scrollTo({top:0,behavior:'auto'});
  document.body.dataset.currentPage=page;
  if(history.replaceState)history.replaceState(null,'','#'+page);
- const headings={home:['早安，CEO','SKAI OS｜個人企業智慧管理中心'],projects:['專案中心','管理所有專案、進度與里程碑'],tasks:['任務中心','管理與追蹤所有任務執行進度'],data:['資料中心','集中管理知識與工作紀錄'],assistant:['AI 幕僚長','你的專屬策略與執行助理']};
+ const headings={home:['總部｜早安，CEO','SKAI OS｜個人企業智慧管理中心'],employees:['部門中心','各部門虛擬主管與工作內容'],projects:['專案中心','管理所有專案、進度與里程碑'],tasks:['任務中心','管理與追蹤所有任務執行進度'],data:['資料中心','集中管理知識與工作紀錄'],assistant:['智能助理','你的專屬策略與執行助理']};
  const heading=headings[page]||['SKAI 指揮中心','管理功能'];$('pageTitle').textContent=heading[0];$('pageSubtitle').textContent=heading[1];
  if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
 }
@@ -286,6 +286,7 @@ $('orchestrationForm').addEventListener('submit',async event=>{
 });
 async function loadApprovals(){
  const data=await api('/approvals');
+ approvalCache=data.approvals||[];
  renderList($('approvalList'),data.approvals||[],'目前沒有待審批事項。',a=>{
   const actions=el('div','inline-actions');
   for(const [decision,label] of [['approved','核准'],['rejected','駁回']]){
@@ -295,7 +296,7 @@ async function loadApprovals(){
     const message=decision==='approved'?'確認核准這項任務？':'確認駁回這項任務？';
     if(!confirm(message))return;
     button.disabled=true;
-    try{await api('/approvals/'+encodeURIComponent(a.id)+'/decision',{method:'POST',body:{decision,note:'CEO 於指揮中心決策'}});showToast('決策已保存');await Promise.all([loadApprovals(),loadDashboard()]);}
+    try{await api('/approvals/'+encodeURIComponent(a.id)+'/decision',{method:'POST',body:{decision,note:'CEO 於指揮中心決策'}});showToast('決策已保存');await Promise.all([loadApprovals(),loadTasks(),loadDashboard()]);}
     catch(e){showToast('審批失敗：'+e.message);button.disabled=false;}
    });
    actions.append(button);
@@ -382,7 +383,8 @@ function renderProjectCards(){
   const stage=el('span','status-pill',p.status==='closed'?'已完成':p.stage==='active'?'進行中':'規劃中');
   const amount=Number(p.progress);const known=p.progress!==undefined&&p.progress!==null&&Number.isFinite(amount);
   const meter=el('span','project-row-meter');const track=el('span','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=(known?Math.min(100,Math.max(0,amount)):0)+'%';track.append(fill);
-  meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));root.append(button);
+  meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));
+  const row=el('div','project-manage-row');const del=el('button','danger-outline','刪除');del.type='button';del.setAttribute('aria-label','刪除專案 '+p.name);del.addEventListener('click',()=>deleteProjectRecord(p));row.append(button,del);root.append(row);
  }
 }
 async function openQuickProject(project){
@@ -398,22 +400,93 @@ async function openQuickProject(project){
  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 $('closeQuickDetail')?.addEventListener('click',()=>{$('projectQuickDetail').hidden=true;});
-function renderTaskCards(){
- const root=$('taskCards');if(!root)return;root.replaceChildren();
+function filteredTasks(){
  const q=$('taskSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
- const rows=taskCache.filter(t=>{
+ return taskCache.filter(t=>{
   const done=t.status==='done',inProgress=['in_progress','approved','review'].includes(t.status);
   const filter=taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&!done)||(taskFilter==='in_progress'&&inProgress);
   return filter&&(t.title+' '+(t.brief||'')).toLocaleLowerCase('zh-TW').includes(q);
  });
- if(!rows.length){root.append(el('p','helper','沒有符合條件的任務。'));return;}
- for(const t of rows){
-  const row=el('button','visual-task-row');row.type='button';row.addEventListener('click',()=>document.getElementById('taskList')?.scrollIntoView({behavior:'smooth',block:'start'}));
-  row.append(el('span','todo-check',t.status==='done'?'✓':'□'),el('span','task-list-title',t.title),el('span','status-pill',statuses[t.status]||t.status));
-  const project=projectCache.find(p=>p.id===t.project_id);
-  row.append(el('small','task-project-name',project?.name||'未分類'));root.append(row);
- }
 }
+function updateTaskSelection(){
+ const visible=filteredTasks(),count=visible.filter(t=>selectedTaskIds.has(t.id)).length;
+ $('selectedTaskCount').textContent='已選 '+selectedTaskIds.size+' 項';
+ $('bulkDeleteTasks').disabled=!selectedTaskIds.size;
+ $('selectAllTasks').checked=Boolean(visible.length)&&visible.every(t=>selectedTaskIds.has(t.id));
+ $('selectAllTasks').indeterminate=count>0&&count<visible.length;
+}
+async function refreshManagement(){
+ selectedTaskIds.clear();
+ await Promise.all([loadProjects(),loadTasks(),loadApprovals(),loadDashboard()]);
+ await Promise.allSettled([loadDataIndex(),loadOrchestrations()]);
+}
+async function deleteProjectRecord(project){
+ let preview;
+ try{preview=await api('/projects/'+encodeURIComponent(project.id)+'/deletion-preview');}
+ catch(e){return showToast('無法檢查專案關聯：'+e.message);}
+ const counts=preview.counts||{};
+ if(preview.blocked)return showToast('此專案有正在執行的 AI 工作，不能刪除');
+ const message='永久刪除專案「'+project.name+'」？\n關聯任務：'+(counts.tasks??0)+'；對話：'+(counts.conversations??0)+'；AI 工作規劃：'+(counts.runs??0)+'。\n刪除後無法復原。';
+ if(!confirm(message))return;
+ try{await api('/projects/'+encodeURIComponent(project.id),{method:'DELETE'});$('projectQuickDetail').hidden=true;showToast('專案已刪除');await refreshManagement();}
+ catch(e){showToast('刪除失敗：'+e.message);}
+}
+async function deleteTaskRecord(task){
+ if(!confirm('永久刪除任務「'+task.title+'」？其審批及 AI 規劃將一併刪除，無法復原。'))return;
+ try{await api('/tasks/'+encodeURIComponent(task.id),{method:'DELETE'});selectedTaskIds.delete(task.id);showToast('任務已刪除');await refreshManagement();}
+ catch(e){showToast('刪除失敗：'+e.message);}
+}
+async function approveTaskRecord(task,decision='approved'){
+ const approval=approvalCache.find(a=>a.task_id===task.id&&a.status==='pending');
+ if(!approval)return showToast('此任務目前沒有待審批單');
+ if(!confirm((decision==='approved'?'核准':'駁回')+'任務「'+task.title+'」？'))return;
+ try{
+  await api('/approvals/'+encodeURIComponent(approval.id)+'/decision',{method:'POST',body:{decision,note:'CEO 於任務中心決策'}});
+  showToast('任務審核已儲存');await refreshManagement();
+ }catch(e){showToast('審核失敗：'+e.message);}
+}
+async function advanceTaskRecord(task){
+ const next={approved:['in_progress','開始執行'],in_progress:['review','提交審核'],review:['done','驗收完成'],paused:['in_progress','恢復執行']}[task.status];
+ if(!next)return showToast('此狀態無法直接更新');
+ if(!confirm('將「'+task.title+'」變更為「'+(statuses[next[0]]||next[0])+'」？'))return;
+ try{await api('/tasks/'+encodeURIComponent(task.id)+'/transition',{method:'POST',body:{status:next[0]}});showToast('任務狀態已更新');await refreshManagement();}
+ catch(e){showToast('更新失敗：'+e.message);}
+}
+function renderTaskCards(){
+ const root=$('taskCards');if(!root)return;root.replaceChildren();
+ const rows=filteredTasks();
+ if(!rows.length){root.append(el('p','helper','沒有符合條件的任務。'));updateTaskSelection();return;}
+ for(const t of rows){
+  const row=el('div','visual-task-row actionable-task-row');
+  const label=el('label','task-select-label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selectedTaskIds.has(t.id);checkbox.setAttribute('aria-label','選取任務 '+t.title);
+  checkbox.addEventListener('change',()=>{if(checkbox.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);updateTaskSelection();});
+  label.append(checkbox);row.append(label,el('span','task-list-title',t.title),el('span','status-pill',statuses[t.status]||t.status));
+  const project=projectCache.find(p=>p.id===t.project_id);
+  row.append(el('small','task-project-name',project?.name||'未分類'));
+  const actions=el('div','task-row-actions');
+  if(t.status==='proposed'){
+   for(const [decision,label] of [['approved','核准'],['rejected','駁回']]){
+    const btn=el('button','outline-btn',label);btn.type='button';btn.addEventListener('click',()=>approveTaskRecord(t,decision));actions.append(btn);
+   }
+  }else if(['approved','in_progress','review','paused'].includes(t.status)){
+   const labels={approved:'開始',in_progress:'提交審核',review:'驗收完成',paused:'恢復'};
+   const advance=el('button','outline-btn',labels[t.status]);advance.type='button';advance.addEventListener('click',()=>advanceTaskRecord(t));actions.append(advance);
+  }
+  const remove=el('button','danger-outline','刪除');remove.type='button';remove.setAttribute('aria-label','刪除任務 '+t.title);remove.addEventListener('click',()=>deleteTaskRecord(t));actions.append(remove);
+  row.append(actions);root.append(row);
+ }
+ updateTaskSelection();
+}
+$('selectAllTasks')?.addEventListener('change',e=>{for(const t of filteredTasks()){if(e.target.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);}renderTaskCards();});
+$('bulkDeleteTasks')?.addEventListener('click',async()=>{
+ const ids=[...selectedTaskIds],names=taskCache.filter(t=>selectedTaskIds.has(t.id)).map(t=>t.title);
+ if(!ids.length)return;
+ if(!confirm('永久刪除 '+ids.length+' 項任務？\n'+names.slice(0,5).join('、')+'\n無法復原。'))return;
+ let done=0,errors=[];
+ for(const id of ids){try{await api('/tasks/'+encodeURIComponent(id),{method:'DELETE'});done++;selectedTaskIds.delete(id);}catch(e){errors.push(e.message);}}
+ showToast('刪除 '+done+' 項，失敗 '+errors.length+' 項'+(errors.length?'：'+errors[0]:''));
+ await refreshManagement();
+});
 $('projectSearch')?.addEventListener('input',renderProjectCards);
 $('taskSearch')?.addEventListener('input',renderTaskCards);
 document.querySelectorAll('[data-project-filter]').forEach(b=>b.addEventListener('click',()=>{
