@@ -3,9 +3,14 @@
 import { localCompany } from './storage.js';
 const MODE_KEY='skai_v05_workspace_mode';
 let csrfToken=null;
-export function workspaceMode(){return 'local';} // Public static preview: no AI backend or cloud connection.
+// GitHub Pages remains local-only; an independently deployed same-origin API may opt into cloud mode.
+const isStaticPreview=()=>location.hostname.endsWith('.github.io');
+export function workspaceMode(){return isStaticPreview()?'local':(sessionStorage.getItem(MODE_KEY)==='cloud'?'cloud':'local');}
 export function useLocalWorkspace(){sessionStorage.setItem(MODE_KEY,'local');csrfToken=null;}
-export function useCloudWorkspace(){throw Error('此公開預覽只提供本機模式；AI 雲端服務尚未部署');}
+export function useCloudWorkspace(){
+ if(isStaticPreview())throw Error('GitHub Pages 為靜態預覽；請開啟獨立部署的 SKAI 網址才可使用雲端模式');
+ sessionStorage.setItem(MODE_KEY,'cloud');csrfToken=null;
+}
 export function setCsrfToken(token){csrfToken=token||null;}
 export function hasCsrfToken(){return Boolean(csrfToken);}
 function localRequest(path,method,body){
