@@ -101,10 +101,14 @@ app.post('/api/tasks', async(req,res) => {
   await client.query('BEGIN');
   const p=await client.query('SELECT id FROM projects WHERE id=$1',[projectId]);
   if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
-  const q=await client.query('INSERT INTO tasks(project_id,title,brief,assigned_role) VALUES($1,$2,$3,$4) RETURNING *',[projectId,title,brief,role]);
-  const approval=await client.query('INSERT INTO approvals(task_id) VALUES($1) RETURNING *',[q.rows[0].id]);
-  await record(client,'task.proposed','task',q.rows[0].id);
-  await client.query('COMMIT');res.status(201).json({task:q.rows[0],approval:approval.rows[0]});
+  const direct=Boolean(req.body?.ceo_assign_to_chief)&&Boolean(req.ceoSession);
+  const q=await client.query('INSERT INTO tasks(project_id,title,brief,assigned_role,status) VALUES($1,$2,$3,$4,$5) RETURNING *',
+   [projectId,title,brief,'chief_of_staff',direct?'approved':'proposed']);
+  let approval=null;
+  if(!direct)approval=(await client.query('INSERT INTO approvals(task_id) VALUES($1) RETURNING *',[q.rows[0].id])).rows[0];
+  await record(client,direct?'task.ceo_assigned_to_chief':'task.proposed','task',q.rows[0].id);
+  await client.query('COMMIT');
+  res.status(201).json({task:q.rows[0],approval,chief_plan_required:direct,notice:direct?'CEO 任務已交付幕僚長，待提出規劃方案；尚未啟動部門執行。':'待 CEO 審批'});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
 app.get('/api/approvals', async (_req,res)=>{
