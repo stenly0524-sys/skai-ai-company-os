@@ -239,9 +239,16 @@ async function loadDataIndex(){
   const [p,t]=await Promise.all([api('/projects'),api('/tasks')]);
   const q=$('dataSearch').value.trim().toLocaleLowerCase('zh-TW');
   const d=await api('/documents');
-  const all=[...(p.projects||[]).map(x=>({title:'專案｜'+x.name,body:x.goal||'未填寫目標'})),...(t.tasks||[]).map(x=>({title:'任務｜'+x.title,body:x.brief||'無任務說明'})),...(d.documents||[]).map(x=>({title:'文件｜'+x.name,body:x.url}))];
+  const all=[...(p.projects||[]).map(x=>({kind:'project',id:x.id,title:'專案｜'+x.name,body:x.goal||'未填寫目標'})),...(t.tasks||[]).map(x=>({kind:'task',id:x.id,title:'任務｜'+x.title,body:x.brief||'無任務說明'})),...(d.documents||[]).map(x=>({kind:'document',url:x.url,title:'文件｜'+x.name,body:x.url}))];
   const matched=all.filter(x=>(x.title+' '+x.body).toLocaleLowerCase('zh-TW').includes(q)).slice(0,100);
-  renderList(target,matched,'找不到符合的專案或任務紀錄。',x=>listItem(x.title,x.body));
+  renderList(target,matched,'找不到符合的專案、任務或文件紀錄。',x=>{
+   let action;
+   if(x.kind==='document'){action=el('a','outline-btn','開啟文件');action.href=x.url;action.rel='noopener noreferrer';action.target='_blank';}
+   else{action=el('button','outline-btn',x.kind==='project'?'查看專案':'查看任務');action.type='button';
+    action.addEventListener('click',async()=>{showPage(x.kind==='project'?'projects':'tasks');if(x.kind==='project')await openProjectDetails(x.id);});
+   }
+   return listItem(x.title,x.body,action);
+  });
  }catch(e){target.textContent='無法讀取資料：'+e.message;}
 }
 $('dataSearch').addEventListener('input',()=>loadDataIndex());
