@@ -270,7 +270,53 @@ async function refreshPage(page){
  if(page==='approvals')await loadApprovals();
  if(page==='orchestrations')await loadOrchestrations();
  if(page==='notifications')await loadNotifications();
+ if(page==='ai-controls')await loadAiControls();
 }
+async function loadAiControls(){
+ const feedback=$('aiControlFeedback');
+ if(workspaceMode()==='local'){
+  $('controlStatus').textContent='本機模式不能修改雲端 AI 控制。';
+  $('controlUsage').textContent='請切換雲端模式並登入 CEO。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=true;
+  return;
+ }
+ if(!isSignedIn)return;
+ try{
+  const [data,usage]=await Promise.all([api('/operations/ai-settings'),api('/operations/usage')]);
+  const s=data.settings;
+  $('aiControlEnabled').checked=Boolean(s.ai_enabled);
+  $('aiControlLimit').max=String(data.deployment_ceiling);
+  $('aiControlLimit').value=String(s.daily_call_limit);
+  $('aiTokenWarning').value=String(s.daily_token_warning);
+  $('controlStatus').textContent=s.ai_enabled?'AI 已啟用 · 後續呼叫受 CEO 設定限制':'AI 已暫停 · 新的 AI 呼叫會被拒絕';
+  const used=Number(usage.usage?.reserved_calls)||0;
+  const total=Number(usage.usage?.total_input_tokens||0)+Number(usage.usage?.total_output_tokens||0);
+  $('controlUsage').textContent='今日已嘗試 '+used+'／'+usage.cap+' 次，已記錄 '+total.toLocaleString()+' Tokens。';
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+  await Promise.all([loadDashboard(),loadAiControls()]);
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
 async function refreshAll(){
  await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
 }
