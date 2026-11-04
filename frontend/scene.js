@@ -6,7 +6,7 @@ const visualPositions={
  tech:[23,80],hr:[51,80],brand:[80,80]
 };
 const names={chief_of_staff:'AI 幕僚長',operations:'營運部',finance:'財務部',marketing:'行銷部',
- tech:'技術部',hr:'人資部',brand:'品牌設計部',admin:'行政部',legal:'法務部'};
+ tech:'資訊部',hr:'人資部',brand:'品牌設計部',admin:'行政部',legal:'法務部'};
 const symbols={chief_of_staff:'✦',operations:'⚙',finance:'◈',marketing:'◉',tech:'⌘',hr:'♙',brand:'✿',admin:'▤',legal:'◇'};
 export function renderOffice(people,{office,grid,mobileGrid,onSelect}){
  function makeButton(employee,kind){
