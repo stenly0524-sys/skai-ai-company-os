@@ -568,7 +568,7 @@ async function openTaskDetails(task,container){
   btn.addEventListener('click',async()=>{
    if(!confirm('每次只執行一項 AI 部門工作，會呼叫真實 API 並可能產生費用。確定執行？'))return;
    btn.disabled=true;
-   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/advance',{method:'POST'});showToast('部門工作已產出結果');await refreshManagement();container.hidden=true;await openTaskDetails(task,container);}
+   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/advance',{method:'POST'});showToast('部門工作已產出結果，請重新查看任務詳情');await refreshManagement();}
    catch(e){showToast('部門執行失敗：'+e.message);}finally{btn.disabled=false;}
   });actions.append(btn);
  }
