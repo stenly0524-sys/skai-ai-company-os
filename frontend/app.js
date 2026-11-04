@@ -482,12 +482,107 @@ async function approveTaskRecord(task,decision='approved'){
   showToast('任務審核已儲存');await refreshManagement();
  }catch(e){showToast('審核失敗：'+e.message);}
 }
-async function advanceTaskRecord(task){
- const next={approved:['in_progress','開始執行'],in_progress:['review','提交審核'],review:['done','驗收完成'],paused:['in_progress','恢復執行']}[task.status];
- if(!next)return showToast('此狀態無法直接更新');
- if(!confirm('將「'+task.title+'」變更為「'+(statuses[next[0]]||next[0])+'」？'))return;
- try{await api('/tasks/'+encodeURIComponent(task.id)+'/transition',{method:'POST',body:{status:next[0]}});showToast('任務狀態已更新');await refreshManagement();}
- catch(e){showToast('更新失敗：'+e.message);}
+function taskDetailLine(label,value){
+ const line=el('div','task-detail-line');
+ line.append(el('strong','',label),el('div','',value||'未提供'));
+ return line;
+}
+async function openTaskDetails(task,container){
+ const willOpen=container.hidden;
+ document.querySelectorAll('#taskCards .task-evidence-panel').forEach(p=>p.hidden=true);
+ container.hidden=!willOpen;
+ if(!willOpen)return;
+ container.replaceChildren(el('p','helper','正在讀取任務與 AI 執行紀錄…'));
+ const project=projectCache.find(p=>p.id===task.project_id);
+ const title=el('h3','','任務內容與執行紀錄'),heading=el('div','task-detail-heading');
+ heading.append(title,el('span','status-pill',statuses[task.status]||task.status));
+ const body=el('div','task-detail-body');
+ body.append(taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作說明與交付要求',task.brief||'尚未輸入工作說明，請先補齊要求。'));
+ container.replaceChildren(heading,body);
+ if(workspaceMode()==='local'){
+  container.append(el('p','task-evidence-warning','本機模式沒有 AI 規劃及成果紀錄，不能執行或驗收。切換雲端並登入 CEO 才能開始正式 AI 工作。'));
+  return;
+ }
+ let runs;
+ try{runs=(await api('/orchestrations')).runs||[];}
+ catch(e){container.append(el('p','task-evidence-warning','無法取得 AI 紀錄：'+e.message));return;}
+ const item=runs.find(r=>r.task_id===task.id);
+ if(!item){
+  container.append(el('p','task-evidence-warning',task.status==='done'?'此任務雖標示已完成，但沒有 AI 方案或交付成果：尚未完成實質驗收。':'目前沒有 AI 工作方案或執行成果，單純核准任務不會啟動分析。'));
+  if(task.status==='approved'){
+   const planBtn=el('button','primary-btn','請智能助理產生執行方案');
+   planBtn.type='button';planBtn.addEventListener('click',async()=>{
+    if(!confirm('這會呼叫真實 AI API 並可能產生費用。只產生工作分配、時間／Token／美元估算；不會開始部門執行。確定？'))return;
+    planBtn.disabled=true;
+    try{await api('/orchestrations/plan',{method:'POST',body:{task_id:task.id}});showToast('智能助理提案已建立，等待 CEO 第二次核准');await openTaskDetails(task,container);}
+    catch(e){showToast('無法產生方案：'+e.message);}
+    finally{planBtn.disabled=false;}
+   });container.append(planBtn);
+  }
+  return;
+ }
+ let detail;
+ try{detail=await api('/orchestrations/'+encodeURIComponent(item.id));}
+ catch(e){container.append(el('p','task-evidence-warning','方案詳情讀取失敗：'+e.message));return;}
+ const run=detail.run,steps=detail.steps||[];
+ const status=el('p','task-plan-state','AI 方案：'+(orchestrationStatuses[run.plan_status]||run.plan_status));
+ container.append(status);
+ const estimate=run.plan_estimate||{};
+ const amount=Number(estimate.estimated_usd);
+ const mins=Number(estimate.total_minutes);
+ const tokens=Number(estimate.total_tokens);
+ container.append(taskDetailLine('幕僚長工作規劃',run.summary||'尚未提供方案摘要'));
+ container.append(taskDetailLine('時間／Tokens／成本估算',[
+  Number.isFinite(mins)&&mins>0?mins+' 分鐘':'時間未提供',
+  Number.isFinite(tokens)&&tokens>0?tokens.toLocaleString()+' Tokens':'Token 未提供',
+  Number.isFinite(amount)?'US$'+amount.toFixed(4)+'（預估）':'成本未提供'
+ ].join(' · ')));
+ const section=el('div','task-step-list');section.append(el('h4','','部門分工與實際交付'));
+ if(!steps.length)section.append(el('p','helper','沒有可查閱的部門工作項目'));
+ steps.forEach(step=>{
+  const card=el('div','task-step-card');
+  const dept=EMPLOYEES.find(e=>e.id===step.role_id)?.name||step.role_id;
+  card.append(el('strong','',String(step.sequence_no||'')+'｜'+dept+'　'+(step.status==='done'?'已產出成果':step.status==='pending'?'待執行':step.status||'')),
+   taskDetailLine('工作指示',step.instruction||'未提供'));
+  if(step.result)card.append(taskDetailLine('交付內容',step.result));
+  else card.append(el('p','helper','尚未有可驗收的工作成果'));
+  if(step.last_error)card.append(el('p','task-evidence-warning','異常：'+step.last_error));
+  section.append(card);
+ });
+ container.append(section);
+ if(run.consolidated_report){
+  container.append(el('h4','','整合成果報告'),el('pre','task-result-report',run.consolidated_report));
+ }
+ const actions=el('div','task-detail-actions');
+ if(run.plan_status==='draft'){
+  const btn=el('button','primary-btn','CEO 核准分工與預估成本');
+  btn.addEventListener('click',async()=>{
+   if(!confirm('確認接受目前 AI 方案及預估費用？核准方案不會立刻執行付費的部門工作。'))return;
+   btn.disabled=true;
+   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/approve',{method:'POST'});showToast('方案已核准，可以逐步執行');container.hidden=true;await openTaskDetails(task,container);}
+   catch(e){showToast('核准方案失敗：'+e.message);}finally{btn.disabled=false;}
+  });actions.append(btn);
+ }
+ if(['ready','running','failed','paused'].includes(run.plan_status)){
+  const btn=el('button','primary-btn',run.plan_status==='ready'?'開始執行第一個部門工作':'執行下一個／重試部門工作');
+  btn.addEventListener('click',async()=>{
+   if(!confirm('每次只執行一項 AI 部門工作，會呼叫真實 API 並可能產生費用。確定執行？'))return;
+   btn.disabled=true;
+   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/advance',{method:'POST'});showToast('部門工作已產出結果');await refreshManagement();container.hidden=true;await openTaskDetails(task,container);}
+   catch(e){showToast('部門執行失敗：'+e.message);}finally{btn.disabled=false;}
+  });actions.append(btn);
+ }
+ if(run.plan_status==='review'&&run.consolidated_report&&steps.length&&steps.every(s=>s.status==='done'&&s.result)){
+  const btn=el('button','primary-btn','確認已閱讀成果並驗收完成');
+  btn.addEventListener('click',async()=>{
+   if(!confirm('確認已檢視各部門成果與整合報告，驗收此任務？'))return;
+   btn.disabled=true;
+   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/complete',{method:'POST'});showToast('成果已完成 CEO 驗收');await refreshManagement();}
+   catch(e){showToast('驗收失敗：'+e.message);}finally{btn.disabled=false;}
+  });actions.append(btn);
+ }
+ if(actions.children.length)container.append(actions);
+ if(run.plan_status==='done'&&!run.consolidated_report)container.append(el('p','task-evidence-warning','此任務缺少整合報告，請檢查執行紀錄。'));
 }
 function renderTaskCards(){
  const root=$('taskCards');if(!root)return;root.replaceChildren();
@@ -505,12 +600,11 @@ function renderTaskCards(){
    for(const [decision,label] of [['approved','核准'],['rejected','駁回']]){
     const btn=el('button','outline-btn',label);btn.type='button';btn.addEventListener('click',()=>approveTaskRecord(t,decision));actions.append(btn);
    }
-  }else if(['approved','in_progress','review','paused'].includes(t.status)){
-   const labels={approved:'開始',in_progress:'提交審核',review:'驗收完成',paused:'恢復'};
-   const advance=el('button','outline-btn',labels[t.status]);advance.type='button';advance.addEventListener('click',()=>advanceTaskRecord(t));actions.append(advance);
   }
+  const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
   const remove=el('button','danger-outline','刪除');remove.type='button';remove.setAttribute('aria-label','刪除任務 '+t.title);remove.addEventListener('click',()=>deleteTaskRecord(t));actions.append(remove);
-  row.append(actions);root.append(row);
+  row.append(actions);const details=el('section','task-evidence-panel');details.hidden=true;
+  inspect.addEventListener('click',()=>openTaskDetails(t,details));root.append(row,details);
  }
  updateTaskSelection();
 }
