@@ -1,5 +1,5 @@
 import express from 'express';
-import { performChecks, taipeiParts,capFromEnv } from './operations.js';
+import { performChecks, taipeiParts,capFromEnv,readAiControls,effectiveCallLimit,validateAiControls } from './operations.js';
 import { validUuid } from './security.js';
 export function operationsRouter(db){
  const api=express.Router();
@@ -20,9 +20,46 @@ export function operationsRouter(db){
  api.get('/usage',async(req,res)=>{
   try{
    const day=taipeiParts().day;
-   const q=await db.query('SELECT * FROM ai_daily_usage WHERE usage_day=$1',[day]);
-   res.json({day,cap:capFromEnv(process.env.SKAI_DAILY_AI_CALL_LIMIT),usage:q.rows[0]||{reserved_calls:0,completed_calls:0,failed_calls:0,total_input_tokens:0,total_output_tokens:0},notice:'此為 SKAI OpenAI API 自訂呼叫額度，不是 ChatGPT Plus 方案餘額或真正貨幣費用上限。'});
+   const [q,settings]=await Promise.all([
+    db.query('SELECT * FROM ai_daily_usage WHERE usage_day=$1',[day]),readAiControls(db)
+   ]);
+   res.json({day,cap:effectiveCallLimit(settings),ai_enabled:settings.ai_enabled,
+    daily_token_warning:settings.daily_token_warning,
+    usage:q.rows[0]||{reserved_calls:0,completed_calls:0,failed_calls:0,total_input_tokens:0,total_output_tokens:0},
+    notice:'Token 警示僅作提醒，不代表美元費用上限或硬性 Token 封鎖。所有呼叫限制由 SKAI 自訂。'});
   }catch{res.status(500).json({error:'internal_error'})}
+ });
+ api.get('/ai-settings',async(req,res)=>{
+  if(!req.ceoSession)return res.status(403).json({error:'ceo_session_required'});
+  try{
+   const settings=await readAiControls(db);
+   res.json({settings,effective_daily_limit:effectiveCallLimit(settings),
+    deployment_ceiling:capFromEnv(process.env.SKAI_DAILY_AI_CALL_LIMIT),
+    notice:'每日呼叫上限是硬性防護。Token 門檻僅提醒，並非美元預算或硬性 Token 限制。'});
+  }catch{res.status(500).json({error:'internal_error'})}
+ });
+ api.post('/ai-settings',async(req,res)=>{
+  if(!req.ceoSession)return res.status(403).json({error:'ceo_session_required'});
+  let settings;
+  try{settings=validateAiControls(req.body)}catch{return res.status(400).json({error:'invalid_ai_settings'})}
+  const ceiling=capFromEnv(process.env.SKAI_DAILY_AI_CALL_LIMIT);
+  if(settings.daily_call_limit>ceiling)return res.status(400).json({error:'over_deployment_ai_ceiling',deployment_ceiling:ceiling});
+  const client=await db.connect();
+  try{
+   await client.query('BEGIN');
+   const old=await client.query('SELECT ai_enabled,daily_call_limit,daily_token_warning FROM ai_control_settings WHERE id=1 FOR UPDATE');
+   const changed=await client.query(`UPDATE ai_control_settings SET ai_enabled=$1,daily_call_limit=$2,daily_token_warning=$3,updated_at=NOW()
+    WHERE id=1 RETURNING ai_enabled,daily_call_limit,daily_token_warning,updated_at`,[
+    settings.ai_enabled,settings.daily_call_limit,settings.daily_token_warning
+   ]);
+   if(!changed.rowCount)throw Error('ai_settings_missing');
+   await client.query(`INSERT INTO audit_log(actor,event,target_type,details) VALUES('ceo','ai.settings.updated','settings',$1)`,[
+    JSON.stringify({old:old.rows[0],new:settings})
+   ]);
+   await client.query('COMMIT');
+   res.json({settings:changed.rows[0],effective_daily_limit:effectiveCallLimit(settings)});
+  }catch(e){await client.query('ROLLBACK');console.error('ai setting save error:',e?.message);res.status(500).json({error:'internal_error'})}
+  finally{client.release()}
  });
  api.post('/checks/run',async(_req,res)=>{
   try{const created=await performChecks(db);res.json({created,notice:'僅建立內部通知紀錄；不會推播到 ChatGPT App'})}
