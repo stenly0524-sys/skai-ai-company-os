@@ -373,3 +373,77 @@ html,body{background:#f1f4fa;color:#263750}
  #page-home .office-scene{height:auto;aspect-ratio:606 / 504}
  #page-home .mobile-office-grid{display:none}
 }
+
+
+/* SKAI V0.6 — approved white/silver tech-icon design language.
+   Inline SVG means symbols remain crisp on retina phones and landscape monitors. */
+.skai-icon{
+ display:inline-grid;place-items:center;flex:0 0 auto;
+ width:37px;height:37px;border:1px solid #d6e2f1;border-radius:12px;
+ color:#6288b8;
+ background:linear-gradient(145deg,#fff 4%,#f8fbff 55%,#e7effb);
+ box-shadow:inset 2px 2px 3px #ffffff,inset -2px -2px 3px #d9e5f3,0 5px 9px #637e9e2a;
+ vertical-align:middle;
+}
+.skai-icon svg{width:65%;height:65%;overflow:visible;filter:drop-shadow(0 1px 0 #ffffff);stroke:currentColor}
+.desktop-nav .navitem{display:flex;align-items:center;gap:11px}
+.desktop-nav .navitem .skai-icon{width:34px;height:34px;min-width:34px;border-radius:11px}
+.desktop-nav .navitem.active .skai-icon{color:#3d679a;background:linear-gradient(130deg,#fff,#e6eef9)}
+.mobile-nav .mobileitem{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mobile-nav .mobileitem .skai-icon{width:31px;height:31px;border-radius:10px}
+.mobile-more-link .skai-icon{width:29px;height:29px;margin-right:8px}
+#page-home .kpi .skai-icon{width:32px;height:32px;border-radius:11px}
+#page-home .mobile-office-person .person-head{padding:0;background:none;border:0;box-shadow:none}
+#page-home .mobile-office-person .person-head .skai-icon{width:39px;height:39px}
+#page-employees .employee-card .person-head{background:transparent;border:0;box-shadow:none}
+#page-employees .employee-card .person-head .skai-icon{width:48px;height:48px}
+#employeeFace .skai-icon{width:56px;height:56px}
+.mini-face .skai-icon{width:31px;height:31px}
+button .skai-icon+span:not(.status-dot){vertical-align:middle}
+.primary-btn .skai-icon,.outline-btn .skai-icon,.mode-toggle .skai-icon{width:27px;height:27px;margin-right:7px;border-radius:9px}
+.avatar-ceo .skai-icon{width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#fff,#dbe8fb)}
+.avatar-ceo{display:grid;place-items:center}
+#page-home .office-hotspot .skai-icon{background:transparent;border:0;box-shadow:none}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ /* Landscape phones use desktop-style left navigation. Portrait uses bottom tabs. */
+ .app-shell{display:block;max-width:none;min-height:100dvh}
+ .desktop-nav{
+  display:flex!important;position:fixed!important;inset:0 auto 0 0;
+  height:100dvh!important;width:164px!important;
+  padding:13px 7px!important;overflow-y:auto;overscroll-behavior:contain;z-index:70;
+  border-right:1px solid #d5e0ee;gap:6px
+ }
+ .desktop-nav .brand{font-size:15px;gap:7px;padding:0 6px 10px}
+ .desktop-nav .brand .logo{width:26px;height:26px;font-size:18px;border-radius:8px}
+ .desktop-nav .brand small{font-size:6px;letter-spacing:0}
+ .desktop-nav .nav-list{display:grid;gap:2px}
+ .desktop-nav .navitem{font-size:12px;padding:5px 6px;gap:6px;border-radius:9px;min-height:36px}
+ .desktop-nav .navitem .skai-icon{width:28px;height:28px;min-width:28px;border-radius:8px}
+ .desktop-nav .nav-footer{display:none}
+ .main-column{display:block;margin-left:164px!important;padding:8px 10px 18px!important;min-width:0}
+ .mobile-nav,.mobile-more-menu{display:none!important}
+ .topbar{padding:7px 10px;margin-bottom:8px;gap:8px}
+ .topbar h1{font-size:18px}
+ .topbar .eyebrow{display:none}
+ .topbar .top-actions{flex-wrap:nowrap;max-width:none}
+ .topbar .mode-toggle{font-size:9px;padding:5px 6px}
+ #page-home .content-grid{display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(180px,.7fr)!important;gap:8px!important}
+ #page-home .primary-area,#page-home .secondary-area{min-width:0}
+ #page-home .office-scene{height:auto!important;max-height:none;aspect-ratio:606 / 504}
+ #page-home .scene-heading h2{font-size:14px}
+ #page-home .scene-card{padding:8px!important}
+ #page-home .mobile-office-grid{display:none!important}
+ #page-home .kpi-grid{gap:5px}
+ #page-home .kpi{padding:7px}
+ #page-home .secondary-area .card{padding:10px}
+ #page-home .secondary-area .section-top h2{font-size:13px}
+ #page-home .secondary-area .empty-state{min-height:72px}
+ .employee-dialog{max-height:95dvh}
+}
+@media(max-width:720px) and (orientation:portrait){
+ .mobile-nav .mobileitem .skai-icon{width:29px;height:29px;border-radius:9px}
+ .mobile-nav .mobileitem{min-height:53px;gap:3px;font-size:10px}
+ .topbar{margin-top:0}
+ .mobile-office-person{min-height:92px}
+ .mobile-office-person .person-name{font-size:11px}
+}
