@@ -494,3 +494,24 @@ button .skai-icon+span:not(.status-dot){vertical-align:middle}
 @media (orientation:landscape) and (max-height:550px) and (max-width:1024px){
  #page-home .office-scene{min-height:0!important;max-height:none!important;aspect-ratio:6/5}
 }
+
+
+/* SKAI CEO -> Chief-of-Staff planning workflow */
+#chiefPlanPanel{margin-top:16px}
+#chiefPlanPanel .orchestration-entry{padding:14px 0;border-bottom:1px solid #dae4f0}
+#chiefPlanPanel .orchestration-entry:last-child{border-bottom:0}
+#chiefPlanPanel .orchestration-detail{margin-top:12px;display:grid;gap:10px;min-width:0}
+#chiefPlanPanel .orchestration-detail[hidden]{display:none}
+#chiefPlanPanel .chief-budget-summary{padding:13px 14px;border:1px solid #b5cce8;border-radius:12px;background:linear-gradient(130deg,#f0f6ff,#e2edfa);font-weight:760;color:#2e4f78;line-height:1.5}
+#chiefPlanPanel .chief-step-card{padding:12px 14px;border:1px solid #dce6f3;border-radius:12px;background:#fff;display:grid;gap:6px}
+#chiefPlanPanel .chief-step-card p{margin:0;overflow-wrap:anywhere}
+#chiefPlanPanel .chief-feedback-form,#chiefPlanPanel .chief-edit-body{display:grid;gap:10px;padding:14px;border:1px solid #d6e2f0;border-radius:12px;background:#f7faff}
+#chiefPlanPanel .chief-feedback-form label,#chiefPlanPanel .chief-edit-body label{display:grid;gap:6px;font-weight:640;font-size:13px;color:#425b7c}
+#chiefPlanPanel textarea,#chiefPlanPanel input,#chiefPlanPanel select{box-sizing:border-box;display:block;width:100%;max-width:100%;min-width:0;border:1px solid #c7d6e9;border-radius:9px;padding:10px;color:#263e5c;background:#fff;font:inherit}
+#chiefPlanPanel .chief-feedback-form button,#chiefPlanPanel .chief-edit-body button{justify-self:start}
+#chiefPlanPanel .chief-step-editor{display:grid;gap:9px;padding:12px;margin:8px 0;border:1px solid #d5e1ef;border-radius:10px;background:#fff}
+#chiefPlanPanel .chief-estimate-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+#chiefPlanPanel .chief-edit-panel{display:grid;gap:10px}
+#chiefPlanPanel .chief-edit-body[hidden]{display:none}
+#chiefPlanPanel .orchestration-result{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+@media(max-width:650px){#chiefPlanPanel .chief-estimate-row{grid-template-columns:1fr 1fr}#chiefPlanPanel .chief-estimate-row button{grid-column:1 / -1}}
