@@ -8,7 +8,7 @@ import {el,listItem,renderList} from './ui.js';
 const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
-let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0;
+let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0,projectFilter='all',taskFilter='all',taskCache=[];
 const orchestrationStatuses={draft:'待 CEO 審核提案',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
@@ -42,6 +42,8 @@ function showPage(page){
  if(more){more.classList.toggle('active',['employees','approvals','notifications','department-tech','department-finance'].includes(page));closeMobileMore();}
  window.scrollTo({top:0,behavior:'auto'});
  if(history.replaceState)history.replaceState(null,'','#'+page);
+ const headings={home:['早安，CEO','SKAI OS｜個人企業智慧管理中心'],projects:['專案中心','管理所有專案、進度與里程碑'],tasks:['任務中心','管理與追蹤所有任務執行進度'],data:['資料中心','集中管理知識與工作紀錄'],assistant:['AI 幕僚長','你的專屬策略與執行助理']};
+ const heading=headings[page]||['SKAI 指揮中心','管理功能'];$('pageTitle').textContent=heading[0];$('pageSubtitle').textContent=heading[1];
  if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
 }
 for(const button of document.querySelectorAll('[data-page]'))button.addEventListener('click',()=>showPage(button.dataset.page));
@@ -106,6 +108,7 @@ $('loginForm').addEventListener('submit',async event=>{
 const statuses=TASK_STATUS;
 async function loadProjects(){
  const data=await api('/projects');projectCache=data.projects||[];
+ renderProjectCards();
  renderList($('projectList'),projectCache,'目前沒有專案。請先與幕僚長討論，再由 CEO 建立。',p=>
   listItem(p.name,p.goal||'未填寫目標',el('span','quiet-pill',p.stage||'draft')));
  const select=$('taskProject');
@@ -114,7 +117,7 @@ async function loadProjects(){
  select.value=projectCache.some(x=>x.id===old)?old:'';
 }
 async function loadTasks(){
- const data=await api('/tasks');
+ const data=await api('/tasks');taskCache=data.tasks||[];renderTaskCards();
  renderList($('taskList'),data.tasks||[],'目前尚未建立任務。',t=>
   listItem(t.title,t.brief||'由幕僚長規劃處理事項',el('span','quiet-pill',statuses[t.status]||t.status)));
 }
@@ -305,27 +308,103 @@ async function loadNotifications(){
   listItem(n.title,n.body,el('span','quiet-pill',n.status==='read'?'已讀':n.severity==='warning'?'需注意':'未讀')));
 }
 async function loadDashboard(){
- const data=await api('/dashboard');
- for(const [id,key] of [['statProjects','projects'],['statTasks','active'],['statApprovals','pending']])$(id).textContent=String(data.counts?.[key]??'—');
- $('projectLabel').textContent='資料庫紀錄';
- $('taskLabel').textContent='資料庫紀錄';
- $('approvalLabel').textContent='資料庫紀錄';
- $('companyDataSource').textContent=workspaceMode()==='local'?'本機資料':'Neon 雲端資料';
- const projectCount=Number(data.counts?.projects)||0;
- const activeCount=Number(data.counts?.active)||0;
- const pendingCount=Number(data.counts?.pending)||0;
+ const result=await api('/dashboard');
+ const data=result.counts||{};
+ for(const [id,key] of [['statProjects','projects'],['statTasks','active'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
+ $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='已保存任務';$('approvalLabel').textContent='已保存審批';
+ $('companyDataSource').textContent=workspaceMode()==='local'?'本機工作區 · 非跨裝置同步':'SKAI 雲端資料 · 已登入';
  const highlights=$('todayHighlights');
- highlights.replaceChildren(
-  el('p','',pendingCount>0?'目前有 '+pendingCount+' 項待 CEO 審批':'目前沒有待 CEO 審批項目'),
-  el('small','',activeCount+' 項任務進行中。資料取自 SKAI 已保存的任務與審批紀錄。')
- );
+ highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
+ const [p,t]=await Promise.all([api('/projects'),api('/tasks')]);
+ const projects=p.projects||[],tasks=t.tasks||[];
  const snapshot=$('projectSnapshot');
- snapshot.replaceChildren(
-  el('p','',projectCount+' 個進行中的專案'),
-  el('small','','目前統計未結案的專案；可至「專案」頁查看詳細資料。')
- );
-
+ snapshot.replaceChildren(el('p','',String(data.projects??'—')+' 個未結案專案'));
+ const monday=new Date();const day=(monday.getDay()+6)%7;monday.setHours(0,0,0,0);monday.setDate(monday.getDate()-day);
+ const recent=tasks.filter(x=>x.updated_at&&new Date(x.updated_at)>=monday);
+ const done=recent.filter(x=>x.status==='done').length;
+ $('statWeekly').textContent=recent.length?Math.round(100*done/recent.length)+'%':'—';
+ $('weeklyLabel').textContent=recent.length?'本週更新的 '+recent.length+' 項任務':'本週尚無任務更新';
+ renderHomeProjects(projects);renderHomeTodos(tasks,data.pending??0);
+ $('statAiCost').textContent='—';
+ $('costLabel').textContent=workspaceMode()==='local'?'本機無 AI API 費用紀錄':'讀取 AI 用量中…';
+ if(workspaceMode()==='cloud'){
+  try{const usage=await api('/operations/usage');const usd=Number(usage.cost?.month_usd);
+   if(Number.isFinite(usd)){$('statAiCost').textContent='$'+usd.toFixed(2);$('costLabel').textContent='USD · 後端估算，非實際帳單';}
+   else $('costLabel').textContent='尚無可核實的 AI 成本';
+  }catch{$('costLabel').textContent='AI 成本暫時無法讀取';}
+ }
 }
+function renderHomeProjects(projects){
+ const root=$('homeProjectBars');root.replaceChildren();
+ const visible=projects.filter(p=>p.status!=='closed').slice(0,5);
+ if(!visible.length){root.append(el('p','helper','目前沒有進行中專案。'));return;}
+ for(const p of visible){
+  const b=el('button','project-progress-row');b.type='button';
+  const name=el('span','project-progress-name',p.name);const value=Number(p.progress),known=p.progress!==null&&p.progress!==undefined&&Number.isFinite(value);
+  const percent=known?Math.max(0,Math.min(100,value)):null;
+  const figure=el('b','project-progress-value',percent===null?'未設定':percent+'%');
+  const bar=el('span','project-progress-track');const fill=el('i','project-progress-fill');
+  fill.style.width=(percent??0)+'%';bar.append(fill);b.append(name,bar,figure);
+  b.addEventListener('click',()=>showPage('projects'));root.append(b);
+ }
+}
+function renderHomeTodos(tasks,pending){
+ const root=$('homeTodoList');root.replaceChildren();
+ const active=tasks.filter(t=>!['done','rejected'].includes(t.status)).slice(0,4);
+ if(!active.length){root.append(el('p','helper','目前沒有未完成任務。'));return;}
+ for(const t of active){
+  const row=el('button','home-todo-row');row.type='button';
+  const mark=el('span','todo-check',t.status==='done'?'✓':'□');
+  const name=el('span','',t.title);const state=el('small','todo-status',statuses[t.status]||t.status);
+  row.append(mark,name,state);row.addEventListener('click',()=>showPage('tasks'));root.append(row);
+ }
+}
+function renderProjectCards(){
+ const root=$('projectCards');if(!root)return;root.replaceChildren();
+ const query=$('projectSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
+ const rows=projectCache.filter(p=>{
+  const completed=p.status==='closed'||p.stage==='completed';
+  const planned=['draft','planning'].includes(p.stage);
+  const filter=projectFilter==='all'||(projectFilter==='closed'&&completed)||(projectFilter==='planning'&&!completed&&planned)||(projectFilter==='active'&&!completed&&!planned);
+  return filter&&(p.name+' '+(p.goal||'')).toLocaleLowerCase('zh-TW').includes(query);
+ });
+ if(!rows.length){root.append(el('p','helper','沒有符合條件的專案。'));return;}
+ for(const p of rows){
+  const button=el('button','visual-project-row');button.type='button';button.addEventListener('click',()=>showToast('專案：'+p.name+'。詳細內容與任務關聯持續開發中。'));
+  const graphic=el('span','project-graphic','▣');const body=el('span','project-row-main');
+  body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
+  const stage=el('span','status-pill',p.status==='closed'?'已完成':p.stage==='active'?'進行中':'規劃中');
+  const amount=Number(p.progress);const known=p.progress!==undefined&&p.progress!==null&&Number.isFinite(amount);
+  const meter=el('span','project-row-meter');const track=el('span','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=(known?Math.min(100,Math.max(0,amount)):0)+'%';track.append(fill);
+  meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));root.append(button);
+ }
+}
+function renderTaskCards(){
+ const root=$('taskCards');if(!root)return;root.replaceChildren();
+ const q=$('taskSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
+ const rows=taskCache.filter(t=>{
+  const done=t.status==='done',inProgress=['in_progress','approved','review'].includes(t.status);
+  const filter=taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&!done)||(taskFilter==='in_progress'&&inProgress);
+  return filter&&(t.title+' '+(t.brief||'')).toLocaleLowerCase('zh-TW').includes(q);
+ });
+ if(!rows.length){root.append(el('p','helper','沒有符合條件的任務。'));return;}
+ for(const t of rows){
+  const row=el('button','visual-task-row');row.type='button';row.addEventListener('click',()=>document.getElementById('taskList')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  row.append(el('span','todo-check',t.status==='done'?'✓':'□'),el('span','task-list-title',t.title),el('span','status-pill',statuses[t.status]||t.status));
+  const project=projectCache.find(p=>p.id===t.project_id);
+  row.append(el('small','task-project-name',project?.name||'未分類'));root.append(row);
+ }
+}
+$('projectSearch')?.addEventListener('input',renderProjectCards);
+$('taskSearch')?.addEventListener('input',renderTaskCards);
+document.querySelectorAll('[data-project-filter]').forEach(b=>b.addEventListener('click',()=>{
+ projectFilter=b.dataset.projectFilter;document.querySelectorAll('[data-project-filter]').forEach(x=>x.classList.toggle('active',x===b));renderProjectCards();
+}));
+document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{
+ taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTaskCards();
+}));
+$('jumpProjectCreate')?.addEventListener('click',()=>$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'}));
+$('jumpTaskCreate')?.addEventListener('click',()=>$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'}));
 async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await loadDashboard();
