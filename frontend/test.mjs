@@ -83,19 +83,21 @@ test('local company CRUD persists independently of the backend and requires CEO 
 });
 
 
-test('CEO workflow exposes real backend AI orchestration without auto approving or simulating AI',async()=>{
+test('CEO tasks embed a chief-of-staff plan with pre-execution approval and revision',async()=>{
  const html=await fs.readFile(new URL('./index.html',import.meta.url),'utf8');
  const app=await fs.readFile(new URL('./app.js',import.meta.url),'utf8');
  const backend=await fs.readFile(new URL('../backend/src/orchestration.js',import.meta.url),'utf8');
- assert.match(html,/id="page-orchestrations"/);
+ assert.match(html,/id="page-tasks"/);
+ assert.match(html,/id="chiefPlanPanel"/);
  assert.match(html,/id="orchestrationTask"/);
- assert.match(html,/data-page="orchestrations"/);
- assert.match(app,/api\('\/orchestrations'/);
+ assert.doesNotMatch(html,/id="page-orchestrations"/);
+ assert.doesNotMatch(html,/data-page="orchestrations"/);
  assert.match(app,/orchestrations\/plan/);
- assert.match(app,/CEO 核准分工/);
- assert.match(app,/執行下一部門分析/);
- assert.match(app,/CEO 驗收結案/);
- assert.match(app,/workspaceMode\(\)==='local'/);
- assert.match(backend,/api\.get\('\/',async/);
+ assert.match(app,/CEO 確認並核准執行/);
+ assert.match(app,/請幕僚長重新調整方案/);
+ assert.match(app,/CEO 直接修改分工與資源/);
+ assert.match(app,/執行下一部門任務/);
+ assert.match(backend,/api\.post\('\/:id\/revise'/);
+ assert.match(backend,/api\.post\('\/:id\/edit'/);
  assert.match(backend,/SELECT r\.\*,t\.title AS task_title/);
 });
