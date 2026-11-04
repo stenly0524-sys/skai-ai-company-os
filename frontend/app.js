@@ -292,6 +292,889 @@ async function loadAiControls(){
   const used=Number(usage.usage?.reserved_calls)||0;
   const total=Number(usage.usage?.total_input_tokens||0)+Number(usage.usage?.total_output_tokens||0);
   $('controlUsage').textContent='今日已嘗試 '+used+'／'+usage.cap+' 次，已記錄 '+total.toLocaleString()+' Tokens。';
+  const usd=usage.cost||{};
+  const dayUsd=Number(usd.day_usd)||0,monthUsd=Number(usd.month_usd)||0;
+  $('controlUsdUsage').textContent='今日預算占用約 US
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value),
+  daily_budget_usd:Number($('aiDailyUsd').value),
+  monthly_budget_usd:Number($('aiMonthlyUsd').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning)||!Number.isFinite(body.daily_budget_usd)||!Number.isFinite(body.monthly_budget_usd))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
+async function refreshAll(){
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
+}
+$('projectForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ if(!name)return;
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+$('taskForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form);
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+async function chooseChat(role){
+ currentEmployee=role;
+ $('chatRoleName').textContent=role.name;
+ const history=$('chatHistory');history.replaceChildren();
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
+}
+$('employeeChat').addEventListener('click',()=>{
+ dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+});
+$('chatPreviewForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const input=$('chatText'),content=input.value.trim();if(!content)return;
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
+ history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
+ const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
+ try{
+  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  if(data.conversation_id)roleConversations.set(role,data.conversation_id);
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+ finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
+});
+const initialPage=location.hash.slice(1);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
+startSession();
++dayUsd.toFixed(4)+'／US
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
+async function refreshAll(){
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
+}
+$('projectForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ if(!name)return;
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+$('taskForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form);
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+async function chooseChat(role){
+ currentEmployee=role;
+ $('chatRoleName').textContent=role.name;
+ const history=$('chatHistory');history.replaceChildren();
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
+}
+$('employeeChat').addEventListener('click',()=>{
+ dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+});
+$('chatPreviewForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const input=$('chatText'),content=input.value.trim();if(!content)return;
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
+ history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
+ const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
+ try{
+  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  if(data.conversation_id)roleConversations.set(role,data.conversation_id);
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+ finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
+});
+const initialPage=location.hash.slice(1);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
+startSession();
++Number(s.daily_budget_usd).toFixed(2)+
+    '；本月約 US
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
+async function refreshAll(){
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
+}
+$('projectForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ if(!name)return;
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+$('taskForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form);
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+async function chooseChat(role){
+ currentEmployee=role;
+ $('chatRoleName').textContent=role.name;
+ const history=$('chatHistory');history.replaceChildren();
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
+}
+$('employeeChat').addEventListener('click',()=>{
+ dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+});
+$('chatPreviewForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const input=$('chatText'),content=input.value.trim();if(!content)return;
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
+ history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
+ const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
+ try{
+  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  if(data.conversation_id)roleConversations.set(role,data.conversation_id);
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+ finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
+});
+const initialPage=location.hash.slice(1);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
+startSession();
++monthUsd.toFixed(4)+'／US
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
+async function refreshAll(){
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
+}
+$('projectForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ if(!name)return;
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+$('taskForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form);
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+async function chooseChat(role){
+ currentEmployee=role;
+ $('chatRoleName').textContent=role.name;
+ const history=$('chatHistory');history.replaceChildren();
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
+}
+$('employeeChat').addEventListener('click',()=>{
+ dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+});
+$('chatPreviewForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const input=$('chatText'),content=input.value.trim();if(!content)return;
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
+ history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
+ const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
+ try{
+  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  if(data.conversation_id)roleConversations.set(role,data.conversation_id);
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+ finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
+});
+const initialPage=location.hash.slice(1);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
+startSession();
++Number(s.monthly_budget_usd).toFixed(2)+
+    '。待核實請求 '+(Number(usd.unverified_count)||0)+' 筆。';
+  $('aiDailyUsd').value=Number(s.daily_budget_usd).toFixed(2);
+  $('aiMonthlyUsd').value=Number(s.monthly_budget_usd).toFixed(2);
+  const pricing=data.pricing;
+  $('aiCostDetails').textContent='計價模型 '+data.pricing_model+
+   (pricing?'（公開標準單價：每百萬輸入 Tokens US
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
+async function refreshAll(){
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
+}
+$('projectForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ if(!name)return;
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+$('taskForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form);
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+async function chooseChat(role){
+ currentEmployee=role;
+ $('chatRoleName').textContent=role.name;
+ const history=$('chatHistory');history.replaceChildren();
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
+}
+$('employeeChat').addEventListener('click',()=>{
+ dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+});
+$('chatPreviewForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const input=$('chatText'),content=input.value.trim();if(!content)return;
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
+ history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
+ const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
+ try{
+  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  if(data.conversation_id)roleConversations.set(role,data.conversation_id);
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+ finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
+});
+const initialPage=location.hash.slice(1);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
+startSession();
++pricing.input+'、輸出 US
+  $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
+  $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
+  feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
+ }catch(e){feedback.textContent='無法讀取 AI 控制設定：'+e.message;}
+}
+$('aiControlForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!isSignedIn)return openLogin();
+ if(workspaceMode()==='local')return showToast('請切換至雲端模式。');
+ const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
+ const body={
+  ai_enabled:$('aiControlEnabled').checked,
+  daily_call_limit:Number($('aiControlLimit').value),
+  daily_token_warning:Number($('aiTokenWarning').value)
+ };
+ if(!Number.isSafeInteger(body.daily_call_limit)||!Number.isSafeInteger(body.daily_token_warning))return showToast('請輸入有效整數');
+ button.disabled=true;
+ $('aiControlFeedback').textContent='正在保存至雲端資料庫…';
+ try{
+  await api('/operations/ai-settings',{method:'POST',body});
+  await Promise.all([loadDashboard(),loadAiControls()]);
+  $('aiControlFeedback').textContent='設定已保存於雲端，後續 AI 呼叫立即依新設定執行。';
+ }catch(e){$('aiControlFeedback').textContent='設定未保存：'+e.message}
+ finally{button.disabled=false}
+});
+async function refreshAll(){
+ await Promise.allSettled([loadDashboard(),loadProjects(),loadTasks(),loadApprovals(),loadNotifications(),loadOrchestrations()]);
+}
+$('projectForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ if(!name)return;
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+$('taskForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const form=event.currentTarget;
+ const fd=new FormData(form);
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const button=form.querySelector('button[type=submit]');button.disabled=true;
+ try{await api('/tasks',{method:'POST',body});form.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('任務已送至 CEO 審批');}
+ catch(e){showToast(e.message)}
+ finally{button.disabled=false;}
+});
+async function chooseChat(role){
+ currentEmployee=role;
+ $('chatRoleName').textContent=role.name;
+ const history=$('chatHistory');history.replaceChildren();
+ const requestId=++chatHistoryRequest;
+ if(workspaceMode()==='local'){
+  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  return;
+ }
+ if(!isSignedIn){
+  history.append(el('p','helper','登入 CEO 後，將自 PostgreSQL 載入此主管已保存的對話紀錄。'));
+  return;
+ }
+ history.append(el('p','helper','從資料庫載入對話紀錄中…'));
+ try{
+  const list=await api('/conversations?role_id='+encodeURIComponent(role.id));
+  if(requestId!==chatHistoryRequest)return;
+  const latest=list.conversations?.[0];
+  if(!latest){
+   roleConversations.delete(role.id);
+   history.replaceChildren(el('p','helper','此主管尚未有已保存的對話紀錄。'));
+   return;
+  }
+  const data=await api('/conversations/'+encodeURIComponent(latest.id)+'/messages');
+  if(requestId!==chatHistoryRequest)return;
+  roleConversations.set(role.id,latest.id);
+  history.replaceChildren();
+  if(data.truncated)history.append(el('p','helper','僅顯示最近 100 則訊息，完整紀錄仍保存於 PostgreSQL。'));
+  for(const message of data.messages||[]){
+   history.append(el('p','chat-bubble '+(message.speaker==='user'?'user-bubble':'ai-bubble'),message.body));
+  }
+  if(!data.messages?.length)history.append(el('p','helper','此對話目前沒有已保存的訊息。'));
+  history.scrollTop=history.scrollHeight;
+ }catch(e){
+  if(requestId!==chatHistoryRequest)return;
+  history.replaceChildren(el('p','helper','無法載入歷史紀錄：'+e.message));
+ }
+}
+$('employeeChat').addEventListener('click',()=>{
+ dialog.close();showPage('home');chooseChat(currentEmployee);$('chatText').focus();
+ if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
+ else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
+});
+$('chatPreviewForm').addEventListener('submit',async event=>{
+ event.preventDefault();if(!isSignedIn)return openLogin();
+ const input=$('chatText'),content=input.value.trim();if(!content)return;
+ const button=event.currentTarget.querySelector('button[type=submit]');
+ const role=currentEmployee.id,history=$('chatHistory'),requestId=chatHistoryRequest;
+ history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
+ const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
+ try{
+  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  if(data.conversation_id)roleConversations.set(role,data.conversation_id);
+  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+ }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
+ finally{button.disabled=false;}
+});
+$('useLocal').addEventListener('click',async()=>{
+ useLocalWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ $('loginDialog').close();
+ setConnection(true);
+ await refreshAll();
+ showToast('已切換本機工作區：專案、任務與核准會存在此瀏覽器。');
+});
+$('useCloud').addEventListener('click',async()=>{
+ useCloudWorkspace();
+ roleConversations.clear();
+ await chooseChat(currentEmployee);
+ setCsrfToken(null);
+ setConnection(false);
+ await startSession();
+ if(!isSignedIn)openLogin();
+});
+$('exportWorkspace').addEventListener('click',()=>{
+ if(workspaceMode()!=='local')return showToast('請先切換到本機工作區');
+ const blob=new Blob([localCompany.exportJson()],{type:'application/json'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='SKAI-V05-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+});
+$('importWorkspace').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(workspaceMode()!=='local')throw Error('先切換本機工作區');
+  if(file.size>5e6)throw Error('備份檔案過大');
+  if(!confirm('匯入將覆蓋目前裝置的本機工作區，確定嗎？'))return;
+  localCompany.importJson(await file.text());
+  await refreshAll();showToast('本機工作區已還原');
+ }catch(error){showToast(error.message);}
+ finally{e.target.value='';}
+});
+const initialPage=location.hash.slice(1);
+if(['home','employees','projects','tasks','orchestrations','approvals','notifications'].includes(initialPage))showPage(initialPage);
+startSession();
++pricing.output+'）':'（未設定可用價格，禁止 AI 呼叫）')+
+   '。報表為保守估算，非 OpenAI 官方實際帳單；預算以台灣日期計算。';
   $('aiControlCeiling').textContent='目前部署安全上限：'+data.deployment_ceiling+' 次／日；CEO 可調低，無法超過此上限。';
   $('aiControlForm').querySelector('button[type="submit"]').disabled=false;
   feedback.textContent='以下設定僅控制 SKAI，並不代表 OpenAI 官方扣款限額。';
