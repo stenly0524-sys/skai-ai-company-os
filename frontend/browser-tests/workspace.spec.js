@@ -67,8 +67,7 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(5);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
- await page.locator('[data-jump="employees"]').click();
- await page.locator('#employeeGrid .employee-card').first().click();
+ await page.locator('#officeScene .office-hotspot').first().click();
  await expect(page.locator('#employeeDialog')).toBeVisible();
  await page.locator('#closeEmployee').click();
  await context.close();
