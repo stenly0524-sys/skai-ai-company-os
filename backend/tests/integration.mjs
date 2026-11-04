@@ -65,6 +65,40 @@ try{
  const db=new pg.Pool({connectionString:env.DATABASE_URL,ssl:false});
  let conversationId;
  try {
+  // CEO-created tasks can go straight to the chief without a redundant first approval.
+  const chiefTask=await call('/api/tasks',{method:'POST',cookie,csrf,body:{
+   project_id:projectId,title:'幕僚長指派測試',brief:'先產生估算、待 CEO 最終核准',
+   ceo_assign_to_chief:true
+  }});
+  assert.equal(chiefTask.status,201,JSON.stringify(chiefTask.body));
+  assert.equal(chiefTask.body.task.status,'approved');
+  assert.equal(chiefTask.body.approval,null);
+  assert.equal(chiefTask.body.chief_plan_required,true);
+  const runRow=await db.query("INSERT INTO orchestration_runs(task_id,summary) VALUES($1,$2) RETURNING id",
+   [chiefTask.body.task.id,'第一版預估方案']);
+  const runId=runRow.rows[0].id;
+  await db.query("INSERT INTO orchestration_steps(run_id,sequence_no,role_id,instruction) VALUES($1,1,'finance','分析門市財務風險')",[runId]);
+  const first=await call('/api/orchestrations/'+runId,{cookie});
+  assert.equal(first.status,200);
+  assert.equal(first.body.run.plan_status,'draft');
+  assert.equal(first.body.run.plan_version,1);
+  const newProposal={summary:'CEO 調整後：財務報告精簡',
+   steps:[{role_id:'finance',instruction:'提供有來源標記的營收與成本試算',estimated_minutes:8,max_output_tokens:1200}],
+   plan_version:1};
+  const edited=await call('/api/orchestrations/'+runId+'/edit',{method:'POST',cookie,csrf,body:newProposal});
+  assert.equal(edited.status,200,JSON.stringify(edited.body));
+  assert.equal(edited.body.run.plan_version,2);
+  assert.equal(edited.body.run.plan_status,'draft');
+  assert.equal(edited.body.steps[0].estimated_minutes,8);
+  assert.ok(edited.body.steps[0].estimated_usd>0);
+  const stale=await call('/api/orchestrations/'+runId+'/edit',{method:'POST',cookie,csrf,body:newProposal});
+  assert.equal(stale.status,409);
+  const ceoApproved=await call('/api/orchestrations/'+runId+'/approve',{method:'POST',cookie,csrf});
+  assert.equal(ceoApproved.status,200);
+  assert.equal(ceoApproved.body.run.plan_status,'ready');
+  const afterApprove=await call('/api/orchestrations/'+runId+'/edit',{method:'POST',cookie,csrf,
+   body:{...newProposal,plan_version:2}});
+  assert.equal(afterApprove.status,409);
   const row=await db.query('INSERT INTO conversations(role_id,project_id) VALUES($1,$2) RETURNING id',['finance',projectId]);
   conversationId=row.rows[0].id;
   await db.query("INSERT INTO messages(conversation_id,speaker,body,created_at) VALUES($1,'user',$2,NOW()-INTERVAL '1 second'),($1,'assistant',$3,NOW())",[conversationId,'測試財務資料保存','測試財務建議已保存']);
