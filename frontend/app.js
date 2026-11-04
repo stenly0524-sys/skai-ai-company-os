@@ -311,8 +311,8 @@ async function loadNotifications(){
 async function loadDashboard(){
  const result=await api('/dashboard');
  const data=result.counts||{};
- for(const [id,key] of [['statProjects','projects'],['statTasks','active'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
- $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='已保存任務';$('approvalLabel').textContent='已保存審批';
+ for(const [id,key] of [['statProjects','projects'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
+ $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='尚未完成的任務';$('approvalLabel').textContent='已保存審批';
  const badge=$('taskNavBadge'),bell=$('headerNotificationCount');const n=Number(data.pending)||0;
  if(badge){badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
  if(bell){bell.hidden=n<=0;bell.textContent=n>99?'99+':String(n);}
@@ -321,6 +321,7 @@ async function loadDashboard(){
  highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
  const [p,t]=await Promise.all([api('/projects'),api('/tasks')]);
  const projects=p.projects||[],tasks=t.tasks||[];
+ $('statTasks').textContent=String(tasks.filter(t=>!['done','rejected'].includes(t.status)).length);
  const snapshot=$('projectSnapshot');
  snapshot.replaceChildren(el('p','',String(data.projects??'—')+' 個未結案專案'));
  const monday=new Date();const day=(monday.getDay()+6)%7;monday.setHours(0,0,0,0);monday.setDate(monday.getDate()-day);
@@ -662,6 +663,14 @@ async function loadDataIndex(){
  }catch(e){target.replaceChildren(el('p','helper','資料搜尋失敗：'+e.message));}
 }
 $('dataSearch').addEventListener('input',()=>loadDataIndex());
+$('dataQuickSearch')?.addEventListener('input',()=>{$('dataSearch').value=$('dataQuickSearch').value;loadDataIndex();});
+function updateTaipeiClock(){
+ const elClock=$('todayClock');if(!elClock)return;
+ const date=new Date();
+ elClock.textContent='▦  '+new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+ elClock.dateTime=date.toISOString();
+}
+updateTaipeiClock();setInterval(updateTaipeiClock,60000);
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
 if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','assistant','data'].includes(initialPage))showPage(initialPage);
