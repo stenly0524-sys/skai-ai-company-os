@@ -472,3 +472,25 @@ button .skai-icon+span:not(.status-dot){vertical-align:middle}
  #page-home .office-hotspot .office-position-label{font-size:9px;padding:2px 4px;gap:2px}
  #page-home .office-hotspot .office-position-label .skai-icon{width:16px;height:16px;border-radius:4px}
 }
+
+
+/* SKAI V0.6: native scalable HQ art replaces the 720x600 lossy office crop.
+   Preserve the established 7 interactive hotspots and 9 manager quick actions. */
+#page-home .office-scene{
+ background-image:url('./assets/skai-office-hd.svg')!important;
+ background-size:100% 100%;
+ background-repeat:no-repeat;
+ filter:none!important;
+ image-rendering:auto;
+}
+#page-home .office-hotspot{isolation:isolate}
+#page-home .office-hotspot .office-position-label{font-synthesis:none}
+@media (min-width:721px){
+ #page-home .office-scene{min-height:390px}
+}
+@media (max-width:720px) and (orientation:portrait){
+ #page-home .office-scene{min-height:0;height:auto;aspect-ratio:6/5}
+}
+@media (orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ #page-home .office-scene{min-height:0!important;max-height:none!important;aspect-ratio:6/5}
+}
