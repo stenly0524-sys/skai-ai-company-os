@@ -49,6 +49,19 @@
             <section class="card progress-overview"><div class="section-top"><h2>專案進度總覽</h2><button class="text-btn" data-jump="projects">查看全部 ›</button></div>
                <div id="homeProjectBars" class="project-bars"><p class="helper">登入後讀取專案進度。</p></div><div id="projectSnapshot" class="visually-hidden" aria-live="polite"></div>
             </section>
+            <section class="card home-ai-usage" aria-labelledby="homeAiUsageTitle">
+              <div class="section-top">
+                <div><h2 id="homeAiUsageTitle">資訊部｜AI API 與 Token 狀況</h2><p class="home-ai-caption">今日用量 · 後端紀錄</p></div>
+                <button class="text-btn" data-jump="department-tech">查看設定 ›</button>
+              </div>
+              <div class="home-ai-metrics">
+                <div class="home-ai-metric"><span>API 呼叫</span><strong id="homeAiCalls">—</strong></div>
+                <div class="home-ai-metric"><span>輸入 Tokens</span><strong id="homeAiInputTokens">—</strong></div>
+                <div class="home-ai-metric"><span>輸出 Tokens</span><strong id="homeAiOutputTokens">—</strong></div>
+                <div class="home-ai-metric"><span>總 Tokens</span><strong id="homeAiTotalTokens">—</strong></div>
+              </div>
+              <p id="homeAiStatus" class="home-ai-status" role="status">登入後讀取 AI API 使用資料。</p>
+            </section>
             <section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji">＋</span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji">▣</span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji">⌕</span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji">▥</span>查看報表</button></div></section>
             <div id="todayHighlights" class="visually-hidden" aria-live="polite"></div>
             

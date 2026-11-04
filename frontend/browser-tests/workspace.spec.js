@@ -386,3 +386,46 @@ test('visual audit: reference layout across five screens',async({page})=>{
   console.log('SKAI_VISUAL_'+screen.toUpperCase()+'_BASE64='+png.toString('base64'));
  }
 });
+
+test('HQ shows real API/Token usage from authenticated cloud API and aligned cards',async({page})=>{
+ await page.setViewportSize({width:1280,height:800});
+ await page.route('**/api/**',async route=>{
+  const req=route.request(),url=new URL(req.url()),path=url.pathname;
+  let payload={};
+  if(path==='/api/session')payload={authenticated:true,csrf_token:'test-csrf'};
+  else if(path==='/api/dashboard')payload={counts:{projects:1,active:1,pending:0}};
+  else if(path==='/api/projects')payload={projects:[{id:'p-1',name:'核對專案',progress:55,status:'active'}]};
+  else if(path==='/api/tasks')payload={tasks:[{id:'t-1',project_id:'p-1',title:'核對 API 用量',status:'in_progress'}]};
+  else if(path==='/api/approvals')payload={approvals:[]};
+  else if(path==='/api/operations/usage')payload={day:'2026-11-04',cap:50,usage:{reserved_calls:7,completed_calls:6,failed_calls:1,total_input_tokens:12500,total_output_tokens:5300},cost:{month_usd:0.042}};
+  else if(path==='/api/operations/notifications')payload={notifications:[]};
+  else if(path==='/api/orchestrations')payload={runs:[]};
+  else if(path==='/api/conversations')payload={conversations:[]};
+  else return route.fulfill({status:404,json:{error:'not_found'}});
+  return route.fulfill({status:200,json:payload});
+ });
+ await page.goto('/');
+ await expect(page.locator('#connectionStatus')).toContainText('系統已登入');
+ await expect(page.locator('#homeAiCalls')).toHaveText('7');
+ await expect(page.locator('#homeAiInputTokens')).toHaveText('12,500');
+ await expect(page.locator('#homeAiOutputTokens')).toHaveText('5,300');
+ await expect(page.locator('#homeAiTotalTokens')).toHaveText('17,800');
+ await expect(page.locator('#homeAiStatus')).toContainText('成功 6 次');
+ const layout=await page.evaluate(()=>{
+  const box=x=>document.querySelector(x).getBoundingClientRect();
+  const project=box('#page-home .progress-overview'),usage=box('#page-home .home-ai-usage'),shortcuts=box('#page-home .home-action-card');
+  return {lefts:[project.left,usage.left,shortcuts.left],rights:[project.right,usage.right,shortcuts.right],gap1:usage.top-project.bottom,gap2:shortcuts.top-usage.bottom};
+ });
+ expect(Math.max(...layout.lefts)-Math.min(...layout.lefts)).toBeLessThanOrEqual(2);
+ expect(Math.max(...layout.rights)-Math.min(...layout.rights)).toBeLessThanOrEqual(2);
+ expect(Math.abs(layout.gap1-layout.gap2)).toBeLessThanOrEqual(3);
+});
+
+test('HQ local mode clearly labels unavailable API usage without inventing numbers',async({page})=>{
+ await page.goto('/');
+ await page.locator('#openSettings').click();
+ await page.locator('#useLocal').click();
+ await expect(page.locator('#homeAiCalls')).toHaveText('—');
+ await expect(page.locator('#homeAiTotalTokens')).toHaveText('—');
+ await expect(page.locator('#homeAiStatus')).toContainText('本機模式不包含 AI API 用量');
+});

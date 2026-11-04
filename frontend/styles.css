@@ -833,3 +833,73 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
 
 /* Seven mobile slots: six primary destinations plus More; prevent overflow. */
 @media(max-width:720px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:0}.mobileitem{min-width:0;font-size:10px;padding-inline:1px}.mobileitem .skai-icon{max-width:19px}.mobile-more-menu{max-width:calc(100vw - 16px)}}
+
+/* V0.10 — HQ data-led layout: aligned, full-height right-side panels */
+#page-home .content-grid{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);
+ align-items:stretch;
+ gap:14px;
+}
+#page-home .primary-area{display:flex;flex-direction:column;min-height:0;gap:10px}
+#page-home .primary-area .home-todo-card{flex:1;min-height:0;display:flex;flex-direction:column}
+#page-home .secondary-area{
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ grid-template-rows:minmax(220px,1.12fr) minmax(150px,.79fr) minmax(106px,.54fr);
+ gap:14px;
+ align-content:stretch;
+ min-width:0;
+}
+#page-home .secondary-area>.card{margin:0;width:100%;min-width:0;min-height:0;height:100%}
+#page-home .progress-overview{display:flex;flex-direction:column;padding:18px 19px;min-height:0}
+#page-home .project-bars{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:6px}
+#page-home .home-action-card{display:flex;align-items:stretch;min-height:0;padding:9px}
+#page-home .home-shortcuts{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:9px}
+#page-home .home-shortcuts .outline-btn{height:100%;min-height:0;display:flex;flex-direction:column;justify-content:center}
+#page-home .home-ai-usage{display:flex;flex-direction:column;justify-content:flex-start;gap:9px;padding:15px 18px;background:linear-gradient(140deg,#fff,#f0f6ff)}
+#page-home .home-ai-usage .section-top{margin:0;align-items:center;gap:10px}
+#page-home .home-ai-usage h2{font-size:15px;font-weight:800;color:#1b3456}
+#page-home .home-ai-caption{font-size:10px;color:#7b91ad;margin:3px 0 0}
+#page-home .home-ai-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:1;align-items:stretch}
+#page-home .home-ai-metric{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0;padding:9px 8px;border:1px solid #e1eaf7;border-radius:12px;background:linear-gradient(135deg,#fff,#edf4ff);text-align:center}
+#page-home .home-ai-metric span{color:#607b9c;font-size:11px;white-space:nowrap}
+#page-home .home-ai-metric strong{font-size:clamp(16px,1.65vw,23px);line-height:1.2;color:#154c91;font-weight:850;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#page-home .home-ai-status{font-size:10px;color:#6c82a0;margin:0;line-height:1.45;min-height:14px}
+@media(max-width:1200px){
+ #page-home .content-grid{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+ #page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-home .secondary-area{grid-template-rows:minmax(225px,1fr) minmax(225px,1fr) minmax(110px,.5fr)}
+}
+@media(max-width:720px){
+ #page-home .content-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ #page-home .primary-area .home-todo-card{min-height:210px}
+ #page-home .secondary-area{grid-template-rows:auto auto auto;gap:12px}
+ #page-home .secondary-area>.card{height:auto}
+ #page-home .progress-overview{min-height:220px}
+ #page-home .home-ai-usage{min-height:188px}
+ #page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-home .home-ai-metric{min-height:68px}
+ #page-home .home-action-card{min-height:112px}
+ #page-home .home-shortcuts .outline-btn{min-height:90px}
+}
+
+/* Keep all three right-side panels inside the common 800px desktop viewport. */
+@media(min-width:1201px){
+ #page-home .secondary-area{gap:11px}
+ #page-home .progress-overview{padding:15px 18px}
+ #page-home .project-bars{gap:3px}
+ #page-home .project-progress-row{padding:5px 2px}
+ #page-home .home-ai-usage{padding:11px 15px;gap:6px}
+ #page-home .home-ai-metric{gap:5px;padding:7px 6px}
+ #page-home .home-action-card{padding:7px}
+ #page-home .home-shortcuts .outline-btn{min-height:0}
+}
+
+@media(min-width:1201px) and (min-height:700px) and (max-height:850px){
+ #page-home .secondary-area{grid-template-rows:224px 164px 100px}
+ #page-home .progress-overview .project-progress-row{padding:3px 2px}
+ #page-home .progress-overview .project-bars{gap:0}
+ #page-home .home-ai-usage .home-ai-metric{padding:5px 5px}
+ #page-home .home-action-card .home-shortcuts .outline-btn{min-height:0;height:100%}
+}
