@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {validateAiControls,effectiveCallLimit,readAiControls,reserveAiCall,finalizeAiCall} from '../src/operations.js';
-const settings={ai_enabled:true,daily_call_limit:4,daily_token_warning:1000};
+const settings={ai_enabled:true,daily_call_limit:4,daily_token_warning:1000,daily_budget_usd:1,monthly_budget_usd:10};
 const dayUsage={reserved_calls:0,completed_calls:0,failed_calls:0,total_input_tokens:0,total_output_tokens:0};
 const notifications=[];
 const db={
@@ -24,15 +24,15 @@ const db={
  }
 };
 test('CEO AI setting validation permits only exact types and safe ranges',()=>{
- assert.deepEqual(validateAiControls({ai_enabled:true,daily_call_limit:30,daily_token_warning:1000}),{
-  ai_enabled:true,daily_call_limit:30,daily_token_warning:1000
+ assert.deepEqual(validateAiControls({ai_enabled:true,daily_call_limit:30,daily_token_warning:1000,daily_budget_usd:1,monthly_budget_usd:10}),{
+  ai_enabled:true,daily_call_limit:30,daily_token_warning:1000,daily_budget_usd:1,monthly_budget_usd:10
  });
  for(const bad of [
-  {ai_enabled:'false',daily_call_limit:30,daily_token_warning:1000},
-  {ai_enabled:false,daily_call_limit:0,daily_token_warning:1000},
-  {ai_enabled:true,daily_call_limit:501,daily_token_warning:1000},
-  {ai_enabled:true,daily_call_limit:30,daily_token_warning:999},
-  {ai_enabled:true,daily_call_limit:30,daily_token_warning:1000,role:'admin'}
+  {ai_enabled:'false',daily_call_limit:30,daily_token_warning:1000,daily_budget_usd:1,monthly_budget_usd:10},
+  {ai_enabled:false,daily_call_limit:0,daily_token_warning:1000,daily_budget_usd:1,monthly_budget_usd:10},
+  {ai_enabled:true,daily_call_limit:501,daily_token_warning:1000,daily_budget_usd:1,monthly_budget_usd:10},
+  {ai_enabled:true,daily_call_limit:30,daily_token_warning:999,daily_budget_usd:1,monthly_budget_usd:10},
+  {ai_enabled:true,daily_call_limit:30,daily_token_warning:1000,role:'admin',daily_budget_usd:1,monthly_budget_usd:10}
  ])assert.throws(()=>validateAiControls(bad),/invalid_ai_settings/);
 });
 test('daily AI cap reflects lower CEO limit while preserving deploy ceiling',async()=>{
