@@ -11,7 +11,7 @@ export function makeIcon(name){
  svg.append(path);span.append(svg);
  return span;
 }
-const navPages={home:'home',employees:'employees',projects:'projects',tasks:'tasks',orchestrations:'orchestrations',approvals:'approvals',notifications:'notifications','ai-controls':'settings'};
+const navPages={home:'home',employees:'employees',projects:'projects',tasks:'tasks',orchestrations:'orchestrations',approvals:'approvals',notifications:'notifications','department-tech':'tech','department-finance':'finance'};
 export function applyInterfaceIcons(){
  document.querySelectorAll('.navitem[data-page],.mobileitem[data-page],.mobile-more-link[data-page]').forEach(button=>{
   const icon=navPages[button.dataset.page]||'home';
@@ -26,7 +26,7 @@ export function applyInterfaceIcons(){
  document.querySelectorAll('#employeeGrid .employee-card,#mobileOfficeGrid .mobile-office-person').forEach(button=>{
   const label=button.getAttribute('aria-label')||'';
   const ids=['chief_of_staff','admin','finance','brand','marketing','operations','tech','hr','legal'];
-  const names=['AI 幕僚長','行政管理官','財務長','品牌創意長','行銷長','營運長','技術長','人才管理長','法務風控長'];
+  const names=['AI 幕僚長','行政管理官','財務長','品牌創意長','行銷長','營運長','資訊長','人才管理長','法務風控長'];
   const id=ids[names.findIndex(name=>label.includes(name))];
   if(!id)return;
   const existing=button.querySelector('.person-head');
