@@ -184,3 +184,20 @@ test('SKAI V0.6 mobile navigation keeps five primary pages and accessible More m
  expect(overflow).toBeLessThanOrEqual(2);
  await context.close();
 });
+
+
+test('SKAI command center shows nine functional manager tiles on portrait phone',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ await page.goto('/');
+ await expect(page.locator('#officeScene')).toBeVisible();
+ await expect(page.locator('#mobileOfficeGrid .mobile-office-person')).toHaveCount(9);
+ await expect(page.locator('#mobileOfficeGrid')).toBeVisible();
+ await page.locator('#mobileOfficeGrid .mobile-office-person').first().click();
+ await expect(page.locator('#employeeDialog')).toBeVisible();
+ await expect(page.locator('#employeeTitle')).toHaveText('AI 幕僚長');
+ await page.locator('#closeEmployee').click();
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+ expect(overflow).toBeLessThanOrEqual(2);
+ await context.close();
+});
