@@ -287,7 +287,8 @@ test('CIO Token and CFO USD pages are separate and CEO settings persist (mocked 
  await page.locator('#mobileMore').click();
  await page.locator('#mobileMoreMenu [data-page="department-finance"]').click();
  await expect(page.locator('#aiDailyUsd')).toHaveValue('0.50');
- await expect(page.locator('#page-department-finance')).not.toContainText('輸入 Tokens');
+ await expect(page.locator('#page-department-finance .department-stat')).toHaveCount(2);
+ await expect(page.locator('#page-department-tech .department-stat')).toHaveCount(4);
  expect(errors).toEqual([]);
  await context.close();
 });
