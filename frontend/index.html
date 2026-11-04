@@ -22,7 +22,7 @@
       <button class="navitem" data-page="approvals"><span>✓</span> 待審批</button>
       <button class="navitem" data-page="notifications"><span>◌</span> 通知</button>
     </nav>
-    <div class="nav-footer">SKAI V0.5 <span>前端預覽</span><br>未連線 · 無實際營運數據</div>
+    <div class="nav-footer">SKAI V0.5 <span>連線確認中</span><br>僅顯示已驗證資料</div>
   </aside>
   <div class="main-column">
     <header class="topbar">
@@ -61,7 +61,7 @@
               </div>
               <div class="scene-bottom"><span><span class="status-dot green"></span> 角色資料已載入</span><span>按人物查看詳情</span></div>
             </section>
-            <div class="section-heading"><h2>公司概況</h2><span>未連接資料庫</span></div>
+            <div class="section-heading"><h2>公司概況</h2><span id="companyDataSource">連線確認中</span></div>
             <div class="kpi-grid">
               <button class="kpi" data-jump="projects"><span>專案總數</span><strong id="statProjects">—</strong><small id="projectLabel">等待連線</small></button>
               <button class="kpi" data-jump="tasks"><span>進行中任務</span><strong id="statTasks">—</strong><small id="taskLabel">等待連線</small></button>
@@ -81,17 +81,17 @@
           </div>
           <aside class="secondary-area">
             <section class="card"><div class="section-top"><h2>今日重點</h2><span class="quiet-pill">摘要</span></div>
-              <div class="empty-state"><span class="empty-symbol">☷</span><p>尚無即時資料</p><small>部署後可顯示巡檢、任務與待審批資訊。</small></div>
+              <div id="todayHighlights" class="empty-state"><span class="empty-symbol">☷</span><p>等待雲端資料</p><small>登入後顯示已保存的任務與待審批摘要。</small></div>
             </section>
             <section class="card"><div class="section-top"><h2>專案進度</h2><span class="quiet-pill">專案</span></div>
-              <div class="empty-state compact"><span class="empty-symbol">▦</span><p>尚未同步專案</p><small>不使用模擬進度冒充真實資料。</small></div>
+              <div id="projectSnapshot" class="empty-state compact"><span class="empty-symbol">▦</span><p>等待雲端專案資料</p><small>登入後顯示資料庫內的專案數量。</small></div>
             </section>
-            <section class="card"><div class="section-top"><h2>公司通知</h2><span class="quiet-pill">提醒</span></div><p class="helper">通知 API 尚未接入此介面；ChatGPT 手機排程與 SKAI 後端未自動互通。</p>
+            <section class="card"><div class="section-top"><h2>公司通知</h2><span class="quiet-pill">提醒</span></div><p class="helper">可在「通知」頁查看已保存的 SKAI 內部提醒；尚未串接手機推播。</p>
             </section>
           </aside>
         </div>
       </section>
-      <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選員工卡片查看工作職責。績效與真實工作狀態待後端連線。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
+      <section class="page" id="page-employees"><div class="card"><div class="section-top"><h2>AI 員工</h2><span class="quiet-pill">9 位常設角色</span></div><p class="helper">點選員工卡片查看工作職責。實際工作成果請至「AI 協作」查看；績效評估尚未開放。</p><div class="employee-grid" id="employeeGrid"></div></div></section>
       <section class="page" id="page-projects"><div class="card"><h2>專案管理</h2><p class="helper">建議先與幕僚長討論，確認後再送出專案建立指令。這裡提供 CEO 核准建立的操作入口。</p>
 <form id="projectForm" class="stack-form"><label>專案名稱<input name="name" maxlength="120" required placeholder="例如：埔里潮流盆栽咖啡"></label><label>確認後的目標<textarea name="goal" maxlength="8000" placeholder="填入與幕僚長討論後確認的目標"></textarea></label><button class="primary-btn" type="submit">CEO 建立專案</button></form>
 <div class="actions" id="localBackupTools"><button type="button" class="outline-btn" id="exportWorkspace">匯出本機資料</button><label class="outline-btn" for="importWorkspace">匯入本機備份</label><input type="file" id="importWorkspace" accept=".json,application/json" hidden></div><div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></section>
@@ -125,7 +125,7 @@
   <button class="primary-btn dialog-action" id="employeeChat">與這位主管對話</button>
   <p class="helper">登入後可與專屬 AI 主管進行對話；不會自動執行外部操作。</p>
 </dialog>
-<dialog id="loginDialog" class="employee-dialog login-dialog" aria-labelledby="loginTitle"><div class="dialog-top"><span class="overline">SECURE ACCESS</span><span class="quiet-pill">V0.5 測試登入</span></div><h2 id="loginTitle">CEO 安全登入</h2><p class="helper">使用部署環境設定的 CEO 密碼登入。密碼不會儲存在瀏覽器或公開程式碼中。</p><form id="loginForm" class="stack-form"><label>CEO 密碼<input id="ceoPassword" name="password" type="password" autocomplete="current-password" minlength="16" required></label><button class="primary-btn" type="submit">登入指揮中心</button></form><p id="loginError" class="helper" role="alert"></p><p class="helper">尚未部署後端時無法登入；可查看未連線介面。</p></dialog>
+<dialog id="loginDialog" class="employee-dialog login-dialog" aria-labelledby="loginTitle"><div class="dialog-top"><span class="overline">SECURE ACCESS</span><span class="quiet-pill">V0.5 測試登入</span></div><h2 id="loginTitle">CEO 安全登入</h2><p class="helper">使用部署環境設定的 CEO 密碼登入。密碼不會儲存在瀏覽器或公開程式碼中。</p><form id="loginForm" class="stack-form"><label>CEO 密碼<input id="ceoPassword" name="password" type="password" autocomplete="current-password" minlength="16" required></label><button class="primary-btn" type="submit">登入指揮中心</button></form><p id="loginError" class="helper" role="alert"></p><p class="helper">請使用 SKAI 雲端環境的 CEO 密碼登入；尚未登入時僅能預覽畫面。</p></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
