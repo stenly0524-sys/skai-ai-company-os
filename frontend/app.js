@@ -69,7 +69,7 @@ function setConnection(connected){
  isSignedIn=connected;
  $('connectionStatus').textContent=workspaceMode()==='local'?'● 本機工作區':connected?'● 系統已登入':'● 未連線';
  $('connectionStatus').setAttribute('aria-label',connected?'後端已登入':'未連線');
- document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'SKAI V0.7 · 本機保存（非雲端同步）':connected?'SKAI V0.7 · 雲端測試環境':'SKAI V0.7 · 未連線預覽';
+ document.querySelector('.nav-footer').textContent=workspaceMode()==='local'?'本機工作區':'SKAI OS';
 }
 async function startSession(){
  if(workspaceMode()==='local'){setConnection(true);await refreshAll();return;}
@@ -313,11 +313,11 @@ async function loadDashboard(){
  const result=await api('/dashboard');
  const data=result.counts||{};
  for(const [id,key] of [['statProjects','projects'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
- $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='尚未完成的任務';$('approvalLabel').textContent='已保存審批';
+ $('projectLabel').textContent='';$('taskLabel').textContent='';$('approvalLabel').textContent='已保存審批';
  const badge=$('taskNavBadge'),bell=$('headerNotificationCount');const n=Number(data.pending)||0;
  if(badge){badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
  if(bell){bell.hidden=n<=0;bell.textContent=n>99?'99+':String(n);}
- $('companyDataSource').textContent=workspaceMode()==='local'?'本機工作區 · 非跨裝置同步':'SKAI 雲端資料 · 已登入';
+ $('companyDataSource').textContent='';
  const highlights=$('todayHighlights');
  highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
  const [p,t]=await Promise.all([api('/projects'),api('/tasks')]);
@@ -333,12 +333,12 @@ async function loadDashboard(){
  renderHomeProjects(projects);renderHomeTodos(tasks,data.pending??0);
  await loadHomeAiUsage();
  $('statAiCost').textContent='—';
- $('costLabel').textContent=workspaceMode()==='local'?'本機無 AI API 費用紀錄':'讀取 AI 用量中…';
+ $('costLabel').textContent='';
  if(workspaceMode()==='cloud'){
   try{const usage=await api('/operations/usage');const usd=Number(usage.cost?.month_usd);
-   if(Number.isFinite(usd)){$('statAiCost').textContent='$'+usd.toFixed(2);$('costLabel').textContent='USD · 後端估算，非實際帳單';}
-   else $('costLabel').textContent='尚無可核實的 AI 成本';
-  }catch{$('costLabel').textContent='AI 成本暫時無法讀取';}
+   if(Number.isFinite(usd)){$('statAiCost').textContent='$'+usd.toFixed(2);$('costLabel').textContent='';}
+   else $('costLabel').textContent='';
+  }catch{$('costLabel').textContent='';}
  }
 }
 async function loadHomeAiUsage(){
