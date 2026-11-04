@@ -12,6 +12,7 @@ process.env.SKAI_DAILY_AI_CALL_LIMIT='1';
 const usage={reserved:0,completed:0,failed:0};
 const db={
  async query(sql,args){
+  if(sql.includes('FROM ai_control_settings'))return {rowCount:1,rows:[{ai_enabled:true,daily_call_limit:1,daily_token_warning:100000}]};
   if(sql.includes('INSERT INTO ai_daily_usage')){
    if(usage.reserved>=1)return {rowCount:0,rows:[]};
    usage.reserved++;
@@ -20,9 +21,9 @@ const db={
   if(sql.includes('UPDATE ai_daily_usage')){
    usage.completed+=args[1];
    usage.failed+=args[2];
-   return {rowCount:1,rows:[]};
+   return {rowCount:1,rows:[{total_input_tokens:12,total_output_tokens:10}]};
   }
-  throw Error('unexpected SQL');
+  throw Error('unexpected SQL: '+sql);
  }
 };
 configureAiUsage(db);
