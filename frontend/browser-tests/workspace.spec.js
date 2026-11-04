@@ -236,7 +236,7 @@ test('all 24 SKAI icons use SVG and primary mobile tabs retain their navigation 
 test('CEO AI settings page is mobile accessible and saves approved settings through authenticated mocked API',async({browser})=>{
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  const page=await context.newPage();
- let saved={ai_enabled:true,daily_call_limit:50,daily_token_warning:100000};
+ let saved={ai_enabled:true,daily_call_limit:50,daily_token_warning:100000,daily_budget_usd:1,monthly_budget_usd:10};
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/api/**',async route=>{
   const path=new URL(route.request().url()).pathname;
@@ -249,13 +249,13 @@ test('CEO AI settings page is mobile accessible and saves approved settings thro
   else if(path==='/api/approvals')body={approvals:[]};
   else if(path==='/api/operations/notifications')body={notifications:[]};
   else if(path==='/api/orchestrations')body={runs:[]};
-  else if(path==='/api/operations/usage')body={day:'2026-11-04',cap:saved.daily_call_limit,ai_enabled:saved.ai_enabled,usage:{reserved_calls:2,total_input_tokens:100,total_output_tokens:100}};
+  else if(path==='/api/operations/usage')body={day:'2026-11-04',cap:saved.daily_call_limit,ai_enabled:saved.ai_enabled,cost:{day_usd:0.001,month_usd:0.007,unverified_count:0},usage:{reserved_calls:2,total_input_tokens:100,total_output_tokens:100}};
   else if(path==='/api/operations/ai-settings'){
    if(method==='POST'){
     expect(route.request().headers()['x-csrf-token']).toBe('mock-ceo-csrf');
     saved=route.request().postDataJSON();
     body={settings:saved,effective_daily_limit:saved.daily_call_limit};
-   }else body={settings:saved,effective_daily_limit:saved.daily_call_limit,deployment_ceiling:50};
+   }else body={settings:saved,effective_daily_limit:saved.daily_call_limit,deployment_ceiling:50,pricing_model:'gpt-4.1-mini',pricing:{input:0.4,output:1.6}};
   }else if(path==='/api/conversations')body={conversations:[]};
   else return route.fulfill({status:404,json:{error:'not_found'}});
   return route.fulfill({status:200,json:body});
@@ -268,9 +268,11 @@ test('CEO AI settings page is mobile accessible and saves approved settings thro
  await page.locator('#aiControlEnabled').uncheck();
  await page.locator('#aiControlLimit').fill('10');
  await page.locator('#aiTokenWarning').fill('9000');
+ await page.locator('#aiDailyUsd').fill('0.50');
+ await page.locator('#aiMonthlyUsd').fill('5.00');
  await page.locator('#aiControlForm button[type="submit"]').click();
  await expect(page.locator('#aiControlFeedback')).toContainText('設定已保存');
- expect(saved).toEqual({ai_enabled:false,daily_call_limit:10,daily_token_warning:9000});
+ expect(saved).toEqual({ai_enabled:false,daily_call_limit:10,daily_token_warning:9000,daily_budget_usd:0.5,monthly_budget_usd:5});
  await page.reload();
  await page.locator('#mobileMore').click();
  await page.locator('#mobileMoreMenu [data-page="ai-controls"]').click();
