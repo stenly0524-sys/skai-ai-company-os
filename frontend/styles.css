@@ -1042,3 +1042,154 @@ body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
  #page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{width:30px;height:30px;padding:4px}
  .mobile-more-menu:not([hidden]){bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
 }
+
+/* V0.12 — CEO-requested HQ text cleanup and premium compact layout. */
+#page-home #projectLabel,#page-home #taskLabel,#page-home #costLabel,
+#page-home .subtle-source{display:none!important}
+#page-home .home-ai-caption{display:none!important}
+#page-home .home-ai-usage .section-top .text-btn .skai-icon{display:none!important}
+#page-home .home-ai-usage .section-top .text-btn{
+  display:inline-flex;align-items:center;gap:0!important;
+  background:transparent!important;
+  padding:4px 7px!important;white-space:nowrap;
+  box-shadow:none!important;
+}
+.sidebar-ceo{justify-content:space-between}
+.sidebar-ceo .sidebar-ceo-avatar{display:none!important}
+/* CEO crown replaces the former employee portrait in the header. */
+#ceoInfo.avatar-ceo{
+ width:49px!important;height:49px!important;min-width:49px!important;
+ flex:0 0 49px!important;border-radius:50%!important;
+ display:grid!important;place-items:center!important;
+ background:linear-gradient(160deg,#fff,#f4f8ff)!important;
+ border:1px solid #d6e4f4!important;
+ box-shadow:0 5px 14px #5983b333!important;
+ padding:8px!important;color:#e4aa19!important;
+}
+#ceoInfo.avatar-ceo .skai-icon{
+ display:grid!important;place-items:center;
+ width:34px!important;height:34px!important;
+ min-width:0!important;background:transparent!important;
+ border:0!important;box-shadow:none!important;padding:1px!important;
+ color:#e5b02a!important;
+}
+#ceoInfo.avatar-ceo .skai-icon svg{width:100%!important;height:100%!important;stroke-width:2.1}
+/* Date must never escape the header: give it its own flexible bounded cell. */
+.topbar{
+ display:grid!important;grid-template-columns:minmax(170px,1fr) minmax(0,auto) auto;
+ gap:10px!important;align-items:center!important;
+ padding:2px 7px 5px!important;
+ min-width:0;width:100%;box-sizing:border-box;
+}
+.topbar>div:first-child{min-width:0;overflow:hidden}
+.topbar .header-clock{
+ position:relative!important;margin:0!important;
+ display:block!important;align-self:start;justify-self:end;
+ max-width:100%;overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;line-height:1.4;padding:3px 0!important;
+ font-size:clamp(10px,.88vw,12px)!important;
+ transform:translateY(-4px);
+}
+.topbar .top-actions{display:flex;align-items:center;justify-self:end;min-width:0;gap:8px}
+#page-home .kpi-grid .kpi{display:flex;flex-direction:column;justify-content:center;gap:9px;min-height:0}
+#page-home .kpi-grid .kpi strong{line-height:1.07}
+#page-home .home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#page-home .home-action-card{padding:8px!important;min-height:0!important}
+#page-home .home-shortcuts .outline-btn{
+ border:0!important;background:transparent!important;box-shadow:none!important;
+ border-radius:15px!important;min-height:0!important;
+ padding:5px 2px!important;display:flex!important;flex-direction:column;
+ justify-content:center;align-items:center;gap:5px;font-size:11px;
+ font-weight:800;color:#324c70;height:100%;
+}
+#page-home .home-shortcuts .outline-btn:hover{background:#f2f7ff!important}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji{
+ width:clamp(44px,4.6vw,64px)!important;
+ height:clamp(44px,4.6vw,64px)!important;
+ min-width:0!important;margin:0 auto 2px!important;
+ border-radius:50%!important;
+ background:linear-gradient(145deg,#fff,#eef5ff)!important;
+ border:1px solid #d5e4f7!important;
+ box-shadow:0 5px 14px #4678b32a!important;
+}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{
+ width:70%!important;height:70%!important;padding:5px!important;
+}
+/* Compact one-screen desktop HQ, while retaining content and scroll inside cards for long lists. */
+@media (min-width:1051px) and (min-height:590px){
+ body[data-current-page="home"]{overflow:hidden}
+ body[data-current-page="home"] .app-shell{
+  height:calc(100dvh - 16px)!important;min-height:0!important;
+  max-height:calc(100dvh - 16px)!important;
+ }
+ body[data-current-page="home"] .desktop-nav{height:100%!important;min-height:0!important}
+ body[data-current-page="home"] .main-column{
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  padding:10px 16px 13px!important;
+ }
+ body[data-current-page="home"] .topbar{flex:0 0 69px;min-height:0!important;margin-bottom:8px!important}
+ body[data-current-page="home"] main{flex:1;min-height:0;overflow:hidden}
+ #page-home{height:100%!important;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+ #page-home .kpi-grid{flex:0 0 100px;min-height:0;margin-bottom:10px}
+ #page-home .content-grid{flex:1;min-height:0;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)!important}
+ #page-home .primary-area,#page-home .secondary-area{height:100%;min-height:0}
+ #page-home .primary-area .home-todo-card{flex:1;min-height:0!important;overflow:hidden}
+ #page-home #homeTodoList{min-height:0;overflow-y:auto}
+ #page-home .secondary-area{
+  display:grid!important;grid-template-rows:minmax(0,1.15fr) minmax(0,.94fr) minmax(0,.65fr)!important;
+  gap:9px!important;
+ }
+ #page-home .secondary-area>.card{height:100%!important;min-height:0!important;overflow:hidden}
+ #page-home .progress-overview{min-height:0!important;padding:10px 13px!important}
+ #page-home .progress-overview .project-bars{min-height:0;overflow-y:auto;gap:1px}
+ #page-home .progress-overview .project-progress-row{padding:4px 2px!important}
+ #page-home .home-ai-usage{min-height:0!important;padding:10px 13px!important;gap:5px!important}
+ #page-home .home-ai-metrics{min-height:0;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px}
+ #page-home .home-ai-metric{min-height:0!important;padding:5px 3px!important;gap:4px!important}
+ #page-home .home-ai-metric span{font-size:10px}
+ #page-home .home-ai-metric strong{font-size:clamp(14px,1.35vw,21px)!important}
+ #page-home .home-ai-status{font-size:9px;line-height:1.25;min-height:0}
+}
+@media (orientation:landscape) and (max-height:590px) and (min-width:650px){
+ body[data-current-page="home"]{overflow:hidden}
+ body[data-current-page="home"] .app-shell{height:100dvh!important;min-height:0!important;max-height:100dvh!important;overflow:hidden}
+ body[data-current-page="home"] .main-column{
+  height:100%;display:flex;flex-direction:column;min-height:0;
+  overflow:hidden;padding:5px 9px 7px!important;
+ }
+ body[data-current-page="home"] .topbar{display:grid!important;grid-template-columns:minmax(110px,1fr) auto!important;flex:0 0 45px;min-height:0!important;padding:0 3px!important;margin:0 0 5px!important}
+ body[data-current-page="home"] .topbar h1{font-size:19px!important}
+ body[data-current-page="home"] .topbar .subhead{font-size:10px}
+ body[data-current-page="home"] .header-clock{display:none!important}
+ body[data-current-page="home"] .top-actions{grid-column:2}
+ body[data-current-page="home"] .top-actions .avatar-ceo{width:38px!important;height:38px!important;min-width:38px!important;flex-basis:38px!important;padding:4px!important}
+ body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{width:27px!important;height:27px!important}
+ body[data-current-page="home"] main{flex:1;min-height:0;overflow:hidden}
+ #page-home{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+ #page-home .kpi-grid{flex:0 0 65px!important;min-height:0!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px;margin-bottom:5px!important}
+ #page-home .kpi{padding:4px 7px!important;gap:2px!important;min-height:0!important}
+ #page-home .kpi span{font-size:10px!important}
+ #page-home .kpi strong{font-size:19px!important}
+ #page-home .kpi small{display:none}
+ #page-home .content-grid{display:grid;flex:1;min-height:0;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)!important;gap:6px}
+ #page-home .primary-area,#page-home .secondary-area{height:100%;min-height:0;gap:6px!important}
+ #page-home .primary-area .home-todo-card{flex:1;min-height:0!important;padding:8px!important;overflow:hidden}
+ #page-home .primary-area #homeTodoList{min-height:0;overflow-y:auto}
+ #page-home .secondary-area{display:grid!important;grid-template-rows:minmax(0,1fr) minmax(0,.92fr) 70px!important;gap:5px!important}
+ #page-home .secondary-area>.card{min-height:0!important;height:100%!important;overflow:hidden}
+ #page-home .progress-overview{min-height:0!important;padding:6px 9px!important}
+ #page-home .progress-overview h2,#page-home .home-ai-usage h2{font-size:12px!important}
+ #page-home .project-bars{min-height:0;overflow-y:auto;gap:1px}
+ #page-home .project-progress-row{padding:2px!important}
+ #page-home .home-ai-usage{min-height:0!important;padding:5px 8px!important;gap:2px!important}
+ #page-home .home-ai-metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;min-height:0;gap:3px!important}
+ #page-home .home-ai-metric{min-height:0!important;padding:2px!important;gap:1px!important}
+ #page-home .home-ai-metric span{font-size:8px!important}
+ #page-home .home-ai-metric strong{font-size:13px!important}
+ #page-home .home-ai-status{font-size:8px;min-height:0}
+ #page-home .home-action-card{min-height:0!important;padding:2px!important}
+ #page-home .home-shortcuts{gap:3px!important}
+ #page-home .home-shortcuts .outline-btn{min-height:0!important;font-size:9px!important;gap:1px!important}
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji{width:32px!important;height:32px!important;margin:0 auto!important}
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{padding:3px!important}
+}
