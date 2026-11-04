@@ -57,7 +57,7 @@ test('iPhone landscape: navigation and content remain accessible without horizon
  await page.getByRole('button',{name:'本機模式'}).click();
  await expect(page.locator('.desktop-nav')).toBeVisible();
  await expect(page.locator('.mobile-nav')).toBeHidden();
- await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(8);
+ await expect(page.locator('.desktop-nav .skai-icon')).toHaveCount(7);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
  expect(overflow).toBeLessThanOrEqual(2);
  await page.locator('.desktop-nav [data-page="employees"]').click();
@@ -280,4 +280,32 @@ test('CEO AI settings page is mobile accessible and saves approved settings thro
  await expect(page.locator('#aiControlEnabled')).not.toBeChecked();
  expect(errors).toEqual([]);
  await context.close();
+});
+
+test('CEO tasks replace independent AI collaboration and offer chief plan revision controls',async({page})=>{
+ await page.route('**/api/**',async route=>{
+  const url=new URL(route.request().url()),path=url.pathname;
+  let payload={};
+  if(path==='/api/session')payload={authenticated:true,csrf_token:'ceo-csrf'};
+  else if(path==='/api/dashboard')payload={counts:{projects:0,active:0,pending:0}};
+  else if(path==='/api/projects')payload={projects:[]};
+  else if(path==='/api/tasks')payload={tasks:[]};
+  else if(path==='/api/approvals')payload={approvals:[]};
+  else if(path==='/api/orchestrations')payload={runs:[{id:'11111111-1111-4111-8111-111111111111',task_id:'22222222-2222-4222-8222-222222222222',task_title:'門市財務可行性分析',summary:'財務風險分析',plan_status:'draft'}]};
+  else if(path==='/api/orchestrations/11111111-1111-4111-8111-111111111111')payload={run:{id:'11111111-1111-4111-8111-111111111111',summary:'財務風險分析',plan_status:'draft',plan_version:1,plan_estimate:{total_minutes:12,total_tokens:4800,estimated_usd:0.0092}},steps:[{id:'33333333-3333-4333-8333-333333333333',role_id:'finance',status:'pending',instruction:'提供試算與風險',estimated_minutes:12,estimated_input_tokens:3200,max_output_tokens:1600,estimated_usd:0.0092}]};
+  else if(path==='/api/operations/notifications')payload={notifications:[]};
+  else if(path==='/api/conversations')payload={conversations:[]};
+  else return route.fulfill({status:404,json:{error:'not_found'}});
+  return route.fulfill({status:200,json:payload});
+ });
+ await page.goto('/');
+ await expect(page.locator('#page-orchestrations')).toHaveCount(0);
+ await expect(page.locator('[data-page="orchestrations"]')).toHaveCount(0);
+ await page.locator('.desktop-nav [data-page="tasks"]').click();
+ await expect(page.locator('#page-tasks')).toHaveClass(/active/);
+ await expect(page.locator('#orchestrationList')).toContainText('門市財務可行性分析');
+ await expect(page.locator('#orchestrationList')).toContainText('4,800 Tokens');
+ await expect(page.locator('#orchestrationList')).toContainText('US$0.0092');
+ await expect(page.locator('#orchestrationList')).toContainText('CEO 直接修改分工與資源');
+ await expect(page.locator('#orchestrationList')).toContainText('請幕僚長重新調整方案');
 });
