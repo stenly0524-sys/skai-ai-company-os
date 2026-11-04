@@ -63,7 +63,7 @@ document.addEventListener('click',event=>{
  if(!event.target.closest('#mobileMore')&&!event.target.closest('#mobileMoreMenu'))closeMobileMore();
 });
 
-for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>showPage(button.dataset.jump));
+for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(which==='task'){$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(button.dataset.jump==='data')$('dataSearch')?.focus();});
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
  isSignedIn=connected;
@@ -313,7 +313,9 @@ async function loadDashboard(){
  const data=result.counts||{};
  for(const [id,key] of [['statProjects','projects'],['statTasks','active'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
  $('projectLabel').textContent='已保存專案';$('taskLabel').textContent='已保存任務';$('approvalLabel').textContent='已保存審批';
- const badge=$('taskNavBadge');if(badge){const n=Number(data.pending)||0;badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
+ const badge=$('taskNavBadge'),bell=$('headerNotificationCount');const n=Number(data.pending)||0;
+ if(badge){badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
+ if(bell){bell.hidden=n<=0;bell.textContent=n>99?'99+':String(n);}
  $('companyDataSource').textContent=workspaceMode()==='local'?'本機工作區 · 非跨裝置同步':'SKAI 雲端資料 · 已登入';
  const highlights=$('todayHighlights');
  highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
@@ -661,4 +663,5 @@ $('dataSearch').addEventListener('input',()=>loadDataIndex());
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
 if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','assistant','data'].includes(initialPage))showPage(initialPage);
+else document.body.dataset.currentPage='home';
 startSession();
