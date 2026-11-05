@@ -6,6 +6,8 @@ import { ROLES, systemPrompt } from './roles.js';
 import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
 import { approvalDecision, requireTransition } from './workflow.js';
 import { orchestrationRouter } from './orchestration.js';
+import {deliveryRouter} from './delivery-router.js';
+import {driveDeliveryReady} from './drive-delivery.js';
 import { activeCompanySop } from './governance.js';
 import { operationsRouter } from './ops-router.js';
 import { askModel, configureAiUsage, AiGatewayError } from './ai.js';
@@ -61,6 +63,7 @@ const record = async (client,event,type,id,details={}) => client.query(
  ['ceo',event,type,id,JSON.stringify(details)]
 );
 app.use('/api/orchestrations', orchestrationRouter(db));
+app.use('/api/delivery',deliveryRouter(db));
 app.use('/api/operations', operationsRouter(db));
 app.get('/api/roles', (_req,res) => res.json({ roles: Object.entries(ROLES).map(([id, r]) => ({ id,...r })) }));
 app.get('/api/governance/active',async(_req,res)=>{
@@ -184,8 +187,8 @@ app.get('/api/tasks/:id/deliverables',async(req,res)=>{
  try{
   const q=await db.query('SELECT id,role_id,format,title,drive_url,review_state,created_at FROM task_deliverables WHERE task_id=$1 ORDER BY created_at DESC',[id]);
   const p=await db.query('SELECT formats FROM task_delivery_preferences WHERE task_id=$1',[id]);
-  res.json({documents:q.rows,formats:p.rows[0]?.formats||['pdf'],auto_generation_connected:false,
-   notice:'CEO 可以設定 PDF、Word、Excel 多選及檢視已歸檔檔案；後續任務的伺服器自動生成及上傳仍需 Google Drive 長期授權。'});
+  res.json({documents:q.rows,formats:p.rows[0]?.formats||['pdf'],auto_generation_connected:driveDeliveryReady(),
+   notice:driveDeliveryReady()?'Google Drive 授權已設定；正式歸檔仍需要已完成的 AI 報告、部門資料夾及 CEO 確認。':'Render 尚未設定 Google Drive 長期授權，暫時不能執行自動文件產生及上傳。'});
  }catch(e){sendError(res,e)}
 });
 app.put('/api/tasks/:id/delivery-preferences',async(req,res)=>{
