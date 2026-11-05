@@ -30,9 +30,9 @@ async function response(res,label){
  const msg=(await res.text().catch(()=>''))?.slice(0,250);
  throw new DriveDeliveryError(label+'_'+res.status+(res.status===403?'_access_denied':''),res.status===401||res.status===403?409:502);
 }
-export async function driveClient(fetchImpl=fetch){
- if(!driveDeliveryReady())throw new DriveDeliveryError('drive_not_connected',409);
- const form=new URLSearchParams({client_id:process.env.GOOGLE_DRIVE_CLIENT_ID,client_secret:process.env.GOOGLE_DRIVE_CLIENT_SECRET,refresh_token:process.env.GOOGLE_DRIVE_REFRESH_TOKEN,grant_type:'refresh_token'});
+export async function driveClient(fetchImpl=fetch,{refreshToken=process.env.GOOGLE_DRIVE_REFRESH_TOKEN}={}){
+ if(!process.env.GOOGLE_DRIVE_CLIENT_ID||!process.env.GOOGLE_DRIVE_CLIENT_SECRET||!refreshToken)throw new DriveDeliveryError('drive_not_connected',409);
+ const form=new URLSearchParams({client_id:process.env.GOOGLE_DRIVE_CLIENT_ID,client_secret:process.env.GOOGLE_DRIVE_CLIENT_SECRET,refresh_token:refreshToken,grant_type:'refresh_token'});
  const r=await response(await fetchImpl(TOKEN_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:form}), 'drive_oauth');
  const auth=await r.json();
  if(!auth.access_token)throw new DriveDeliveryError('drive_token_missing',409);

@@ -76,7 +76,11 @@
               <form id="chatPreviewForm" class="chat-form"><input id="chatText" type="text" maxlength="500" placeholder="輸入你的指示或問題…" aria-label="輸入指令" autocomplete="off"><button class="primary-btn" type="submit">傳送</button></form>
             </section>
 </section>
-      <section class="page" id="page-data"><section class="card data-hub"><div class="section-top"><div><h2>資料中心</h2><p class="helper">集中管理文件、設計、報表與知識庫</p></div><span class="quiet-pill">SKAI 知識索引</span></div><div class="data-toolbar"><input id="dataQuickSearch" type="search" placeholder="⌕ 搜尋資料…" aria-label="搜尋資料"><button class="primary-btn" type="button" disabled title="尚未完成雲端檔案上傳">＋ 上傳檔案（尚未開通）</button></div><div class="knowledge-tiles" aria-label="資料中心六大分類">
+      <section class="page" id="page-data"><section class="card data-hub"><div class="section-top"><div><h2>資料中心</h2><p class="helper">集中管理文件、設計、報表與知識庫</p></div><span class="quiet-pill">SKAI 知識索引</span></div><section class="drive-connect-panel" aria-label="Google Drive 授權設定">
+ <div class="section-top"><div><h3>Google Drive｜安全授權</h3><p id="driveOAuthStatus" class="helper">登入 CEO 後查詢授權狀態。</p></div><span id="driveOAuthBadge" class="quiet-pill">檢查中</span></div>
+ <div class="actions"><button id="driveOAuthConnect" type="button" class="primary-btn" disabled>連接 Google Drive</button><button id="driveOAuthDisconnect" type="button" class="outline-btn" hidden>中斷連線</button></div>
+ <p class="helper">連接時會跳轉 Google 官方登入畫面。Google 授權不等於已能使用全部舊資料夾，還需要確認既有資料夾授權。</p>
+ </section><div class="data-toolbar"><input id="dataQuickSearch" type="search" placeholder="⌕ 搜尋資料…" aria-label="搜尋資料"><button class="primary-btn" type="button" disabled title="尚未完成雲端檔案上傳">＋ 上傳檔案（尚未開通）</button></div><div class="knowledge-tiles" aria-label="資料中心六大分類">
 <button class="knowledge-tile" data-jump="projects"><span class="knowledge-icon" aria-hidden="true"></span><b>企業提案</b><small>前往專案</small></button>
 <button class="knowledge-tile" data-jump="data"><span class="knowledge-icon" aria-hidden="true"></span><b>設計素材</b><small>待串接檔案</small></button>
 <button class="knowledge-tile" data-jump="data"><span class="knowledge-icon" aria-hidden="true"></span><b>合約文件</b><small>待串接檔案</small></button>

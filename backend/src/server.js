@@ -12,6 +12,7 @@ import { activeCompanySop } from './governance.js';
 import { operationsRouter } from './ops-router.js';
 import { askModel, configureAiUsage, AiGatewayError } from './ai.js';
 import { authRouter } from './auth.js';
+import {googleOAuthRouter} from './google-oauth.js';
 
 const { Pool } = pg;
 const required = ['DATABASE_URL', 'SKAI_ADMIN_TOKEN', 'OPENAI_API_KEY', 'SKAI_CEO_PASSWORD'];
@@ -40,6 +41,9 @@ app.use((req, res, next) => {
 });
 const sameSecret = token => tokenMatches(token, process.env.SKAI_ADMIN_TOKEN);
 const sessionAuth=authRouter(db);
+const oauth=googleOAuthRouter(db);
+// Google callback accepts Google's navigation without CEO cookie, but validates one-time state and the initiating session.
+app.use('/api/google-oauth',oauth.publicCallback);
 app.get('/health', async (_req,res) => {
  try { await db.query('SELECT 1'); res.json({ ok: true, service: 'SKAI V0.5 alpha' }); }
  catch { res.status(503).json({ error: 'database_unavailable' }); }
@@ -64,6 +68,7 @@ const record = async (client,event,type,id,details={}) => client.query(
 );
 app.use('/api/orchestrations', orchestrationRouter(db));
 app.use('/api/delivery',deliveryRouter(db));
+app.use('/api/google-oauth',oauth.protectedApi);
 app.use('/api/operations', operationsRouter(db));
 app.get('/api/roles', (_req,res) => res.json({ roles: Object.entries(ROLES).map(([id, r]) => ({ id,...r })) }));
 app.get('/api/governance/active',async(_req,res)=>{
