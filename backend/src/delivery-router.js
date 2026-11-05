@@ -77,6 +77,7 @@ export function deliveryRouter(db,{clientFactory=driveClient}={}){
    await drive.validateFolder(folder.folder_id);
    const digest=createHash('sha256').update(task.id+'|'+role+'|'+text).digest('hex').slice(0,12);
    const results=[],errors=[];
+   let reusableDocId=null;
    const title=safeFileName(task.project_name+'_'+task.title+'_'+role+'_'+digest);
    for(const format of formats){
     // DB job + source fingerprint makes retried requests idempotent for successful deliveries.
@@ -97,7 +98,8 @@ export function deliveryRouter(db,{clientFactory=driveClient}={}){
      jobId=retry.rows[0].id;
     }
     try{
-     const result=await exportDeliverable(drive,{format,title,report:text,folderId:folder.folder_id});
+     const result=await exportDeliverable(drive,{format,title,report:text,folderId:folder.folder_id,sourceDocId:format==='xlsx'?null:reusableDocId});
+     if(format!=='xlsx')reusableDocId=result.sourceId;
      const save=await db.query(`INSERT INTO task_deliverables(project_id,task_id,role_id,format,title,drive_file_id,drive_url,review_state)
       VALUES($1,$2,$3,$4,$5,$6,$7,'needs_review') ON CONFLICT(drive_file_id) DO UPDATE SET drive_url=EXCLUDED.drive_url RETURNING *`,
       [task.project_id,id,role,format,title,result.id,result.url]);
