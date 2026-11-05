@@ -6,6 +6,7 @@ import { ROLES, systemPrompt } from './roles.js';
 import { tokenMatches, validOrigin, validUuid, compactText } from './security.js';
 import { approvalDecision, requireTransition } from './workflow.js';
 import { orchestrationRouter } from './orchestration.js';
+import { activeCompanySop } from './governance.js';
 import { operationsRouter } from './ops-router.js';
 import { askModel, configureAiUsage, AiGatewayError } from './ai.js';
 import { authRouter } from './auth.js';
@@ -62,6 +63,20 @@ const record = async (client,event,type,id,details={}) => client.query(
 app.use('/api/orchestrations', orchestrationRouter(db));
 app.use('/api/operations', operationsRouter(db));
 app.get('/api/roles', (_req,res) => res.json({ roles: Object.entries(ROLES).map(([id, r]) => ({ id,...r })) }));
+app.get('/api/governance/active',async(_req,res)=>{
+ try{
+  const sop=await activeCompanySop(db);
+  if(!sop)return res.json({status:'not_activated',sop:null});
+  res.json({status:'approved',sop:{
+   code:sop.policy_code,version:sop.version,title:sop.title,
+   approved_at:sop.approved_at,effective_at:sop.effective_at,
+   pdf_file_id:sop.drive_pdf_id,project_pdf_file_id:sop.project_pdf_id,
+   implementation_status:sop.implementation_status,
+   document_text:sop.source_text
+  }});
+ }catch(e){sendError(res,e)}
+});
+
 app.get('/api/dashboard', async (_req,res) => {
  try {
   const q=await db.query(`SELECT
