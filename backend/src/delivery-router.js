@@ -3,21 +3,26 @@ import {createHash} from 'node:crypto';
 import {driveClient,driveDeliveryReady,DriveDeliveryError,safeFileName,exportDeliverable} from './drive-delivery.js';
 import {validUuid} from './security.js';
 import {ROLES} from './roles.js';
+import {driveClientForCompany,savedDriveConnection} from './google-oauth.js';
 const allowedFormats=['pdf','docx','xlsx'];
 const resultError=(res,e)=>{if(e instanceof DriveDeliveryError)return res.status(e.status).json({error:e.message});console.error('delivery:',e?.code||e?.message||e);return res.status(500).json({error:'delivery_internal_error'});};
 const record=async(db,event,type,id,data)=>db.query(
  'INSERT INTO audit_log(actor,event,target_type,target_id,details) VALUES($1,$2,$3,$4,$5::jsonb)',
  ['ceo',event,type,id,JSON.stringify(data)]
 );
-export function deliveryRouter(db,{clientFactory=driveClient}={}){
+export function deliveryRouter(db,{clientFactory=()=>driveClientForCompany(db)}={}){
  const router=express.Router();
- router.get('/status',(_req,res)=>res.json({connected:driveDeliveryReady(),mode:driveDeliveryReady()?'oauth_configured':'not_connected',
-  notice:driveDeliveryReady()?'Google OAuth 已設定；實際寫入仍需具備對應資料夾權限。':'尚未設定 Google Drive 長期 OAuth 授權，不能自動生成或上傳檔案。'}));
+ router.get('/status',async(_req,res)=>{
+  try{
+   const connected=Boolean((await savedDriveConnection(db))||driveDeliveryReady());
+   res.json({connected,mode:connected?'oauth_configured':'not_connected',notice:connected?'OAuth 授權已保存；仍須確認資料夾權限。':'尚未連接 Google Drive，不能自動生成或上傳。'});
+  }catch(e){resultError(res,e)}
+ });
  router.post('/projects/:id/setup',async(req,res)=>{
   const projectId=req.params.id;
   if(!validUuid(projectId))return res.status(400).json({error:'invalid_project_id'});
   if(!req.ceoSession||req.body?.confirm!==true)return res.status(403).json({error:'ceo_confirmation_required'});
-  if(!driveDeliveryReady())return res.status(409).json({error:'drive_not_connected'});
+  if(!(await savedDriveConnection(db))&&!driveDeliveryReady())return res.status(409).json({error:'drive_not_connected'});
   try{
    const project=await db.query('SELECT id,name FROM projects WHERE id=$1',[projectId]);
    if(!project.rowCount)return res.status(404).json({error:'project_not_found'});
@@ -52,7 +57,7 @@ export function deliveryRouter(db,{clientFactory=driveClient}={}){
   const id=req.params.id;
   if(!validUuid(id))return res.status(400).json({error:'invalid_task_id'});
   if(!req.ceoSession||req.body?.confirm!==true)return res.status(403).json({error:'ceo_confirmation_required'});
-  if(!driveDeliveryReady())return res.status(409).json({error:'drive_not_connected'});
+  if(!(await savedDriveConnection(db))&&!driveDeliveryReady())return res.status(409).json({error:'drive_not_connected'});
   const role=req.body?.role_id||'chief_of_staff';
   if(!ROLES[role])return res.status(400).json({error:'invalid_department'});
   try{
@@ -124,7 +129,7 @@ export function deliveryRouter(db,{clientFactory=driveClient}={}){
    if(!q.rowCount)return res.status(404).json({error:'deliverable_not_found'});
    const file=q.rows[0];
    if(state==='approved'){
-    if(!driveDeliveryReady())return res.status(409).json({error:'drive_not_connected'});
+    if(!(await savedDriveConnection(db))&&!driveDeliveryReady())return res.status(409).json({error:'drive_not_connected'});
     const folder=await db.query('SELECT folder_id FROM project_drive_folders WHERE project_id=$1 AND role_id=$2',[file.project_id,file.role_id]);
     if(!folder.rowCount)return res.status(409).json({error:'folder_mapping_missing'});
     const drive=await clientFactory();
