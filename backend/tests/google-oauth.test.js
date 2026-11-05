@@ -7,7 +7,7 @@ test('OAuth refresh token AES-GCM decrypts and authenticates',()=>{
  assert.notEqual(encrypted,'refresh-with-high-entropy');
  assert.equal(decryptRefreshToken(encrypted,key),'refresh-with-high-entropy');
  assert.throws(()=>decryptRefreshToken(encrypted,'cd'.repeat(32)));
- assert.throws(()=>decryptRefreshToken(encrypted.slice(0,-1)+'X',key));
+ const parts=encrypted.split('.');parts[1]=(parts[1][0]==='A'?'B':'A')+parts[1].slice(1);assert.throws(()=>decryptRefreshToken(parts.join('.'),key));
 });
 test('OAuth requires protected and public callback routes',()=>{
  const oauth=googleOAuthRouter({query:async()=>({rows:[],rowCount:0})});
