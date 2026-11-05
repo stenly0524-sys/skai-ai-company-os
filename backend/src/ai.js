@@ -1,5 +1,6 @@
 import { systemPrompt } from './roles.js';
 import { reserveAiCall, finalizeAiCall } from './operations.js';
+import { activeCompanySop,companySopSystemRules } from './governance.js';
 import {reserveCost,settleCost} from './cost-control.js';
 let usageDb=null;
 export function configureAiUsage(db){usageDb=db;}
@@ -8,9 +9,12 @@ export class AiGatewayError extends Error{
 }
 export async function askModel({role,messages,maxTokens=1400,format}){
  if(!usageDb)throw new AiGatewayError('ai_usage_db_not_configured');
+ let sop;
+ try{sop=await activeCompanySop(usageDb);}
+ catch(e){throw new AiGatewayError('approved_sop_unavailable');}
  const request={
   model:process.env.OPENAI_MODEL||'gpt-4.1-mini',
-  messages:[{role:'system',content:systemPrompt(role)},...messages],
+  messages:[{role:'system',content:systemPrompt(role)+companySopSystemRules(sop,role)},...messages],
   max_completion_tokens:maxTokens
  };
  if(format==='json')request.response_format={type:'json_object'};
