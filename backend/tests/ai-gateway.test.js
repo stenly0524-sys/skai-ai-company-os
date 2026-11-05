@@ -15,6 +15,7 @@ const db={
  async connect(){return {query:(sql,args)=>db.query(sql,args),release(){}};},
  async query(sql,args){
   if(['BEGIN','COMMIT','ROLLBACK'].includes(sql))return {rowCount:0,rows:[]};
+  if(sql.includes('FROM company_sops'))return {rowCount:0,rows:[]};
   if(sql.includes('FROM ai_control_settings'))return {rowCount:1,rows:[{ai_enabled:true,daily_call_limit:1,daily_token_warning:100000,daily_budget_usd:'1.00',monthly_budget_usd:'10.00'}]};
   if(sql.includes('FROM ai_cost_ledger WHERE usage_month'))return {rowCount:1,rows:[{daily_usd:'0',monthly_usd:'0'}]};
   if(sql.includes('INSERT INTO ai_cost_ledger'))return {rowCount:1,rows:[{id:'test-ledger-'+(++ledgerCount)}]};
