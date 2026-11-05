@@ -21,20 +21,31 @@ export function deliveryRouter(db,{clientFactory=driveClient}={}){
   try{
    const project=await db.query('SELECT id,name FROM projects WHERE id=$1',[projectId]);
    if(!project.rowCount)return res.status(404).json({error:'project_not_found'});
-   const pre=await db.query("SELECT folder_id,folder_url FROM project_drive_folders WHERE project_id=$1 AND role_id='root'",[projectId]);
-   if(pre.rowCount)return res.json({folder:pre.rows[0],reused:true});
+   const pre=await db.query("SELECT role_id,folder_id,folder_url FROM project_drive_folders WHERE project_id=$1",[projectId]);
+   const existing=new Map(pre.rows.map(row=>[row.role_id,row]));
    const parent=process.env.SKAI_DRIVE_PROJECTS_FOLDER_ID;
    if(!parent)return res.status(409).json({error:'drive_projects_parent_not_configured'});
-   const drive=await clientFactory();await drive.validateFolder(parent);
-   const root=await drive.createFolder(project.rows[0].name,parent);
-   const folders=[['root',root],['chief_of_staff',null],...Object.keys(ROLES).filter(x=>x!=='chief_of_staff').map(x=>[x,null])];
+   const drive=await clientFactory();
+   let root=existing.get('root');
+   if(root){await drive.validateFolder(root.folder_id);root={id:root.folder_id,url:root.folder_url};}
+   else{
+    await drive.validateFolder(parent);
+    root=await drive.createFolder(project.rows[0].name,parent);
+    // Save the root immediately: partial failures must be resumable, not duplicate the project.
+    await db.query('INSERT INTO project_drive_folders(project_id,role_id,folder_id,folder_url) VALUES($1,$2,$3,$4) ON CONFLICT(project_id,role_id) DO NOTHING',
+     [projectId,'root',root.id,root.url]);
+   }
    const names={chief_of_staff:'戰略幕僚部',admin:'行政管理部',operations:'營運策略部',finance:'財務部',hr:'人事管理部',marketing:'行銷企劃部',brand:'視覺設計部門',tech:'資訊技術部',legal:'法務部'};
-   for(let i=1;i<folders.length;i++)folders[i][1]=await drive.createFolder(names[folders[i][0]],root.id);
-   for(const [role,file] of folders)await db.query(
-    'INSERT INTO project_drive_folders(project_id,role_id,folder_id,folder_url) VALUES($1,$2,$3,$4) ON CONFLICT(project_id,role_id) DO NOTHING',
-    [projectId,role,file.id,file.url]);
-   await record(db,'drive.project_folders_created','project',projectId,{folder_id:root.id,roles:folders.map(([role])=>role)});
-   res.status(201).json({folder:root,roles:folders.map(([role])=>role),reused:false});
+   const created=[];
+   for(const [role,name] of Object.entries(names)){
+    if(existing.has(role))continue;
+    const folder=await drive.createFolder(name,root.id);
+    await db.query('INSERT INTO project_drive_folders(project_id,role_id,folder_id,folder_url) VALUES($1,$2,$3,$4) ON CONFLICT(project_id,role_id) DO NOTHING',
+     [projectId,role,folder.id,folder.url]);
+    created.push(role);
+   }
+   await record(db,'drive.project_folder_mapping_verified','project',projectId,{folder_id:root.id,created_roles:created});
+   res.status(created.length||!pre.rowCount?201:200).json({folder:root,created_roles:created,reused:pre.rowCount>0});
   }catch(e){resultError(res,e)}
  });
  router.post('/tasks/:id/generate',async(req,res)=>{
