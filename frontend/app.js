@@ -731,10 +731,43 @@ $('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=
 $('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
 $('openSettingsMobile')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
 $('toggleChiefPlans')?.addEventListener('click',()=>{const x=$('chiefPlanContent');x.hidden=!x.hidden;$('chiefPlanToggleIcon').textContent=x.hidden?'展開':'收合';});
+async function loadDriveOAuthStatus(){
+ const status=$('driveOAuthStatus'),badge=$('driveOAuthBadge'),connect=$('driveOAuthConnect'),disconnect=$('driveOAuthDisconnect');
+ if(!status)return;
+ if(workspaceMode()==='local'){status.textContent='本機工作區無法連接 Google Drive，請切換雲端工作區。';badge.textContent='本機模式';connect.disabled=true;disconnect.hidden=true;return;}
+ if(!isSignedIn){status.textContent='請先登入 CEO。';badge.textContent='未登入';connect.disabled=true;disconnect.hidden=true;return;}
+ try{
+  const data=await api('/google-oauth/status');
+  badge.textContent=data.connected?'已連接':data.configured?'待授權':'待設定';
+  status.textContent=data.notice||'';
+  connect.disabled=!data.configured;
+  connect.hidden=Boolean(data.connected);
+  disconnect.hidden=!data.connected;
+ }catch(e){status.textContent='讀取 Google Drive 授權狀態失敗：'+e.message;badge.textContent='檢查失敗';connect.disabled=true;disconnect.hidden=true;}
+}
+$('driveOAuthConnect')?.addEventListener('click',async()=>{
+ const button=$('driveOAuthConnect');button.disabled=true;
+ try{
+  const data=await api('/google-oauth/start',{method:'POST',body:{}});
+  const url=new URL(data.authorization_url);
+  if(url.origin!=='https://accounts.google.com')throw Error('授權連結來源無效');
+  window.location.assign(url.href);
+ }catch(e){showToast('無法啟動 Google 授權：'+e.message);button.disabled=false;}
+});
+$('driveOAuthDisconnect')?.addEventListener('click',async()=>{
+ if(!confirm('確認移除 SKAI OS 已保存的 Google Drive 授權？這不會刪除 Google Drive 裡的文件。'))return;
+ try{await api('/google-oauth/disconnect',{method:'POST',body:{confirm:true}});showToast('已中斷 Google Drive 授權');await loadDriveOAuthStatus();}
+ catch(e){showToast('中斷授權失敗：'+e.message);}
+});
+const oauthResult=new URL(window.location.href).searchParams.get('drive_oauth');
+if(oauthResult){
+ history.replaceState(null,'',window.location.pathname+window.location.hash);
+ setTimeout(()=>showToast(oauthResult==='connected'?'Google Drive 授權已保存':('Google Drive 授權未完成：'+oauthResult)),750);
+}
 async function refreshPage(page){
  if(!isSignedIn)return;
  if(page==='home')await loadDashboard();
- if(page==='data')await loadDataIndex();
+ if(page==='data')await Promise.all([loadDataIndex(),loadDriveOAuthStatus()]);
  if(page==='projects')await loadProjects();
  if(page==='tasks'){await loadProjects();await loadTasks();await loadOrchestrations();}
  if(page==='approvals')await loadApprovals();
