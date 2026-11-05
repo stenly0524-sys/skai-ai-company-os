@@ -228,6 +228,28 @@ export function orchestrationRouter(db){
   const client=await db.connect();
   try{
    await client.query('BEGIN');
+   const runCheck=await client.query("SELECT task_id FROM orchestration_runs WHERE id=$1 AND plan_status='review' FOR UPDATE",[id]);
+   if(!runCheck.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'not_ready_for_completion'});}
+   const activeSop=await client.query("SELECT policy_code,version FROM company_sops WHERE status='approved' ORDER BY effective_at DESC LIMIT 1");
+   if(activeSop.rowCount){
+    // SOP chapter 10: all CEO-selected deliverable formats must be saved and reviewed before final acceptance.
+    const taskId=runCheck.rows[0].task_id;
+    const pref=await client.query("SELECT formats FROM task_delivery_preferences WHERE task_id=$1",[taskId]);
+    const required=pref.rows[0]?.formats||['pdf'];
+    const artifacts=await client.query(
+     "SELECT format,drive_file_id,drive_url,review_state FROM task_deliverables WHERE task_id=$1 AND review_state='approved'",[taskId]);
+    const ready=new Set(artifacts.rows.filter(f=>f.drive_file_id&&f.drive_url).map(f=>f.format));
+    const missing=required.filter(f=>!ready.has(f));
+    if(missing.length){
+     await client.query('ROLLBACK');
+     return res.status(409).json({
+      error:'sop_required_deliverables_missing',
+      policy:activeSop.rows[0].policy_code+' '+activeSop.rows[0].version,
+      missing_formats:missing,
+      notice:'正式 SOP 已啟用。尚缺經審查並歸檔的必要文件；不得僅以文字報告完成任務。'
+     });
+    }
+   }
    const q=await client.query("UPDATE orchestration_runs SET plan_status='done',updated_at=NOW() WHERE id=$1 AND plan_status='review' RETURNING *",[id]);
    if(!q.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'not_ready_for_completion'});}
    await client.query("UPDATE tasks SET status='done',updated_at=NOW() WHERE id=$1 AND status='review'",[q.rows[0].task_id]);
