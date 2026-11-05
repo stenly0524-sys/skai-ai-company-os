@@ -101,5 +101,5 @@ export async function exportDeliverable(client,{format,title,report,folderId,sou
  })();
  const bytes=await client.exportFile(file,formats[format].exportMime);
  const saved=await client.uploadBinary(title+'.'+format,bytes,formats[format].mime,folderId);
- return client.verify(saved.id,folderId,formats[format].mime);
+ return {...await client.verify(saved.id,folderId,formats[format].mime),sourceId:file};
 }
