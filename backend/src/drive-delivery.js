@@ -100,6 +100,10 @@ export async function exportDeliverable(client,{format,title,report,folderId,sou
   return source.id;
  })();
  const bytes=await client.exportFile(file,formats[format].exportMime);
+ // Verify actual file signatures, not just extensions or Drive MIME metadata.
+ const magic=Buffer.from(bytes).subarray(0,4);
+ if(format==='pdf'&&magic.toString('ascii')!=='%PDF')throw new DriveDeliveryError('invalid_pdf_signature',409);
+ if((format==='docx'||format==='xlsx')&&magic.subarray(0,2).toString('ascii')!=='PK')throw new DriveDeliveryError('invalid_office_signature',409);
  const saved=await client.uploadBinary(title+'.'+format,bytes,formats[format].mime,folderId);
  return {...await client.verify(saved.id,folderId,formats[format].mime),sourceId:file};
 }
