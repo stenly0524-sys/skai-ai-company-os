@@ -437,6 +437,18 @@ async function openQuickProject(project){
      const label=EMPLOYEES.find(x=>x.id===item.role_id)?.name||item.role_id;
      const a=el('a','project-folder-link',label+' · Google Drive');a.href=item.folder_url;a.target='_blank';a.rel='noopener noreferrer';linkHost.append(a);
     }
+    if(!(folderData.folders||[]).some(x=>x.role_id==='root')){
+     const status=await api('/delivery/status').catch(()=>({connected:false}));
+     if(status.connected){
+      const setup=el('button','outline-btn','建立此專案的 Google Drive 文件夾');
+      setup.addEventListener('click',async()=>{
+       if(!confirm('將在 SKAI OS總部／項目管理中建立此專案及各部門資料夾。確認建立？'))return;
+       setup.disabled=true;
+       try{await api('/delivery/projects/'+encodeURIComponent(project.id)+'/setup',{method:'POST',body:{confirm:true}});showToast('專案文件夾已建立並登錄');await openQuickProject(project);}
+       catch(e){showToast('資料夾建立失敗：'+e.message)}finally{setup.disabled=false;}
+      });linkHost.append(setup);
+     }
+    }
    }catch(e){linkHost.append(el('p','helper','Drive 資料夾尚未連線'));}
   }
  }
