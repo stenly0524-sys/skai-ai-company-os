@@ -72,6 +72,16 @@ export async function driveClient(fetchImpl=fetch){
   if(file.trashed||file.mimeType!==mime||!file.parents?.includes(folder))throw new DriveDeliveryError('drive_upload_verification_failed',409);
   return {id:file.id,url:file.webViewLink||'https://drive.google.com/file/d/'+encodeURIComponent(file.id)+'/view'};
  }
+ async function createFolder(name,parentId){
+  await validateFolder(parentId);
+  const r=await req(API+'/drive/v3/files?fields=id,name,parents,mimeType,webViewLink',{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({name:safeFileName(name),mimeType:'application/vnd.google-apps.folder',parents:[parentId]})
+  },'drive_create_folder');
+  const f=await r.json();
+  if(!f.id)throw new DriveDeliveryError('drive_folder_creation_unverified',502);
+  return {id:f.id,url:f.webViewLink||'https://drive.google.com/drive/folders/'+f.id};
+ }
  async function validateFolder(id){
   if(!/^[a-zA-Z0-9_-]{20,}$/.test(id||''))throw new DriveDeliveryError('invalid_drive_folder_id',400);
   const r=await req(API+'/drive/v3/files/'+encodeURIComponent(id)+'?fields=id,mimeType,trashed,capabilities(canAddChildren)',{},'drive_folder');
@@ -79,7 +89,7 @@ export async function driveClient(fetchImpl=fetch){
   if(f.trashed||f.mimeType!=='application/vnd.google-apps.folder'||!f.capabilities?.canAddChildren)throw new DriveDeliveryError('drive_folder_not_writable',409);
   return true;
  }
- return {createConverted,uploadBinary,exportFile,verify,validateFolder};
+ return {createConverted,uploadBinary,exportFile,verify,validateFolder,createFolder};
 }
 export async function exportDeliverable(client,{format,title,report,folderId,sourceDocId=null}){
  if(!formats[format])throw new DriveDeliveryError('unsupported_format',400);
