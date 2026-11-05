@@ -20,7 +20,7 @@ export function companySopSystemRules(sop,role){
  const roleLabel={chief_of_staff:'AI 幕僚長',admin:'行政後勤部',finance:'財務部',brand:'視覺設計部',marketing:'行銷企劃部',operations:'營運策略部',tech:'資訊技術部',hr:'人事管理部',legal:'法務部'}[role]||'';
  const roleLine=blocks.find(x=>x.startsWith('第二章｜'))?.split('\n');
  let dept='';
- if(roleLabel&&roleLine){const i=roleLine.findIndex(x=>x.trim().startsWith(roleLabel));if(i>=0)dept=roleLine.slice(i,i+2).join('\n');}
+ if(roleLabel&&roleLine){const i=roleLine.findIndex(x=>x.trim().endsWith(roleLabel));if(i>=0)dept=roleLine.slice(i,i+2).join('\n');}
  return '\n【正式公司規範：'+sop.policy_code+' '+sop.version+'｜CEO 已核准】\n'+selected+
   (dept?'\n【本部門職責】\n'+dept:'')+
   '\n技術能力邊界：文件生成／Google Drive 自動上傳／完整 QA 若未串接，必須明確標記尚未啟用。單純生成文字不等於交付完成，不得假稱執行、法規驗證或已通過 CEO 驗收。';
