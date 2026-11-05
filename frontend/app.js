@@ -510,9 +510,19 @@ async function appendTaskDeliverables(task,container){
   if(!files.length)list.append(el('p','helper','尚無上傳至 Google Drive 的實際成果檔案。'));
   for(const file of files){
    if(!/^https:\/\/(drive|docs)\.google\.com\//.test(file.drive_url||''))continue;
-   const a=el('a','task-drive-file',file.format.toUpperCase()+'｜'+file.title+'　'+(file.review_state==='needs_review'?'（待 CEO／律師複核）':''));
-   a.href=file.drive_url;a.target='_blank';a.rel='noopener noreferrer';
-   list.append(a);
+   const entry=el('div','task-delivery-row');
+   const a=el('a','task-drive-file',file.format.toUpperCase()+'｜'+file.title+'　'+(file.review_state==='approved'?'（已審閱）':file.review_state==='rejected'?'（退回）':'（待 CEO／專業複核）'));
+   a.href=file.drive_url;a.target='_blank';a.rel='noopener noreferrer';entry.append(a);
+   if(file.id&&file.review_state==='needs_review'){
+    const approve=el('button','outline-btn','CEO 確認文件');approve.type='button';
+    approve.addEventListener('click',async()=>{
+     if(!confirm('請先在 Google Drive 閱讀文件，確認內容、格式與必要專業審查已完成。確定核可這份檔案？'))return;
+     approve.disabled=true;
+     try{await api('/delivery/deliverables/'+encodeURIComponent(file.id)+'/review',{method:'POST',body:{confirm:true,decision:'approved'}});showToast('已核可交付文件；任務仍須滿足其他結案條件');section.remove();await appendTaskDeliverables(task,container);}
+     catch(e){showToast('文件核可失敗：'+e.message)}finally{approve.disabled=false;}
+    });entry.append(approve);
+   }
+   list.append(entry);
   }
   section.append(list);
   const f=el('div','task-format-choice');
@@ -531,8 +541,33 @@ async function appendTaskDeliverables(task,container){
    try{await api('/tasks/'+encodeURIComponent(task.id)+'/delivery-preferences',{method:'PUT',body:{formats}});showToast('已保存：'+formats.join('、'));}
    catch(e){showToast('儲存失敗：'+e.message);}finally{save.disabled=false;}
   });f.append(save);
-  f.append(el('p','helper','已儲存的格式會作為此任務的交付要求。SKAI 雲端伺服器尚未完成 Google Drive 授權與自動生成服務；此選擇不代表已建立檔案。'));
+  f.append(el('p','helper','此選擇會作為交付要求。必須具備已完成的 AI 部門報告、CEO 確認及 Google Drive 長期授權，才能產生正式檔案。'));
   section.append(f);
+  if(data.auto_generation_connected){
+   const controls=el('div','task-drive-generator');
+   controls.append(el('strong','','將已完成的 AI 報告產生文件並歸檔'));
+   const select=document.createElement('select');
+   const departments=[['chief_of_staff','戰略幕僚部／整合報告'],['legal','法務部'],['finance','財務部'],['admin','行政管理部'],['operations','營運策略部'],['marketing','行銷企劃部'],['brand','視覺設計部門'],['tech','資訊技術部'],['hr','人事管理部']];
+   for(const [code,name] of departments)select.add(new Option(name,code));
+   controls.append(select);
+   const generate=el('button','primary-btn','生成選定格式並歸檔到 Google Drive');
+   generate.type='button';
+   generate.addEventListener('click',async()=>{
+    if(fields.some(x=>x.checked)!==true)return showToast('請先勾選成果格式並儲存');
+    if(!confirm('確認使用已完成且具備部門執行紀錄的 AI 工作內容，生成實際文件並上傳至對應部門 Google Drive 資料夾？本步驟不呼叫新的 AI 模型，但會建立雲端檔案。'))return;
+    generate.disabled=true;
+    try{
+     const result=await api('/delivery/tasks/'+encodeURIComponent(task.id)+'/generate',{method:'POST',body:{confirm:true,role_id:select.value}});
+     showToast((result.documents||[]).length+' 個檔案已生成歸檔'+((result.errors||[]).length?'，部分格式失敗':'；待 CEO 審閱'));
+     section.remove();await appendTaskDeliverables(task,container);
+    }catch(e){showToast('無法生成：'+e.message)}
+    finally{generate.disabled=false;}
+   });controls.append(generate);
+   controls.append(el('p','helper','僅允許有已完成部門成果的任務；上傳後預設待審閱。法律文件不可把 AI 內容視為律師正式法律意見。'));
+   section.append(controls);
+  }else{
+   section.append(el('p','task-evidence-warning','Google Drive 尚未連接到 Render 後端；格式選擇及檔案調閱可用，自動生成和上傳尚未啟用。'));
+  }
  }catch(e){section.append(el('p','helper','雲端交付紀錄讀取失敗：'+e.message));}
  container.append(section);
 }
