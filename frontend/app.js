@@ -583,17 +583,18 @@ async function appendTaskDeliverables(task,container){
  }catch(e){section.append(el('p','helper','雲端交付紀錄讀取失敗：'+e.message));}
  container.append(section);
 }
+function decisionDraftLabel(n){return n===1?'初步定案':'第'+n+'次定案';}
 async function openTaskDetails(task,container){
  const willOpen=container.hidden;
  document.querySelectorAll('#taskCards .task-evidence-panel').forEach(p=>p.hidden=true);
  container.hidden=!willOpen;if(!willOpen)return;
  const latest=taskCache.find(t=>t.id===task.id)||task;
  const project=projectCache.find(p=>p.id===latest.project_id);
- const heading=el('div','task-detail-heading');heading.append(el('h3','','工作內容及執行記錄'),el('span','status-pill',statuses[latest.status]||latest.status));
+ const heading=el('div','task-detail-heading');
+ const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'),el('span','status-pill',statuses[latest.status]||latest.status));
+ const edit=el('button','outline-btn task-edit-top','編輯');edit.type='button';edit.disabled=latest.status==='done';
+ heading.append(headingLeft,edit);
  const body=el('div','task-detail-body');body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作內容',latest.brief||'尚未填寫'));
- const actions=el('div','task-detail-actions');
- const edit=el('button','outline-btn','編輯'),decide=el('button','primary-btn','決策');edit.type=decide.type='button';
- edit.disabled=decide.disabled=latest.status==='done';
  edit.addEventListener('click',()=>{
   $('taskEditId').value=latest.id;$('taskEditTitle').value=latest.title;
   const match=(latest.brief||'').match(/^【完成期限：(\\d{4}-\\d{2}-\\d{2})】\\n?/);
@@ -601,22 +602,31 @@ async function openTaskDetails(task,container){
   $('taskEditBrief').value=(latest.brief||'').replace(/^【完成期限：\\d{4}-\\d{2}-\\d{2}】\\n?/,'');
   $('taskEditDialog').showModal();
  });
+ const drafts=el('div','task-decision-drafts');
+ const records=el('div','task-records');records.hidden=true;records.append(el('h4','','執行記錄'));
+ const footer=el('div','task-detail-footer');
+ const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn','決策');history.type=decide.type='button';decide.disabled=latest.status==='done';
+ history.addEventListener('click',()=>{records.hidden=!records.hidden;history.textContent=records.hidden?'執行記錄':'收合記錄';});
  decide.addEventListener('click',async()=>{
   $('taskDecisionId').value=latest.id;$('taskDecisionContent').value='';
   try{const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');$('taskDecisionContent').value=r.preliminary||'';}catch(e){showToast(e.message);}
   $('taskDecisionDialog').showModal();
  });
- actions.append(edit,decide);container.replaceChildren(heading,body,actions);
- const records=el('div','task-records');records.append(el('h4','','執行記錄'));
- if(workspaceMode()==='local'){records.append(el('p','helper','本機模式：決策紀錄需要雲端資料庫。'));container.append(records);return;}
+ footer.append(history,decide);container.replaceChildren(heading,body,drafts,records,footer);
+ if(workspaceMode()==='local'){records.append(el('p','helper','本機模式：決策紀錄需要雲端資料庫。'));return;}
  try{
   const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');
-  if(r.preliminary)container.append(taskDetailLine('初步定案',r.preliminary));
-  if(r.final)container.append(taskDetailLine('最終決策',r.final));
+  const saved=(r.records||[]).filter(x=>x.event==='task.ceo_draft_decision');
+  const lastFive=saved.slice(-5);
+  lastFive.forEach((x,i)=>drafts.append(taskDetailLine(decisionDraftLabel(saved.length-lastFive.length+i+1),x.details?.content||'')));
+  if(r.final)drafts.append(taskDetailLine('最終決策',r.final));
   if(!(r.records||[]).length)records.append(el('p','helper','尚無編輯或決策記錄。'));
-  for(const x of r.records||[]){const label=x.event==='task.ceo_edited'?'編輯工作內容':x.event==='task.ceo_draft_decision'?'儲存初步定案':'CEO 最終決定';records.append(taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||''));}
+  let draftNumber=0;
+  for(const x of r.records||[]){
+   const label=x.event==='task.ceo_edited'?'編輯工作內容':x.event==='task.ceo_draft_decision'?decisionDraftLabel(++draftNumber):'CEO 最終決定';
+   records.append(taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||''));
+  }
  }catch(e){records.append(el('p','helper','讀取執行記錄失敗：'+e.message));}
- container.append(records);
 }
 function renderTaskCards(){
  const root=$('taskCards');if(!root)return;root.replaceChildren();
