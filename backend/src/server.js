@@ -219,14 +219,16 @@ app.get('/api/tasks/:id/ceo-records',async(req,res)=>{
  }catch(e){sendError(res,e);}
 });
 app.put('/api/tasks/:id/ceo-edit',async(req,res)=>{
- const id=req.params.id,title=txt(req.body?.title,160),brief=txt(req.body?.brief,8000);
- if(!uuid(id)||!title||typeof req.body?.brief!=='string'||req.body.brief.length>8000)return res.status(400).json({error:'invalid_task_edit'});
+ const id=req.params.id,title=txt(req.body?.title,160),brief=txt(req.body?.brief,8000),categoryId=req.body?.category_id;
+ if(!uuid(id)||(categoryId!==undefined&&categoryId!==''&&!uuid(categoryId))||!title||typeof req.body?.brief!=='string'||req.body.brief.length>8000)return res.status(400).json({error:'invalid_task_edit'});
  const client=await db.connect();
  try{await client.query('BEGIN');
-  const prev=await client.query('SELECT title,brief,status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
+  const prev=await client.query('SELECT title,brief,status,project_id FROM tasks WHERE id=$1 FOR UPDATE',[id]);
   if(!prev.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
   if(prev.rows[0].status==='done'){await client.query('ROLLBACK');return res.status(409).json({error:'completed_task_read_only'});}
+  if(categoryId){const cats=await client.query("SELECT details->'categories' AS categories FROM audit_log WHERE target_type='project' AND target_id=$1 AND event='project.task_categories_updated' ORDER BY created_at DESC,id DESC LIMIT 1",[prev.rows[0].project_id]);if(!(cats.rows[0]?.categories||[]).some(c=>c.id===categoryId)){await client.query('ROLLBACK');return res.status(400).json({error:'category_not_found'});}}
   const q=await client.query("UPDATE tasks SET title=$2,brief=$3,status='in_progress',updated_at=NOW() WHERE id=$1 RETURNING *",[id,title,brief]);
+  if(categoryId!==undefined)await record(client,'task.category_assigned','task',id,{category_id:categoryId||''});
   await record(client,'task.ceo_edited','task',id,{previous:prev.rows[0],title,brief});
   await client.query('COMMIT');res.json({task:q.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
@@ -311,27 +313,55 @@ app.put('/api/tasks/:id/delivery-preferences',async(req,res)=>{
   res.json({formats,notice:'交付格式已保存。檔案不會在尚未完成的 AI 任務中憑空生成。'});
  }catch(e){await client.query('ROLLBACK');sendError(res,e)}finally{client.release()}
 });
+
+/* Project-scoped task categories, persisted in the existing audit log. */
+app.get('/api/task-categories',async(req,res)=>{
+ const projectId=req.query.project_id;
+ if(!uuid(projectId))return res.status(400).json({error:'invalid_project_id'});
+ try{
+  const p=await db.query('SELECT id FROM projects WHERE id=$1',[projectId]);
+  if(!p.rowCount)return res.status(404).json({error:'project_not_found'});
+  const q=await db.query("SELECT details->'categories' AS categories FROM audit_log WHERE target_type='project' AND target_id=$1 AND event='project.task_categories_updated' ORDER BY created_at DESC,id DESC LIMIT 1",[projectId]);
+  res.json({categories:q.rows[0]?.categories||[]});
+ }catch(e){sendError(res,e);}
+});
+app.put('/api/task-categories',async(req,res)=>{
+ const projectId=req.body?.project_id,items=req.body?.categories;
+ if(!uuid(projectId)||!Array.isArray(items)||items.length>100||items.some(c=>!uuid(c?.id)||typeof c?.name!=='string'||!c.name.trim()||c.name.length>80)||new Set(items.map(c=>c.id)).size!==items.length||new Set(items.map(c=>c.name.trim())).size!==items.length)return res.status(400).json({error:'invalid_categories'});
+ const categories=items.map(c=>({id:c.id,name:c.name.trim()}));
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const p=await client.query('SELECT id FROM projects WHERE id=$1 FOR UPDATE',[projectId]);
+  if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  await record(client,'project.task_categories_updated','project',projectId,{categories});
+  await client.query('COMMIT');res.json({categories});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+
 app.get('/api/tasks', async(req,res) => {
  const projectId=req.query.project_id;
  if(projectId && !uuid(projectId))return res.status(400).json({error:'invalid_project_id'});
  try {const q=projectId ? await db.query('SELECT * FROM tasks WHERE project_id=$1 ORDER BY created_at DESC LIMIT 200',[projectId])
  : await db.query('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 200');
- const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);const archive=await db.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[t.id]);const final=await db.query("SELECT details->>'content' AS content,created_at FROM audit_log WHERE target_type='task' AND target_id=$1 AND event='task.ceo_final_decision' ORDER BY created_at DESC LIMIT 1",[t.id]);return {...t,has_activity:Boolean(a.rows[0]?.has_activity),is_archived:archive.rows[0]?.event==='task.archived',final_decision:final.rows[0]?.content||null,final_decided_at:final.rows[0]?.created_at||null};}));res.json({tasks});}
+ const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);const archive=await db.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[t.id]);const final=await db.query("SELECT details->>'content' AS content,created_at FROM audit_log WHERE target_type='task' AND target_id=$1 AND event='task.ceo_final_decision' ORDER BY created_at DESC LIMIT 1",[t.id]);const category=await db.query("SELECT details->>'category_id' AS category_id FROM audit_log WHERE target_type='task' AND target_id=$1 AND event='task.category_assigned' ORDER BY created_at DESC,id DESC LIMIT 1",[t.id]);return {...t,category_id:category.rows[0]?.category_id||'',has_activity:Boolean(a.rows[0]?.has_activity),is_archived:archive.rows[0]?.event==='task.archived',final_decision:final.rows[0]?.content||null,final_decided_at:final.rows[0]?.created_at||null};}));res.json({tasks});}
  catch(e){sendError(res,e);}
 });
 app.post('/api/tasks', async(req,res) => {
- const projectId=req.body?.project_id,title=txt(req.body?.title,160),brief=txt(req.body?.brief,8000),role=txt(req.body?.assigned_role,32)||'chief_of_staff';
- if(!uuid(projectId)||!title||!ROLES[role])return res.status(400).json({error:'invalid_task'});
+ const projectId=req.body?.project_id,categoryId=req.body?.category_id||'',title=txt(req.body?.title,160),brief=txt(req.body?.brief,8000),role=txt(req.body?.assigned_role,32)||'chief_of_staff';
+ if(!uuid(projectId)||(categoryId&&!uuid(categoryId))||!title||!ROLES[role])return res.status(400).json({error:'invalid_task'});
  const client=await db.connect();
  try{
   await client.query('BEGIN');
   const p=await client.query('SELECT id FROM projects WHERE id=$1',[projectId]);
   if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  if(categoryId){const cats=await client.query("SELECT details->'categories' AS categories FROM audit_log WHERE target_type='project' AND target_id=$1 AND event='project.task_categories_updated' ORDER BY created_at DESC,id DESC LIMIT 1",[projectId]);if(!(cats.rows[0]?.categories||[]).some(c=>c.id===categoryId)){await client.query('ROLLBACK');return res.status(400).json({error:'category_not_found'});}}
   const direct=Boolean(req.body?.ceo_assign_to_chief)&&Boolean(req.ceoSession);
   const q=await client.query('INSERT INTO tasks(project_id,title,brief,assigned_role,status) VALUES($1,$2,$3,$4,$5) RETURNING *',
    [projectId,title,brief,'chief_of_staff',direct?'approved':'proposed']);
   let approval=null;
   if(!direct)approval=(await client.query('INSERT INTO approvals(task_id) VALUES($1) RETURNING *',[q.rows[0].id])).rows[0];
+  if(categoryId)await record(client,'task.category_assigned','task',q.rows[0].id,{category_id:categoryId});
   await record(client,direct?'task.ceo_assigned_to_chief':'task.proposed','task',q.rows[0].id);
   await client.query('COMMIT');
   res.status(201).json({task:q.rows[0],approval,chief_plan_required:direct,notice:direct?'CEO 任務已交付幕僚長，待提出規劃方案；尚未啟動部門執行。':'待 CEO 審批'});
