@@ -404,7 +404,7 @@ function renderProjectCards(){
  const rows=projectCache.filter(p=>{
   const completed=p.status==='closed'||p.stage==='completed';
   const planned=['draft','planning'].includes(p.stage);
-  const filter=projectFilter==='all'||(projectFilter==='closed'&&completed)||(projectFilter==='planning'&&!completed&&planned)||(projectFilter==='active'&&!completed&&!planned);
+  const filter=projectFilter==='all'||(projectFilter==='closed'&&completed)||(projectFilter==='planning'&&!completed&&planned);
   return filter&&(p.name+' '+(p.goal||'')).toLocaleLowerCase('zh-TW').includes(query);
  });
  if(!rows.length){root.append(el('p','helper','沒有符合條件的專案。'));return;}
@@ -413,7 +413,7 @@ function renderProjectCards(){
   const visual=p.name.match(/POS|收銀/i)?'▣':p.name.match(/AI|SKAI/i)?'✦':p.name.match(/盆栽|森林|植物/i)?'🌳':p.name.match(/FFM|品牌|食食/i)?'◈':'▤';
   const graphic=el('span','project-graphic',visual);const body=el('span','project-row-main');
   body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
-  const stage=el('span','status-pill',p.status==='closed'?'已完成':p.stage==='active'?'進行中':'規劃中');
+  const stage=el('span','status-pill',p.status==='closed'?'已完成':'規劃中');
   const amount=Number(p.progress);const known=p.progress!==undefined&&p.progress!==null&&Number.isFinite(amount);
   const meter=el('span','project-row-meter');const track=el('span','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=(known?Math.min(100,Math.max(0,amount)):0)+'%';track.append(fill);
   meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));
@@ -442,6 +442,8 @@ async function openQuickProject(project){
  const panel=$('projectQuickDetail');if(!panel)return;
  panel.hidden=false;activeQuickProjectId=project.id;$('quickProjectName').textContent=project.name;
  $('quickProjectGoal').textContent='專案期限：'+(project.deadline||'尚未設定');
+ const remaining=$('quickProjectRemaining');remaining.hidden=!project.deadline;
+ if(project.deadline){const parts=project.deadline.split('-').map(Number);const today=new Date();const days=Math.round((Date.UTC(parts[0],parts[1]-1,parts[2])-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000);remaining.textContent=days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';remaining.classList.toggle('is-overdue',days<0);}
  const notesPanel=$('quickProjectNotesPanel');const fullNotes=$('quickProjectNotes');
  fullNotes.textContent=project.notes||'';
  notesPanel.hidden=!String(project.notes||'').trim();fullNotes.hidden=true;
@@ -663,7 +665,8 @@ async function openTaskDetails(task,container){
  const heading=el('div','task-detail-heading');
  const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'));
  const edit=el('button','outline-btn task-edit-top',latest.status==='done'?'已決議':'編輯');edit.type='button';edit.disabled=latest.status==='done';
- heading.append(headingLeft,edit);if(latest.is_archived)edit.remove();
+ const closeDetails=el('button','outline-btn task-detail-close','收起');closeDetails.type='button';closeDetails.addEventListener('click',()=>{container.hidden=true;});
+ const headingActions=el('div','task-detail-heading-actions');headingActions.append(edit,closeDetails);heading.append(headingLeft,headingActions);if(latest.is_archived)edit.remove();
  const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
  const plain=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'').trim();
  body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
