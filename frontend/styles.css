@@ -1459,3 +1459,10 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-tasks .task-remaining-days.task-deadline-urgent{color:#b84b20;background:#fff0e6}
 #page-tasks .visual-task-row{grid-template-columns:26px minmax(0,1fr) auto minmax(75px,130px) auto}
 @media(max-width:760px){#page-tasks .visual-task-row{grid-template-columns:26px minmax(0,1fr) auto;gap:8px}#page-tasks .task-remaining-days{grid-column:2;grid-row:auto}#page-tasks .task-project-name{grid-column:2;text-align:left}}
+
+/* Place countdown directly below task status at the far right */
+#page-tasks .visual-task-row.actionable-task-row{grid-template-columns:26px minmax(0,1fr) minmax(75px,130px) auto 100px}
+#page-tasks .task-status-column{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:5px;min-width:0;grid-column:5;grid-row:1}
+#page-tasks .task-status-column .task-remaining-days{justify-self:auto;text-align:center}
+#page-tasks .task-row-actions{grid-column:4;grid-row:1}
+@media(max-width:1100px){#page-tasks .visual-task-row.actionable-task-row{grid-template-columns:26px minmax(0,1fr) auto}#page-tasks .task-status-column{grid-column:3;grid-row:1;align-self:start}#page-tasks .task-row-actions{grid-column:2/4;grid-row:2;justify-self:start}#page-tasks .task-project-name{grid-column:2;grid-row:2;display:none}}
