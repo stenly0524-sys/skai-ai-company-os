@@ -1569,3 +1569,6 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-projects .listing-header .project-listing-heading .center-heading-label{margin-left:0}
 #page-projects .listing-card,#page-tasks .listing-card{box-sizing:border-box}
 #page-projects .listing-header,#page-tasks .listing-header{padding-left:0}
+
+#page-projects .listing-header .project-listing-heading{padding-left:12px}
+@media(max-width:720px){#page-projects .listing-header .project-listing-heading{padding-left:12px}}
