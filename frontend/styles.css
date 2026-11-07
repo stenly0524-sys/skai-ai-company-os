@@ -1521,3 +1521,12 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-projects .project-task-title-line .project-task-duration{flex-shrink:0;white-space:nowrap;background:#d6e9fc;color:#265c91;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:650}
 /* Remove legacy approval status presentation without altering stored history */
 #page-approvals{display:none!important}
+
+/* Project task statistics below project heading */
+#page-projects .project-task-stats{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:9px 0 13px}
+#page-projects .project-task-stat{display:inline-flex;align-items:center;border-radius:7px;padding:6px 10px;font-size:12px;font-weight:650;background:#e9f1fb;color:#285e91}
+#page-projects .project-task-stat-done{background:#e6f4ee;color:#247455}
+#page-projects .project-task-stat-ongoing{background:#fff0df;color:#946027}
+/* Match the project deadline date field spacing to the project name field */
+#projectForm>label,#projectEditForm>label{display:flex;flex-direction:column;gap:8px;margin:0}
+#projectForm input[type=date],#projectEditForm input[type=date]{width:100%;min-height:42px;box-sizing:border-box;margin:0;font:inherit}
