@@ -1698,3 +1698,45 @@ dialog button.icon-close:hover,
 dialog button.project-edit-close:hover{background:transparent!important;color:#2563eb}
 dialog button.icon-close:focus-visible,
 dialog button.project-edit-close:focus-visible{outline:2px solid #2563eb!important;outline-offset:2px;border-radius:4px!important}
+
+/* SKAI OS approved headquarters dashboard header: logo left, date over icon row. */
+.home-skai-brand{display:none}
+body[data-current-page="home"] .topbar{
+ position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ align-items:center!important;column-gap:10px!important;min-height:138px!important;height:auto!important;
+ padding:14px 10px 24px!important;margin-bottom:14px!important;overflow:visible!important;
+ background:linear-gradient(170deg,#f9fcff 0%,#edf6ff 65%,#d8eaff 100%)!important;
+ border-radius:24px!important;
+}
+body[data-current-page="home"] .topbar::after{
+ content:"";pointer-events:none;position:absolute;left:0;right:0;bottom:3px;height:23px;
+ border-bottom:2px solid rgba(255,255,255,.95);border-radius:0 0 60% 35%;
+}
+body[data-current-page="home"] .topbar .topbar-title{display:none!important}
+body[data-current-page="home"] .home-skai-brand{display:flex!important;grid-column:1;grid-row:1;align-items:center;min-width:0;width:100%;max-width:240px}
+body[data-current-page="home"] .home-skai-brand svg{display:block;width:100%;height:auto;max-height:120px;filter:drop-shadow(0 3px 6px rgba(45,130,210,.12))}
+body[data-current-page="home"] .header-clock{display:block!important;position:absolute!important;top:12px;right:10px;white-space:nowrap;color:#193b75;font-size:12px!important;font-weight:750;line-height:1.4}
+body[data-current-page="home"] .top-actions{grid-column:2!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;margin-top:30px!important;flex-wrap:nowrap!important;max-width:none!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:42px!important;height:42px!important;min-width:42px!important;flex:0 0 42px!important;
+ padding:7px!important;margin:0!important;border:1px solid #d0e2fb!important;
+ border-radius:50%!important;background:linear-gradient(140deg,#fff,#edf5ff)!important;
+ color:#2273d6!important;box-shadow:0 5px 13px rgba(55,120,195,.15)!important;
+}
+body[data-current-page="home"] .top-actions .mobile-settings-button{font-size:24px!important;line-height:1}
+body[data-current-page="home"] .top-actions .header-bell svg{width:24px;height:24px}
+body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{width:27px!important;height:27px!important}
+body[data-current-page="home"] .top-actions .offline-chip{display:none!important}
+body[data-current-page="home"] .header-bell-count{top:-3px;right:-2px}
+@media(max-width:480px){
+ body[data-current-page="home"] .topbar{min-height:118px!important;padding:12px 6px 19px!important;column-gap:4px!important}
+ body[data-current-page="home"] .home-skai-brand{max-width:175px}
+ body[data-current-page="home"] .header-clock{top:9px;right:6px;font-size:11px!important}
+ body[data-current-page="home"] .top-actions{gap:5px!important;margin-top:26px!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button,
+ body[data-current-page="home"] .top-actions .header-bell,
+ body[data-current-page="home"] .top-actions .avatar-ceo{width:36px!important;height:36px!important;min-width:36px!important;flex-basis:36px!important;padding:5px!important}
+}
