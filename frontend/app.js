@@ -413,7 +413,6 @@ async function openProjectProgress(project){
   const all=[...categories,{id:'',name:'未分類'}];
   for(const c of all){
    const group=tasks.filter(t=>c.id?t.category_id===c.id:!categories.some(x=>x.id===t.category_id));
-   if(!group.length&&c.id)continue;
    const count=group.filter(t=>t.status==='done').length,ratio=group.length?Math.round(count/group.length*100):0;
    const row=el('div','project-progress-category');
    row.append(el('strong','',c.name),el('span','',ratio+'%（'+count+'/'+group.length+'）'));
@@ -442,7 +441,7 @@ function renderProjectCards(){
   const amount=Number(p.task_progress??0);const known=Number.isFinite(amount);
   const meter=el('span','project-row-meter');const track=el('span','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=(known?Math.min(100,Math.max(0,amount)):0)+'%';track.append(fill);
   meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));
-  const row=el('div','project-manage-row');const side=el('div','project-manage-actions');const progress=el('button',p.is_archived?'danger-outline':'outline-btn project-progress-action',p.is_archived?'刪除':'排程');progress.type='button';progress.addEventListener('click',()=>p.is_archived?permanentlyDeleteProjectRecord(p):openProjectProgress(p));side.append(progress);const del=el('button',p.is_archived?'outline-btn':'danger-outline',p.is_archived?'復原':'刪除');del.type='button';del.setAttribute('aria-label',(p.is_archived?'復原':'封存')+'專案 '+p.name);del.addEventListener('click',()=>p.is_archived?restoreProjectRecord(p):deleteProjectRecord(p));side.append(del);row.append(button,side);root.append(row);
+  const row=el('div','project-manage-row');const side=el('div','project-manage-actions');if(!p.is_archived){const viewProgress=el('button','outline-btn project-progress-action','進度');viewProgress.type='button';viewProgress.addEventListener('click',()=>openProjectProgress(p));side.append(viewProgress);}const progress=el('button',p.is_archived?'danger-outline':'outline-btn project-progress-action',p.is_archived?'刪除':'排程');progress.type='button';progress.addEventListener('click',()=>p.is_archived?permanentlyDeleteProjectRecord(p):openProjectProgress(p));side.append(progress);const del=el('button',p.is_archived?'outline-btn':'danger-outline',p.is_archived?'復原':'刪除');del.type='button';del.setAttribute('aria-label',(p.is_archived?'復原':'封存')+'專案 '+p.name);del.addEventListener('click',()=>p.is_archived?restoreProjectRecord(p):deleteProjectRecord(p));side.append(del);row.append(button,side);root.append(row);
  }
 }
 async function jumpToTaskDetail(taskId){
