@@ -101,6 +101,8 @@ app.get('/api/projects', async (_req,res) => {
  COALESCE(task_counts.completed_tasks,0)::integer AS completed_tasks,
  CASE WHEN COALESCE(task_counts.total_tasks,0)=0 THEN 0
  ELSE ROUND(100.0*task_counts.completed_tasks/task_counts.total_tasks)::integer END AS task_progress
+,
+ (SELECT a.event='project.archived' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.archived','project.restored') ORDER BY a.created_at DESC,a.id DESC LIMIT 1) AS is_archived
  FROM projects p
  LEFT JOIN LATERAL (
  SELECT COUNT(*) AS total_tasks,COUNT(*) FILTER (WHERE t.status='done') AS completed_tasks
@@ -137,6 +139,31 @@ app.put('/api/projects/:id',async(req,res)=>{
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
 // CEO-only deletion endpoints. Existing session authentication and CSRF middleware apply.
+app.post('/api/projects/:id/archive',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_project_id'});
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const p=await client.query('SELECT id FROM projects WHERE id=$1 FOR UPDATE',[id]);
+  if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  const running=await client.query("SELECT r.id FROM orchestration_runs r JOIN tasks t ON t.id=r.task_id WHERE t.project_id=$1 AND r.plan_status='running' LIMIT 1",[id]);
+  if(running.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'project_has_running_ai_jobs'});}
+  await record(client,'project.archived','project',id);
+  await client.query('COMMIT');res.json({ok:true,is_archived:true});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+app.post('/api/projects/:id/restore',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_project_id'});
+ const client=await db.connect();
+ try{
+  await client.query('BEGIN');
+  const p=await client.query('SELECT id FROM projects WHERE id=$1 FOR UPDATE',[id]);
+  if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  await record(client,'project.restored','project',id);
+  await client.query('COMMIT');res.json({ok:true,is_archived:false});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+
 app.get('/api/projects/:id/deletion-preview', async(req,res)=>{
  const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_project_id'});
  try{
