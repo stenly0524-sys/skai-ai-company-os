@@ -120,6 +120,7 @@ async function loadProjects(){
  const old=select.value;select.replaceChildren(new Option('選擇專案',''));
  for(const p of projectCache)select.add(new Option(p.name,p.id));
  select.value=projectCache.some(x=>x.id===old)?old:'';
+ const taskSelector=$('taskProjectFilter');if(taskSelector){const chosen=taskSelector.value;taskSelector.replaceChildren(new Option('全部專案',''));for(const p of projectCache)taskSelector.add(new Option(p.name,p.id));taskSelector.value=projectCache.some(x=>x.id===chosen)?chosen:'';renderTaskCards();}
 }
 async function loadTasks(){
  const data=await api('/tasks');taskCache=data.tasks||[];renderTaskCards();
@@ -461,13 +462,16 @@ async function openQuickProject(project){
 }
 $('closeQuickDetail')?.addEventListener('click',()=>{$('projectQuickDetail').hidden=true;});
 $('toggleProjectNotes')?.addEventListener('click',()=>{const pre=$('quickProjectNotes');pre.hidden=!pre.hidden;const open=!pre.hidden;$('toggleProjectNotes').textContent=open?'收起完整方案':'查看完整方案';$('toggleProjectNotes').setAttribute('aria-expanded',String(open));});
+function taskDeadline(task){const match=(task.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】/);return match?.[1]||null;}
+function taskRemainingDays(task){const due=taskDeadline(task);if(!due)return null;const parts=due.split('-').map(Number);const deadline=Date.UTC(parts[0],parts[1]-1,parts[2]);const now=new Date();const today=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());return Math.round((deadline-today)/86400000);}
 function filteredTasks(){
  const q=$('taskSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
+ const projectId=$('taskProjectFilter')?.value||'';
  return taskCache.filter(t=>{
   const done=t.status==='done',inProgress=!done&&(Boolean(t.has_activity)||['in_progress','review'].includes(t.status)),pending=!done&&!inProgress;
   const filter=taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&pending)||(taskFilter==='in_progress'&&inProgress);
-  return filter&&(t.title+' '+(t.brief||'')).toLocaleLowerCase('zh-TW').includes(q);
- });
+  return filter&&(!projectId||t.project_id===projectId)&&(t.title+' '+(t.brief||'')).toLocaleLowerCase('zh-TW').includes(q);
+ }).sort((a,b)=>{if(!projectId){const da=taskDeadline(a)||'9999-12-31',db=taskDeadline(b)||'9999-12-31';if(da!==db)return da.localeCompare(db);}return String(b.created_at||'').localeCompare(String(a.created_at||''));});
 }
 function updateTaskSelection(){
  const visible=filteredTasks(),count=visible.filter(t=>selectedTaskIds.has(t.id)).length;
@@ -599,9 +603,9 @@ async function openTaskDetails(task,container){
  heading.append(headingLeft,edit);
  const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
  const plain=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'').trim();
- body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
- if(parsed)body.append(taskDetailLine('完成期限',parsed[1]));
- if(plain)body.append(taskDetailLine('工作內容',plain));
+ if(latest.status!=='done')body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
+ if(latest.status!=='done'&&parsed)body.append(taskDetailLine('完成期限',parsed[1]));
+ if(latest.status!=='done'&&plain)body.append(taskDetailLine('工作內容',plain));
  edit.addEventListener('click',()=>{
   $('taskEditId').value=latest.id;$('taskEditTitle').value=latest.title;
   const match=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
@@ -640,8 +644,9 @@ async function openTaskDetails(task,container){
   const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');
   const saved=(r.records||[]).filter(x=>x.event==='task.ceo_draft_decision');
   const lastFive=saved.slice(-5);
-  lastFive.forEach((x,i)=>drafts.append(taskDetailLine(decisionDraftLabel(saved.length-lastFive.length+i+1),x.details?.content||'')));
-  if(r.final)drafts.append(taskDetailLine('最終決策',r.final));
+  if(latest.status!=='done')lastFive.forEach((x,i)=>drafts.append(taskDetailLine(decisionDraftLabel(saved.length-lastFive.length+i+1),x.details?.content||'')));
+  if(latest.status==='done')drafts.append(taskDetailLine('最終決策結果',r.final||'尚無最終決策內容'));
+  else if(r.final)drafts.append(taskDetailLine('歷次最終決策',r.final));
   if(!(r.records||[]).length)records.append(el('p','helper','尚無編輯或決策記錄。'));
   let draftNumber=0;
   for(const x of r.records||[]){
@@ -661,6 +666,7 @@ function renderTaskCards(){
   label.append(checkbox);row.append(label,el('span','task-list-title',t.title),el('span','status-pill',statuses[t.status]||t.status));
   const project=projectCache.find(p=>p.id===t.project_id);
   row.append(el('small','task-project-name',project?.name||'未分類'));
+  const days=taskRemainingDays(t);if(days!==null){const label=t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';row.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
   const actions=el('div','task-row-actions');
   const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
   const remove=el('button','danger-outline','刪除');remove.type='button';remove.setAttribute('aria-label','刪除任務 '+t.title);remove.addEventListener('click',()=>deleteTaskRecord(t));actions.append(remove);
@@ -681,6 +687,7 @@ $('bulkDeleteTasks')?.addEventListener('click',async()=>{
 });
 $('projectSearch')?.addEventListener('input',renderProjectCards);
 $('taskSearch')?.addEventListener('input',renderTaskCards);
+$('taskProjectFilter')?.addEventListener('change',renderTaskCards);
 document.querySelectorAll('[data-project-filter]').forEach(b=>b.addEventListener('click',()=>{
  projectFilter=b.dataset.projectFilter;document.querySelectorAll('[data-project-filter]').forEach(x=>x.classList.toggle('active',x===b));renderProjectCards();
 }));
