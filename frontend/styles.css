@@ -1442,3 +1442,11 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #taskHistoryBody .task-history-edits{background:#f5f3ed;border-color:#e4ddca}
 #taskHistoryBody .task-history-group .task-detail-line{background:#ffffffb8;border:1px solid #ffffffd9;border-radius:8px;padding:9px 10px;margin:0;min-width:0;overflow-wrap:anywhere}
 #taskHistoryBody .task-history-group .helper{margin:0;font-size:12px}
+
+/* CEO final-decision confirmation matches SKAI OS white/blue dialog theme */
+.task-final-confirm-dialog{width:min(420px,calc(100vw - 24px));background:#fff;color:#253342}
+.task-final-confirm-content{padding:18px 20px 20px}
+.task-final-confirm-content p{font-size:14px;line-height:1.6;margin:0 0 20px;color:#40546c}
+.task-final-confirm-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.task-final-confirm-actions button{width:100%;min-width:0;min-height:42px}
+@media(max-width:600px){.task-final-confirm-content{padding:16px 15px}}
