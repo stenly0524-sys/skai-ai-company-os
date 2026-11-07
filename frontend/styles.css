@@ -1530,3 +1530,18 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Match the project deadline date field spacing to the project name field */
 #projectForm>label,#projectEditForm>label{display:flex;flex-direction:column;gap:8px;margin:0}
 #projectForm input[type=date],#projectEditForm input[type=date]{width:100%;min-height:42px;box-sizing:border-box;margin:0;font:inherit}
+
+/* Project header: compact spacing and inline explanatory text */
+#page-projects .listing-header{align-items:center;gap:10px;margin-bottom:7px}
+#page-projects .project-listing-heading{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+#page-projects .project-listing-heading h2,#page-projects .project-listing-heading .helper{margin:0}
+#page-projects .filter-tabs{margin-top:4px;margin-bottom:7px;gap:6px}
+#page-projects .filter-tab{padding-top:6px;padding-bottom:6px}
+#page-projects .project-quick-detail .section-top{margin-bottom:4px}
+#page-projects .project-deadline-line{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+#page-projects .project-deadline-line #quickProjectGoal{margin:0}
+#page-projects .project-deadline-remaining{display:inline-flex;align-items:center;padding:5px 10px;border-radius:7px;background:#d6e9fc;color:#265c91;font-size:12px;font-weight:650;white-space:nowrap}
+#page-projects .project-deadline-remaining.is-overdue{background:#ffe6e4;color:#a33e39}
+#page-projects .project-deadline-remaining[hidden]{display:none}
+#page-tasks .task-detail-heading-actions{display:flex;align-items:center;gap:8px}
+@media(max-width:700px){#page-projects .project-listing-heading{gap:5px 9px}}
