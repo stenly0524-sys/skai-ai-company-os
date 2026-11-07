@@ -180,9 +180,21 @@ app.put('/api/tasks/:id/ceo-edit',async(req,res)=>{
   const prev=await client.query('SELECT title,brief,status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
   if(!prev.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
   if(prev.rows[0].status==='done'){await client.query('ROLLBACK');return res.status(409).json({error:'completed_task_read_only'});}
-  const q=await client.query('UPDATE tasks SET title=$2,brief=$3,updated_at=NOW() WHERE id=$1 RETURNING *',[id,title,brief]);
+  const q=await client.query('UPDATE tasks SET title=$2,brief=$3,status='in_progress',updated_at=NOW() WHERE id=$1 RETURNING *',[id,title,brief]);
   await record(client,'task.ceo_edited','task',id,{previous:prev.rows[0],title,brief});
   await client.query('COMMIT');res.json({task:q.rows[0]});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+app.post('/api/tasks/:id/reopen-decision',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
+ const client=await db.connect();
+ try{await client.query('BEGIN');
+  const previous=await client.query('SELECT status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
+  if(!previous.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  if(previous.rows[0].status!=='done'){await client.query('ROLLBACK');return res.status(409).json({error:'task_not_completed'});}
+  const updated=await client.query("UPDATE tasks SET status='in_progress',updated_at=NOW() WHERE id=$1 RETURNING *",[id]);
+  await record(client,'task.ceo_reopened_decision','task',id,{from:'done',to:'in_progress'});
+  await client.query('COMMIT');res.json({task:updated.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
 app.post('/api/tasks/:id/ceo-decision',async(req,res)=>{
@@ -194,7 +206,8 @@ app.post('/api/tasks/:id/ceo-decision',async(req,res)=>{
   if(!prev.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
   if(prev.rows[0].status==='done'){await client.query('ROLLBACK');return res.status(409).json({error:'task_already_completed'});}
   await record(client,action==='save'?'task.ceo_draft_decision':'task.ceo_final_decision','task',id,{content});
-  let task=prev.rows[0];
+  if(action==='save')await client.query("UPDATE tasks SET status='in_progress',updated_at=NOW() WHERE id=$1",[id]);
+  let task=action==='save'?(await client.query('SELECT * FROM tasks WHERE id=$1',[id])).rows[0]:prev.rows[0];
   if(action==='decide'){
    const q=await client.query("UPDATE tasks SET status='done',progress=100,updated_at=NOW() WHERE id=$1 RETURNING *",[id]);task=q.rows[0];
    await client.query("UPDATE approvals SET status='rejected',note='CEO 已直接決策結案',decided_at=NOW() WHERE task_id=$1 AND status='pending'",[id]);
@@ -256,7 +269,8 @@ app.get('/api/tasks', async(req,res) => {
  const projectId=req.query.project_id;
  if(projectId && !uuid(projectId))return res.status(400).json({error:'invalid_project_id'});
  try {const q=projectId ? await db.query('SELECT * FROM tasks WHERE project_id=$1 ORDER BY created_at DESC LIMIT 200',[projectId])
- : await db.query('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 200');res.json({tasks:q.rows});}
+ : await db.query('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 200');
+ const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);return {...t,has_activity:Boolean(a.rows[0]?.has_activity)};}));res.json({tasks});}
  catch(e){sendError(res,e);}
 });
 app.post('/api/tasks', async(req,res) => {
