@@ -1685,3 +1685,7 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 .project-avatar-controls{display:flex;align-items:center;gap:12px;width:100%;min-width:0}
 .project-avatar-controls .project-avatar-options{display:flex!important;flex-direction:column;align-items:stretch;justify-content:center;gap:9px;flex:0 0 auto;margin:0}
 .project-avatar-controls .project-avatar-options button{min-width:100px;min-height:38px;text-align:center}
+
+/* Consistent X close control in project editor. */
+#projectEditDialog .project-edit-close{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;min-width:36px;padding:0;border:1px solid #d6e2f0;border-radius:50%;background:#f7faff;color:#526987;font-family:Arial,sans-serif;font-size:26px;font-weight:400;line-height:1;cursor:pointer}
+#projectEditDialog .project-edit-close:hover{background:#eaf2ff}
