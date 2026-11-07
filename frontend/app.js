@@ -645,8 +645,8 @@ async function openTaskDetails(task,container){
   if(!(r.records||[]).length)records.append(el('p','helper','尚無編輯或決策記錄。'));
   let draftNumber=0;
   for(const x of r.records||[]){
-   const label=x.event==='task.ceo_edited'?'編輯工作內容':x.event==='task.ceo_draft_decision'?decisionDraftLabel(++draftNumber):'CEO 最終決定';
-   const item=taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||'');item.dataset.recordType=x.event==='task.ceo_edited'?'edit':'decision';records.append(item);
+   const label=x.event==='task.ceo_edited'?'編輯工作內容':x.event==='task.ceo_draft_decision'?decisionDraftLabel(++draftNumber):x.event==='task.ceo_reopened_decision'?'方案重議':'CEO 最終決定';
+   const item=taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||(x.event==='task.ceo_reopened_decision'?'已重新開啟決策':'待檢視變更詳情'));item.dataset.recordType=x.event==='task.ceo_edited'?'edit':'decision';records.append(item);
   }
  }catch(e){records.append(el('p','helper','讀取執行記錄失敗：'+e.message));}
 }
