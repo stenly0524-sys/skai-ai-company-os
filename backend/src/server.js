@@ -94,10 +94,11 @@ app.get('/api/dashboard', async (_req,res) => {
   res.json({counts:q.rows[0],source:'postgresql',notice:'僅統計 SKAI 已保存資料'});
  }catch(e){sendError(res,e)}
 });
+function validProjectAvatar(value){return typeof value==='string'&&value.length<=180000&&/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value);}
 app.get('/api/projects', async (_req,res) => {
  try { const q=await db.query(`SELECT p.*,
  (SELECT a.details->>'deadline' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') ORDER BY a.created_at DESC LIMIT 1) AS deadline,
- COALESCE(task_counts.total_tasks,0)::integer AS total_tasks,
+ (SELECT a.details->>'avatar' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') AND a.details ? 'avatar' ORDER BY a.created_at DESC,a.id DESC LIMIT 1) AS avatar,\n COALESCE(task_counts.total_tasks,0)::integer AS total_tasks,
  COALESCE(task_counts.completed_tasks,0)::integer AS completed_tasks,
  CASE WHEN COALESCE(task_counts.total_tasks,0)=0 THEN 0
  ELSE ROUND(100.0*task_counts.completed_tasks/task_counts.total_tasks)::integer END AS task_progress
@@ -116,14 +117,14 @@ app.get('/api/projects', async (_req,res) => {
  catch(e){sendError(res,e);}
 });
 app.post('/api/projects', async(req,res) => {
- const name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000),deadline=txt(req.body?.deadline,10);
+ const name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000),deadline=txt(req.body?.deadline,10),avatar=req.body?.avatar;
  if(deadline&&!/^\d{4}-\d{2}-\d{2}$/.test(deadline))return res.status(400).json({error:'invalid_project_deadline'});
- if(!name) return res.status(400).json({error:'name_required'});
+ if(!name) return res.status(400).json({error:'name_required'});\n if(avatar!==undefined&&!validProjectAvatar(avatar))return res.status(400).json({error:'invalid_project_avatar'});
  const client=await db.connect();
  try{
   await client.query('BEGIN');
   const q=await client.query('INSERT INTO projects(name,goal) VALUES($1,$2) RETURNING *',[name,goal]);
-  await record(client,'project.created','project',q.rows[0].id,{deadline});
+  await record(client,'project.created','project',q.rows[0].id,{deadline,...(avatar!==undefined?{avatar}:{})});
   await client.query('COMMIT');res.status(201).json({project:q.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
@@ -134,7 +135,7 @@ app.put('/api/projects/:id',async(req,res)=>{
  try{await client.query('BEGIN');
   const q=await client.query('UPDATE projects SET name=$2,goal=$3 WHERE id=$1 RETURNING *',[id,name,goal]);
   if(!q.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
-  await record(client,'project.updated','project',id,{name,goal,deadline});
+  await record(client,'project.updated','project',id,{name,goal,deadline,...(avatar!==undefined?{avatar}:{})});
   await client.query('COMMIT');res.json({project:{...q.rows[0],deadline}});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
