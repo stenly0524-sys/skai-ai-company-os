@@ -429,7 +429,7 @@ function renderProjectCards(){
  const rows=projectCache.filter(p=>{
   const completed=p.status==='closed'||p.stage==='completed';
   const planned=['draft','planning'].includes(p.stage);
-  const filter=projectFilter==='all'||(projectFilter==='closed'&&completed)||(projectFilter==='planning'&&!completed&&planned);
+  const archived=Boolean(p.is_archived);const filter=projectFilter==='archived'?archived:!archived&&(projectFilter==='all'||(projectFilter==='closed'&&completed)||(projectFilter==='planning'&&!completed&&planned));
   return filter&&(p.name+' '+(p.goal||'')).toLocaleLowerCase('zh-TW').includes(query);
  });
  if(!rows.length){root.append(el('p','helper','沒有符合條件的專案。'));return;}
@@ -438,11 +438,11 @@ function renderProjectCards(){
   const visual=p.name.match(/POS|收銀/i)?'▣':p.name.match(/AI|SKAI/i)?'✦':p.name.match(/盆栽|森林|植物/i)?'🌳':p.name.match(/FFM|品牌|食食/i)?'◈':'▤';
   const graphic=el('span','project-graphic',visual);const body=el('span','project-row-main');
   body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
-  const stage=el('span','status-pill',p.status==='closed'?'已完成':'規劃中');
+  const stage=el('span','status-pill',p.is_archived?'已封存':p.status==='closed'?'已完成':'規劃中');
   const amount=Number(p.task_progress??0);const known=Number.isFinite(amount);
   const meter=el('span','project-row-meter');const track=el('span','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=(known?Math.min(100,Math.max(0,amount)):0)+'%';track.append(fill);
   meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));
-  const row=el('div','project-manage-row');const side=el('div','project-manage-actions');const progress=el('button','outline-btn project-progress-action','進度');progress.type='button';progress.addEventListener('click',()=>openProjectProgress(p));side.append(progress);const del=el('button','danger-outline','刪除');del.type='button';del.setAttribute('aria-label','刪除專案 '+p.name);del.addEventListener('click',()=>deleteProjectRecord(p));side.append(del);row.append(button,side);root.append(row);
+  const row=el('div','project-manage-row');const side=el('div','project-manage-actions');const progress=el('button','outline-btn project-progress-action','排程');progress.type='button';progress.addEventListener('click',()=>openProjectProgress(p));side.append(progress);const del=el('button',p.is_archived?'outline-btn':'danger-outline',p.is_archived?'復原':'刪除');del.type='button';del.setAttribute('aria-label',(p.is_archived?'復原':'封存')+'專案 '+p.name);del.addEventListener('click',()=>p.is_archived?restoreProjectRecord(p):deleteProjectRecord(p));side.append(del);row.append(button,side);root.append(row);
  }
 }
 async function jumpToTaskDetail(taskId){
@@ -624,15 +624,17 @@ async function refreshManagement(){
  await Promise.allSettled([loadDataIndex(),loadOrchestrations()]);
 }
 async function deleteProjectRecord(project){
- let preview;
- try{preview=await api('/projects/'+encodeURIComponent(project.id)+'/deletion-preview');}
- catch(e){return showToast('無法檢查專案關聯：'+e.message);}
- const counts=preview.counts||{};
- if(preview.blocked)return showToast('此專案有正在執行的 AI 工作，不能刪除');
- const message='永久刪除專案「'+project.name+'」？\n關聯任務：'+(counts.tasks??0)+'；對話：'+(counts.conversations??0)+'；AI 工作規劃：'+(counts.runs??0)+'。\n刪除後無法復原。';
- if(!confirm(message))return;
- try{await api('/projects/'+encodeURIComponent(project.id),{method:'DELETE'});$('projectQuickDetail').hidden=true;showToast('專案已刪除');await refreshManagement();}
- catch(e){showToast('刪除失敗：'+e.message);}
+ if(!(await taskActionConfirm('是否將此專案封存？','確認','取消')))return;
+ try{
+  await api('/projects/'+encodeURIComponent(project.id)+'/archive',{method:'POST'});
+  if(activeQuickProjectId===project.id){$('projectQuickDetail').hidden=true;activeQuickProjectId=null;}
+  showToast('專案已移至已封存');await refreshManagement();
+ }catch(e){showToast('封存失敗：'+e.message);}
+}
+async function restoreProjectRecord(project){
+ if(!(await taskActionConfirm('是否將此專案復原？','確認','取消')))return;
+ try{await api('/projects/'+encodeURIComponent(project.id)+'/restore',{method:'POST'});showToast('專案已復原');await refreshManagement();}
+ catch(e){showToast('復原失敗：'+e.message);}
 }
 function taskActionConfirm(message,yesLabel='確定',noLabel='取消'){
  const dlg=$('taskArchiveConfirmDialog');$('taskArchiveConfirmMessage').textContent=message;$('taskArchiveConfirmYes').textContent=yesLabel;$('taskArchiveConfirmNo').textContent=noLabel;
