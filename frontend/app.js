@@ -578,7 +578,7 @@ function renderCategoryList(){
    b.addEventListener('click',async()=>{const next=[...taskCategories];[next[i],next[i+delta]]=[next[i+delta],next[i]];try{await saveTaskCategories(next);}catch(e){showToast('排序失敗：'+e.message);}});controls.append(b);
   }
   const del=el('button','danger-outline','刪除');del.type='button';del.addEventListener('click',async()=>{
-   if(!confirm('刪除類別「'+c.name+'」？原有任務將歸為未分類。'))return;
+   if(!(await taskActionConfirm('刪除類別「'+c.name+'」？原有任務將歸為未分類。','確認','取消')))return;
    try{await saveTaskCategories(taskCategories.filter(x=>x.id!==c.id));}catch(e){showToast('刪除失敗：'+e.message);}
   });controls.append(del);row.append(controls);root.append(row);
  });
