@@ -1514,3 +1514,10 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-projects .project-task-entry-info{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;flex:1}
 #page-projects .project-task-decision{font-size:12px;font-weight:400;color:#455b75;white-space:pre-wrap;overflow-wrap:anywhere}
 #page-projects .project-task-duration{font-size:11px;font-weight:600;color:#47729e}
+
+/* Finalized task duration is a right-aligned pill beside the task title */
+#page-projects .project-task-title-line{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0}
+#page-projects .project-task-title-line .project-task-entry-title{flex:1;min-width:0}
+#page-projects .project-task-title-line .project-task-duration{flex-shrink:0;white-space:nowrap;background:#d6e9fc;color:#265c91;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:650}
+/* Remove legacy approval status presentation without altering stored history */
+#page-approvals{display:none!important}
