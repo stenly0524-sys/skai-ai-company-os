@@ -1486,3 +1486,7 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-tasks .actionable-task-row .task-title-project-group{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;align-items:center;column-gap:7px;row-gap:3px;min-width:0;margin-top:3px}
 #page-tasks .actionable-task-row .task-title-project-group .task-list-title{margin:0;min-width:0;overflow-wrap:anywhere}
 #page-tasks .actionable-task-row .task-project-tag{display:inline-flex;align-items:center;max-width:100%;padding:3px 8px;border-radius:7px;background:#e5f2ff;color:#2864a5;font-size:11px;font-weight:650;line-height:1.35;overflow-wrap:anywhere}
+
+/* Remove border from cancel/no button in task delete and restore confirmation */
+#taskArchiveConfirmDialog #taskArchiveConfirmNo{border:0!important;box-shadow:none!important;background:#fff}
+#taskArchiveConfirmDialog #taskArchiveConfirmNo:hover{border:0!important;background:#f4f6f9}
