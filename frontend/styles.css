@@ -1563,3 +1563,9 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-projects .visual-project-row .project-row-main{grid-column:2;grid-row:1;min-width:0;overflow:hidden}
 #page-projects .visual-project-row .project-row-main b{display:block;overflow-wrap:anywhere}
 @media(max-width:720px){#page-projects .visual-project-row{grid-template-columns:48px minmax(0,1fr) auto 14px;column-gap:10px}#page-projects .visual-project-row .project-graphic{width:44px;height:44px}#page-projects .visual-project-row .project-row-main{grid-column:2;grid-row:1}#page-projects .visual-project-row .project-row-meter{grid-column:2/4;grid-row:2}#page-projects .visual-project-row .status-pill{grid-column:3;grid-row:1}#page-projects .visual-project-row .project-arrow{grid-column:4;grid-row:1}#page-projects .center-heading-label,#page-tasks .center-heading-label{font-size:20px;padding:8px 12px}}
+
+/* Match Projects heading horizontal position with Tasks heading */
+#page-projects .listing-header .project-listing-heading{margin-left:0;padding-left:0;transform:none}
+#page-projects .listing-header .project-listing-heading .center-heading-label{margin-left:0}
+#page-projects .listing-card,#page-tasks .listing-card{box-sizing:border-box}
+#page-projects .listing-header,#page-tasks .listing-header{padding-left:0}
