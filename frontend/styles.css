@@ -1788,3 +1788,24 @@ body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{color:#176cdb
  body[data-current-page="home"] .top-actions .header-bell,
  body[data-current-page="home"] .top-actions .avatar-ceo{width:37px!important;height:37px!important;min-width:37px!important;flex-basis:37px!important}
 }
+
+/* Final SKAI OS dashboard brand + consistent line icon treatment. */
+body[data-current-page="home"] .home-skai-brand{max-width:250px!important}
+body[data-current-page="home"] .home-skai-brand svg{width:100%!important;height:auto!important;max-height:none!important}
+body[data-current-page="home"] .home-skai-brand::after{display:none!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button{font-size:0!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button::before{display:none!important;content:none!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+body[data-current-page="home"] .top-actions .header-bell svg,
+body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{display:block!important;width:24px!important;height:24px!important;color:#1478df!important;stroke:#1478df!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{display:none!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{display:block!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{border:1px solid rgba(255,255,255,.98)!important;background:linear-gradient(150deg,#fff,#e5f2ff)!important;box-shadow:0 4px 14px rgba(48,121,203,.17)!important}
+@media(max-width:480px){
+ body[data-current-page="home"] .home-skai-brand{max-width:min(48vw,220px)!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+ body[data-current-page="home"] .top-actions .header-bell svg,
+ body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{width:22px!important;height:22px!important}
+}
