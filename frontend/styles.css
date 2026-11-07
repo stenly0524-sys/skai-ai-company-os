@@ -1651,3 +1651,12 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Category manager: Save and Cancel share the available width equally. */
 #taskCategoryDialog .task-category-form-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;box-sizing:border-box}
 #taskCategoryDialog .task-category-form-actions>button{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;max-width:none;box-sizing:border-box;min-height:42px;margin:0}
+
+/* Task creation action: text only, suppress legacy/decorative icons. */
+#page-tasks #jumpTaskCreate::before,
+#page-tasks #jumpTaskCreate::after,
+#page-tasks #jumpTaskCreate svg,
+#page-tasks #jumpTaskCreate img,
+#page-tasks #jumpTaskCreate i,
+#page-tasks #jumpTaskCreate .icon{display:none!important;content:none!important}
+#page-tasks #jumpTaskCreate{gap:0!important;background-image:linear-gradient(100deg,#4297fc,#1970df)}
