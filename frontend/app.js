@@ -67,7 +67,7 @@ document.addEventListener('click',event=>{
  if(!event.target.closest('#mobileMore')&&!event.target.closest('#mobileMoreMenu'))closeMobileMore();
 });
 
-for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(which==='task'){$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(button.dataset.jump==='data')$('dataSearch')?.focus();});
+for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(which==='task')$('taskCreatePanel')?.showModal();if(button.dataset.jump==='data')$('dataSearch')?.focus();});
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
  isSignedIn=connected;
@@ -726,8 +726,8 @@ document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('c
 }));
 $('jumpProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
 $('closeProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=true;});
-$('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=false;$('taskForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
-$('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').hidden=true;});
+$('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').showModal();});
+$('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').close();});
 $('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
 $('openSettingsMobile')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
 $('toggleChiefPlans')?.addEventListener('click',()=>{const x=$('chiefPlanContent');x.hidden=!x.hidden;$('chiefPlanToggleIcon').textContent=x.hidden?'展開':'收合';});
@@ -870,19 +870,14 @@ $('projectForm').addEventListener('submit',async event=>{
 });
 $('taskForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
- const form=event.currentTarget;
- const fd=new FormData(form);
- const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||''),ceo_assign_to_chief:workspaceMode()==='cloud'};
+ const form=event.currentTarget,fd=new FormData(form);
+ const dueDate=String(fd.get('due_date')||'');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)){showToast('請選擇完成期限');return;}
+ const brief='【完成期限：'+dueDate+'】\n'+String(fd.get('brief')||'');
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief,ceo_assign_to_chief:false};
  const button=form.querySelector('button[type=submit]');button.disabled=true;
- try{
-  const created=await api('/tasks',{method:'POST',body});form.reset();
-  if(workspaceMode()==='cloud'&&created.chief_plan_required){
-   showToast('CEO 任務已建立；正在請幕僚長提出分析與成本預估。');
-   try{await api('/orchestrations/plan',{method:'POST',body:{task_id:created.task.id}});showToast('幕僚長已提出分工方案，等待 CEO 確認');}
-   catch(e){showToast('任務已保存，幕僚長規劃未成功：'+e.message+'。可從下方重新產生。');}
-  }else showToast('本機已保存任務；AI 幕僚長需要雲端模式');
-  await Promise.all([loadTasks(),loadApprovals(),loadDashboard(),loadOrchestrations()]);
- }catch(e){showToast('任務建立失敗：'+e.message)}
+ try{await api('/tasks',{method:'POST',body});form.reset();$('taskCreatePanel').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('新增任務成功，已儲存至任務清單');}
+ catch(e){showToast('任務建立失敗：'+e.message);}
  finally{button.disabled=false;}
 });
 async function chooseChat(role){
