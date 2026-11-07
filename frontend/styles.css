@@ -1689,3 +1689,12 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Consistent X close control in project editor. */
 #projectEditDialog .project-edit-close{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;min-width:36px;padding:0;border:1px solid #d6e2f0;border-radius:50%;background:#f7faff;color:#526987;font-family:Arial,sans-serif;font-size:26px;font-weight:400;line-height:1;cursor:pointer}
 #projectEditDialog .project-edit-close:hover{background:#eaf2ff}
+
+/* All modal X controls: standalone X without circular border or ring. */
+dialog button.icon-close,
+dialog button.project-edit-close,
+#projectEditDialog .project-edit-close{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline:none;color:#526987}
+dialog button.icon-close:hover,
+dialog button.project-edit-close:hover{background:transparent!important;color:#2563eb}
+dialog button.icon-close:focus-visible,
+dialog button.project-edit-close:focus-visible{outline:2px solid #2563eb!important;outline-offset:2px;border-radius:4px!important}
