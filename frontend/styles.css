@@ -1416,3 +1416,14 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-tasks .task-records[hidden]{display:none}
 #page-tasks .task-detail-footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:auto;padding-top:20px}
 #page-tasks .task-detail-footer button{width:100%;min-width:0;white-space:normal}
+
+/* Task details typography and decision contrast */
+#page-tasks .task-detail-body{gap:5px;margin:7px 0}
+#page-tasks .task-detail-line{gap:3px;margin:4px 0}
+#page-tasks .task-detail-line>div{line-height:1.45}
+#page-tasks .task-decision-drafts{gap:6px;margin:8px 0}
+#page-tasks .task-decision-drafts>.task-detail-line{padding:10px 12px;background:#eef4fc;border:1px solid #d3e2f5;border-radius:10px;margin:0}
+#page-tasks .task-detail-footer{padding-top:12px}
+#taskHistoryBody{display:grid;gap:7px}
+#taskHistoryBody .task-detail-line{display:grid;gap:3px;padding:9px 0;border-bottom:1px solid #e4eaf1;font-size:13px}
+#taskHistoryBody .task-detail-line>div{white-space:pre-wrap;line-height:1.45}
