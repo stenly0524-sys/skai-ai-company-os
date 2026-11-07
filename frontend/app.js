@@ -852,11 +852,23 @@ $('taskEditForm')?.addEventListener('submit',async e=>{
  try{await api('/tasks/'+encodeURIComponent(id)+'/ceo-edit',{method:'PUT',body:{title:String(fd.get('title')),brief}});$('taskEditDialog').close();await loadTasks();await reopenTaskDetail(id);showToast('任務內容已更新');}
  catch(err){showToast('編輯失敗：'+err.message);}
 });
+function confirmTaskFinalDecision(){
+ const dialog=$('taskFinalConfirmDialog');
+ return new Promise(resolve=>{
+  let settled=false;
+  const finish=value=>{if(settled)return;settled=true;dialog.removeEventListener('close',onClose);dialog.close();resolve(value);};
+  const onClose=()=>{if(!settled){settled=true;resolve(false);}};
+  dialog.addEventListener('close',onClose);
+  dialog.querySelector('[data-final-cancel]').onclick=()=>finish(false);
+  dialog.querySelector('[data-final-confirm]').onclick=()=>finish(true);
+  dialog.showModal();
+ });
+}
 $('taskDecisionForm')?.addEventListener('click',async e=>{
  const btn=e.target.closest('button[data-decision-action]');if(!btn)return;
  const f=e.currentTarget;if(!f.reportValidity())return;
  const action=btn.dataset.decisionAction;
- if(action==='decide'&&!confirm('按下「決定」將儲存最終決策，並將任務歸類為已完成。確定？'))return;
+ if(action==='decide'&&!(await confirmTaskFinalDecision()))return;
  btn.disabled=true;
  try{const id=$('taskDecisionId').value;await api('/tasks/'+encodeURIComponent(id)+'/ceo-decision',{method:'POST',body:{content:$('taskDecisionContent').value,action}});$('taskDecisionDialog').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);await reopenTaskDetail(id);showToast(action==='save'?'初步定案已儲存':'最終決策已儲存，任務已完成');}
  catch(err){showToast('決策失敗：'+err.message);}finally{btn.disabled=false;}
