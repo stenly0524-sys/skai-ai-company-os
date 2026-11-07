@@ -1912,3 +1912,9 @@ body[data-current-page="home"] .top-actions .header-bell svg{width:30px!importan
 .assistant-avatar-edit{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);padding:6px 11px;border-radius:999px;background:rgba(8,48,94,.77);color:white;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none}
 #page-assistant .assistant-page-avatar-picker{width:min(100%,320px);height:auto;aspect-ratio:1;border-radius:22px;box-shadow:0 12px 30px rgba(14,75,148,.15)}
 @media(max-width:480px){#page-assistant .assistant-page-avatar-picker{width:min(100%,280px)}}
+
+/* Headquarters: quick actions follow assistant and precede today's tasks. */
+#page-home>.home-action-card{margin:0 0 16px!important;width:100%;box-sizing:border-box}
+#page-home>.home-action-card .home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:start;gap:8px}
+#page-home>.home-action-card .home-shortcuts>button{min-width:0}
+@media(max-width:480px){#page-home>.home-action-card{padding:12px 8px!important}#page-home>.home-action-card .home-shortcuts{gap:5px}}
