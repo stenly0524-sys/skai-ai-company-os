@@ -95,18 +95,30 @@ app.get('/api/dashboard', async (_req,res) => {
  }catch(e){sendError(res,e)}
 });
 app.get('/api/projects', async (_req,res) => {
- try { const q=await db.query('SELECT * FROM projects ORDER BY created_at DESC LIMIT 200');res.json({projects:q.rows}); }
+ try { const q=await db.query(`SELECT p.*, (SELECT a.details->>'deadline' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') ORDER BY a.created_at DESC,a.id DESC LIMIT 1) AS deadline FROM projects p ORDER BY p.created_at DESC LIMIT 200`);res.json({projects:q.rows}); }
  catch(e){sendError(res,e);}
 });
 app.post('/api/projects', async(req,res) => {
- const name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000);
+ const name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000),deadline=txt(req.body?.deadline,10);
+ if(deadline&&!/^\d{4}-\d{2}-\d{2}$/.test(deadline))return res.status(400).json({error:'invalid_project_deadline'});
  if(!name) return res.status(400).json({error:'name_required'});
  const client=await db.connect();
  try{
   await client.query('BEGIN');
   const q=await client.query('INSERT INTO projects(name,goal) VALUES($1,$2) RETURNING *',[name,goal]);
-  await record(client,'project.created','project',q.rows[0].id);
+  await record(client,'project.created','project',q.rows[0].id,{deadline});
   await client.query('COMMIT');res.status(201).json({project:q.rows[0]});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+app.put('/api/projects/:id',async(req,res)=>{
+ const id=req.params.id,name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000),deadline=txt(req.body?.deadline,10);
+ if(!uuid(id)||!name||!/^\\d{4}-\\d{2}-\\d{2}$/.test(deadline)&&deadline)return res.status(400).json({error:'invalid_project_update'});
+ const client=await db.connect();
+ try{await client.query('BEGIN');
+  const q=await client.query('UPDATE projects SET name=$2,goal=$3 WHERE id=$1 RETURNING *',[id,name,goal]);
+  if(!q.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  await record(client,'project.updated','project',id,{name,goal,deadline});
+  await client.query('COMMIT');res.json({project:{...q.rows[0],deadline}});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
 });
 // CEO-only deletion endpoints. Existing session authentication and CSRF middleware apply.
@@ -289,7 +301,7 @@ app.get('/api/tasks', async(req,res) => {
  if(projectId && !uuid(projectId))return res.status(400).json({error:'invalid_project_id'});
  try {const q=projectId ? await db.query('SELECT * FROM tasks WHERE project_id=$1 ORDER BY created_at DESC LIMIT 200',[projectId])
  : await db.query('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 200');
- const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);const archive=await db.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[t.id]);return {...t,has_activity:Boolean(a.rows[0]?.has_activity),is_archived:archive.rows[0]?.event==='task.archived'};}));res.json({tasks});}
+ const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);const archive=await db.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[t.id]);const final=await db.query("SELECT details->>'content' AS content,created_at FROM audit_log WHERE target_type='task' AND target_id=$1 AND event='task.ceo_final_decision' ORDER BY created_at DESC LIMIT 1",[t.id]);return {...t,has_activity:Boolean(a.rows[0]?.has_activity),is_archived:archive.rows[0]?.event==='task.archived',final_decision:final.rows[0]?.content||null,final_decided_at:final.rows[0]?.created_at||null};}));res.json({tasks});}
  catch(e){sendError(res,e);}
 });
 app.post('/api/tasks', async(req,res) => {
