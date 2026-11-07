@@ -1928,3 +1928,8 @@ body[data-current-page="home"] .top-actions .header-bell svg{width:30px!importan
 #page-assistant .assistant-gpt-chat #chatText{flex:1;min-width:0;min-height:85px;resize:vertical;box-sizing:border-box;border:1px solid #cfdef0;border-radius:14px;padding:12px;font:inherit;background:#fff;color:#18334f}
 #page-assistant .assistant-gpt-chat .chat-form button{min-height:44px}
 @media(max-width:480px){#page-assistant .assistant-gpt-chat{padding:10px}#page-assistant .assistant-gpt-chat .chat-form{gap:7px}#page-assistant .assistant-gpt-chat .chat-form button{padding:11px 13px}}
+
+/* Compact ChatGPT-style send control; no introductory block above the conversation. */
+#page-assistant .assistant-gpt-chat .assistant-send-btn{width:46px;height:46px;min-width:46px;min-height:46px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#1976df;color:#fff;flex:0 0 46px;box-shadow:0 3px 10px rgba(24,101,204,.18)}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg{display:block;width:22px;height:22px}
+#page-assistant .assistant-gpt-chat .assistant-send-btn:disabled{opacity:.55}
