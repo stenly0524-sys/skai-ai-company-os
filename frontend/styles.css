@@ -1740,3 +1740,51 @@ body[data-current-page="home"] .header-bell-count{top:-3px;right:-2px}
  body[data-current-page="home"] .top-actions .header-bell,
  body[data-current-page="home"] .top-actions .avatar-ceo{width:36px!important;height:36px!important;min-width:36px!important;flex-basis:36px!important;padding:5px!important}
 }
+
+/* Headquarters hero alignment: full-width integrated wave, no inset header card. */
+body[data-current-page="home"] .topbar{
+ isolation:isolate!important;min-height:158px!important;
+ padding:20px 16px 32px!important;margin:0 0 15px!important;
+ background:linear-gradient(130deg,#f5faff 0%,#e5f2ff 62%,#d2e9ff 100%)!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+body[data-current-page="home"] .topbar::before{
+ content:"";position:absolute;z-index:-1;inset:0;
+ background:radial-gradient(ellipse at 12% 2%,rgba(255,255,255,.96),transparent 56%),
+ radial-gradient(ellipse at 88% 93%,rgba(78,171,255,.19),transparent 56%);
+ pointer-events:none;
+}
+body[data-current-page="home"] .topbar::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ left:-8%;right:-8%;bottom:9px;height:46px;
+ border-bottom:3px solid rgba(255,255,255,.9)!important;
+ border-radius:0 0 52% 55%!important;transform:rotate(-2deg);
+}
+body[data-current-page="home"] .home-skai-brand{max-width:240px!important;z-index:1}
+body[data-current-page="home"] .home-skai-brand svg{max-height:122px!important;filter:drop-shadow(0 2px 3px rgba(22,112,212,.12))}
+body[data-current-page="home"] .home-skai-brand::after{
+ content:"";position:absolute;left:49%;top:28%;height:44%;width:1px;
+ background:#3789e8;opacity:.75;
+}
+body[data-current-page="home"] .top-actions{z-index:1;gap:8px!important;margin-top:35px!important}
+body[data-current-page="home"] .header-clock{z-index:1;top:24px!important;right:16px!important;font-size:13px!important;color:#183b78!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ border:1px solid #c9dff8!important;background:linear-gradient(145deg,#fff,#eff6ff)!important;
+ box-shadow:0 6px 17px rgba(59,135,215,.17)!important;color:#176cdb!important;
+}
+body[data-current-page="home"] .top-actions .mobile-settings-button{font-family:Arial,sans-serif!important;font-size:0!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button::before{content:"⚙";font-size:25px;font-family:Arial,sans-serif;line-height:1}
+body[data-current-page="home"] .top-actions .avatar-ceo{color:#176cdb!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{color:#176cdb!important}
+@media(max-width:480px){
+ body[data-current-page="home"] .topbar{min-height:140px!important;padding:17px 10px 28px!important;column-gap:5px!important}
+ body[data-current-page="home"] .home-skai-brand{max-width:min(48vw,205px)!important}
+ body[data-current-page="home"] .home-skai-brand::after{left:50%;top:30%;height:40%}
+ body[data-current-page="home"] .header-clock{top:15px!important;right:8px!important;font-size:11px!important}
+ body[data-current-page="home"] .top-actions{margin-top:34px!important;gap:6px!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button,
+ body[data-current-page="home"] .top-actions .header-bell,
+ body[data-current-page="home"] .top-actions .avatar-ceo{width:37px!important;height:37px!important;min-width:37px!important;flex-basis:37px!important}
+}
