@@ -1,0 +1,11 @@
+BEGIN;
+ALTER TABLE orchestration_runs
+ ADD COLUMN IF NOT EXISTS plan_version INTEGER NOT NULL DEFAULT 1,
+ ADD COLUMN IF NOT EXISTS plan_estimate JSONB NOT NULL DEFAULT '{}'::jsonb,
+ ADD COLUMN IF NOT EXISTS ceo_feedback TEXT NOT NULL DEFAULT '';
+ALTER TABLE orchestration_steps
+ ADD COLUMN IF NOT EXISTS estimated_minutes INTEGER,
+ ADD COLUMN IF NOT EXISTS estimated_input_tokens INTEGER,
+ ADD COLUMN IF NOT EXISTS max_output_tokens INTEGER,
+ ADD COLUMN IF NOT EXISTS estimated_usd NUMERIC(12,6);
+COMMIT;
