@@ -146,6 +146,23 @@ app.delete('/api/projects/:id',async(req,res)=>{
  }catch(e){await client.query('ROLLBACK');if(e.code==='23503')return res.status(409).json({error:'project_has_other_dependencies'});sendError(res,e);}
  finally{client.release();}
 });
+app.post('/api/tasks/:id/archive',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
+ const client=await db.connect();try{await client.query('BEGIN');
+ const t=await client.query('SELECT id,title FROM tasks WHERE id=$1 FOR UPDATE',[id]);if(!t.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+ const active=await client.query("SELECT id FROM orchestration_runs WHERE task_id=$1 AND plan_status='running' LIMIT 1",[id]);if(active.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'task_has_running_ai_job'});}
+ const latest=await client.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[id]);if(latest.rows[0]?.event==='task.archived'){await client.query('ROLLBACK');return res.status(409).json({error:'already_archived'});}
+ await record(client,'task.archived','task',id,{title:t.rows[0].title});await client.query('COMMIT');res.json({ok:true});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+app.post('/api/tasks/:id/restore',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
+ const client=await db.connect();try{await client.query('BEGIN');
+ const t=await client.query('SELECT id FROM tasks WHERE id=$1 FOR UPDATE',[id]);if(!t.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+ const latest=await client.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[id]);if(latest.rows[0]?.event!=='task.archived'){await client.query('ROLLBACK');return res.status(409).json({error:'task_not_archived'});}
+ await record(client,'task.restored','task',id,{});await client.query('COMMIT');res.json({ok:true});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
 app.delete('/api/tasks/:id',async(req,res)=>{
  const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
  const client=await db.connect();
@@ -153,6 +170,8 @@ app.delete('/api/tasks/:id',async(req,res)=>{
   await client.query('BEGIN');
   const t=await client.query('SELECT id,title,project_id FROM tasks WHERE id=$1 FOR UPDATE',[id]);
   if(!t.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  const archived=await client.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[id]);
+  if(archived.rows[0]?.event!=='task.archived'){await client.query('ROLLBACK');return res.status(409).json({error:'archive_before_permanent_delete'});}
   const active=await client.query("SELECT id FROM orchestration_runs WHERE task_id=$1 AND plan_status='running' LIMIT 1 FOR UPDATE",[id]);
   if(active.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'task_has_running_ai_job'});}
   await client.query('DELETE FROM approvals WHERE task_id=$1',[id]);
@@ -270,7 +289,7 @@ app.get('/api/tasks', async(req,res) => {
  if(projectId && !uuid(projectId))return res.status(400).json({error:'invalid_project_id'});
  try {const q=projectId ? await db.query('SELECT * FROM tasks WHERE project_id=$1 ORDER BY created_at DESC LIMIT 200',[projectId])
  : await db.query('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 200');
- const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);return {...t,has_activity:Boolean(a.rows[0]?.has_activity)};}));res.json({tasks});}
+ const tasks=await Promise.all(q.rows.map(async t=>{const a=await db.query("SELECT EXISTS(SELECT 1 FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision','task.ceo_reopened_decision')) AS has_activity",[t.id]);const archive=await db.query("SELECT event FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.archived','task.restored') ORDER BY created_at DESC LIMIT 1",[t.id]);return {...t,has_activity:Boolean(a.rows[0]?.has_activity),is_archived:archive.rows[0]?.event==='task.archived'};}));res.json({tasks});}
  catch(e){sendError(res,e);}
 });
 app.post('/api/tasks', async(req,res) => {
