@@ -1680,3 +1680,8 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Task project/category filters must share identical typography. */
 #page-tasks .listing-actions #taskProjectFilter,
 #page-tasks .listing-actions #taskCategoryFilter{font-family:inherit!important;font-size:16px!important;font-weight:600!important;line-height:1.35!important;letter-spacing:0!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+/* Avatar actions beside the image tile: vertical, always visible. */
+.project-avatar-controls{display:flex;align-items:center;gap:12px;width:100%;min-width:0}
+.project-avatar-controls .project-avatar-options{display:flex!important;flex-direction:column;align-items:stretch;justify-content:center;gap:9px;flex:0 0 auto;margin:0}
+.project-avatar-controls .project-avatar-options button{min-width:100px;min-height:38px;text-align:center}
