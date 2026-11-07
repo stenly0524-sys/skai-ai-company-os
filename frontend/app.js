@@ -422,6 +422,71 @@ async function openProjectProgress(project){
 }
 $('closeProjectProgress')?.addEventListener('click',()=>$('projectProgressDialog').close());
 
+
+const projectAvatarDraft={create:null,edit:null};
+function projectAvatarPreview(mode,value){
+ const editor=document.querySelector('[data-avatar-editor="'+mode+'"]');
+ if(!editor)return;
+ const button=editor.querySelector('.project-avatar-picker');
+ button.replaceChildren();
+ if(value){const img=document.createElement('img');img.src=value;img.alt='專案頭像預覽';button.append(img);}
+ else button.textContent='＋';
+}
+function makeProjectAvatarFromName(name){
+ const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+ const ctx=canvas.getContext('2d');const text=String(name||'專案').trim()||'專案';
+ let hash=0;for(const char of text)hash=(hash*31+char.codePointAt(0))>>>0;
+ const hue=hash%360;
+ const gradient=ctx.createLinearGradient(0,0,256,256);
+ gradient.addColorStop(0,'hsl('+hue+',65%,44%)');gradient.addColorStop(1,'hsl('+((hue+65)%360)+',72%,24%)');
+ ctx.fillStyle=gradient;ctx.fillRect(0,0,256,256);
+ ctx.strokeStyle='rgba(255,255,255,.19)';ctx.lineWidth=5;
+ ctx.beginPath();ctx.arc(198,52,102,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.arc(28,220,90,0,Math.PI*2);ctx.stroke();
+ const chars=Array.from(text).filter(x=>x.trim()).slice(0,2).join('');
+ ctx.fillStyle='#fff';ctx.font='bold 94px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText(chars||'專',128,128,214);
+ return canvas.toDataURL('image/jpeg',.85);
+}
+async function readProjectAvatar(file){
+ if(!file||!file.type.startsWith('image/'))throw new Error('請選擇圖片檔案');
+ if(file.size>12*1024*1024)throw new Error('圖片不可超過 12 MB');
+ const img=await new Promise((resolve,reject)=>{
+  const url=URL.createObjectURL(file);const image=new Image();
+  image.onload=()=>{URL.revokeObjectURL(url);resolve(image);};
+  image.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('無法讀取圖片'));};
+  image.src=url;
+ });
+ const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+ const ctx=canvas.getContext('2d');const side=Math.min(img.naturalWidth,img.naturalHeight);
+ ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,256,256);
+ return canvas.toDataURL('image/jpeg',.78);
+}
+for(const editor of document.querySelectorAll('[data-avatar-editor]')){
+ const mode=editor.dataset.avatarEditor;
+ const picker=editor.querySelector('.project-avatar-picker');
+ const options=editor.querySelector('.project-avatar-options');
+ picker.addEventListener('click',()=>{options.hidden=!options.hidden;});
+ editor.querySelectorAll('[data-avatar-action]').forEach(button=>button.addEventListener('click',()=>{
+  const action=button.dataset.avatarAction;options.hidden=true;
+  if(action==='design'){
+   const form=editor.closest('form');
+   projectAvatarDraft[mode]=makeProjectAvatarFromName(form.elements.name.value);
+   projectAvatarPreview(mode,projectAvatarDraft[mode]);
+  }else editor.querySelector('[data-avatar-file="'+action+'"]').click();
+ }));
+ editor.querySelectorAll('[data-avatar-file]').forEach(input=>input.addEventListener('change',async()=>{
+  if(!input.files?.[0])return;
+  try{projectAvatarDraft[mode]=await readProjectAvatar(input.files[0]);projectAvatarPreview(mode,projectAvatarDraft[mode]);}
+  catch(e){showToast(e.message);}finally{input.value='';}
+ }));
+}
+function projectAvatarGraphic(project,fallback){
+ if(!project.avatar)return document.createTextNode(fallback);
+ const img=document.createElement('img');img.className='project-avatar-image';img.src=project.avatar;img.alt='';
+ return img;
+}
+
 function renderProjectCards(){
  const root=$('projectCards');if(!root)return;root.replaceChildren();
  const query=$('projectSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
@@ -435,7 +500,7 @@ function renderProjectCards(){
  for(const p of rows){
   const button=el('button','visual-project-row');button.type='button';button.addEventListener('click',()=>openQuickProject(p));
   const visual=p.name.match(/POS|收銀/i)?'▣':p.name.match(/AI|SKAI/i)?'✦':p.name.match(/盆栽|森林|植物/i)?'🌳':p.name.match(/FFM|品牌|食食/i)?'◈':'▤';
-  const graphic=el('span','project-graphic',visual);const body=el('span','project-row-main');
+  const graphic=el('span','project-graphic');graphic.append(projectAvatarGraphic(p,visual));const body=el('span','project-row-main');
   body.append(el('b','',p.name),el('small','',p.goal||'尚無專案目標'));
   const stage=el('span','status-pill',p.is_archived?'已封存':p.status==='closed'?'已完成':'規劃中');
   const amount=Number(p.task_progress??0);const known=Number.isFinite(amount);
@@ -530,13 +595,13 @@ async function openQuickProject(project){
 }
 $('editQuickProject')?.addEventListener('click',()=>{
  const p=projectCache.find(x=>x.id===activeQuickProjectId);if(!p)return;
- const f=$('projectEditForm');f.elements.id.value=p.id;f.elements.name.value=p.name;f.elements.goal.value=p.goal||'';f.elements.deadline.value=p.deadline||'';$('projectEditDialog').showModal();
+ const f=$('projectEditForm');f.elements.id.value=p.id;f.elements.name.value=p.name;f.elements.goal.value=p.goal||'';f.elements.deadline.value=p.deadline||'';projectAvatarDraft.edit=null;projectAvatarPreview('edit',p.avatar||null);$('projectEditDialog').showModal();
 });
 $('closeProjectEdit')?.addEventListener('click',()=>$('projectEditDialog').close());
 $('projectEditForm')?.addEventListener('submit',async e=>{
  e.preventDefault();const f=e.currentTarget,fd=new FormData(f),id=String(fd.get('id'));
  const button=f.querySelector('[type="submit"]');button.disabled=true;
- try{await api('/projects/'+encodeURIComponent(id),{method:'PUT',body:{name:String(fd.get('name')||'').trim(),goal:String(fd.get('goal')||'').trim(),deadline:String(fd.get('deadline')||'')}});
+ try{await api('/projects/'+encodeURIComponent(id),{method:'PUT',body:{name:String(fd.get('name')||'').trim(),goal:String(fd.get('goal')||'').trim(),deadline:String(fd.get('deadline')||''),...(projectAvatarDraft.edit?{avatar:projectAvatarDraft.edit}:{})}});
   $('projectEditDialog').close();await loadProjects();const updated=projectCache.find(p=>p.id===id);if(updated)await openQuickProject(updated);showToast('專案內容已更新');
  }catch(err){showToast('更新專案失敗：'+err.message)}finally{button.disabled=false;}
 });
@@ -995,7 +1060,7 @@ $('projectForm').addEventListener('submit',async event=>{
  const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim(),deadline=String(fd.get('deadline')||'');
  if(!name)return;
  const button=form.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/projects',{method:'POST',body:{name,goal,deadline}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ try{await api('/projects',{method:'POST',body:{name,goal,deadline,...(projectAvatarDraft.create?{avatar:projectAvatarDraft.create}:{})}});form.reset();projectAvatarDraft.create=null;projectAvatarPreview('create',null);await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
