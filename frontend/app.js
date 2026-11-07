@@ -586,101 +586,37 @@ async function appendTaskDeliverables(task,container){
 async function openTaskDetails(task,container){
  const willOpen=container.hidden;
  document.querySelectorAll('#taskCards .task-evidence-panel').forEach(p=>p.hidden=true);
- container.hidden=!willOpen;
- if(!willOpen)return;
- container.replaceChildren(el('p','helper','正在讀取任務與 AI 執行紀錄…'));
- const project=projectCache.find(p=>p.id===task.project_id);
- const title=el('h3','','任務內容與執行紀錄'),heading=el('div','task-detail-heading');
- heading.append(title,el('span','status-pill',statuses[task.status]||task.status));
- const body=el('div','task-detail-body');
- body.append(taskDetailLine('任務名稱',task.title));
- body.append(taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作說明與交付要求',task.brief||'尚未輸入工作說明，請先補齊要求。'));
- container.replaceChildren(heading,body);
- await appendTaskDeliverables(task,container);
- if(workspaceMode()==='local'){
-  container.append(el('p','task-evidence-warning','本機模式沒有 AI 規劃及成果紀錄，不能執行或驗收。切換雲端並登入 CEO 才能開始正式 AI 工作。'));
-  return;
- }
- let runs;
- try{runs=(await api('/orchestrations')).runs||[];}
- catch(e){container.append(el('p','task-evidence-warning','無法取得 AI 紀錄：'+e.message));return;}
- const item=runs.find(r=>r.task_id===task.id);
- if(!item){
-  container.append(el('p','task-evidence-warning',task.status==='done'?'此任務雖標示已完成，但沒有 AI 方案或交付成果：尚未完成實質驗收。':'目前沒有 AI 工作方案或執行成果，單純核准任務不會啟動分析。'));
-  if(task.status==='approved'){
-   const planBtn=el('button','primary-btn','請智能助理產生執行方案');
-   planBtn.type='button';planBtn.addEventListener('click',async()=>{
-    if(!confirm('這會呼叫真實 AI API 並可能產生費用。只產生工作分配、時間／Token／美元估算；不會開始部門執行。確定？'))return;
-    planBtn.disabled=true;
-    try{await api('/orchestrations/plan',{method:'POST',body:{task_id:task.id}});showToast('智能助理提案已建立，等待 CEO 第二次核准');container.hidden=true;await openTaskDetails(task,container);}
-    catch(e){showToast('無法產生方案：'+e.message);}
-    finally{planBtn.disabled=false;}
-   });container.append(planBtn);
-  }
-  return;
- }
- let detail;
- try{detail=await api('/orchestrations/'+encodeURIComponent(item.id));}
- catch(e){container.append(el('p','task-evidence-warning','方案詳情讀取失敗：'+e.message));return;}
- const run=detail.run,steps=detail.steps||[];
- const status=el('p','task-plan-state','AI 方案：'+(orchestrationStatuses[run.plan_status]||run.plan_status));
- container.append(status);
- const estimate=run.plan_estimate||{};
- const amount=Number(estimate.estimated_usd);
- const mins=Number(estimate.total_minutes);
- const tokens=Number(estimate.total_tokens);
- container.append(taskDetailLine('幕僚長工作規劃',run.summary||'尚未提供方案摘要'));
- container.append(taskDetailLine('時間／Tokens／成本估算',[
-  Number.isFinite(mins)&&mins>0?mins+' 分鐘':'時間未提供',
-  Number.isFinite(tokens)&&tokens>0?tokens.toLocaleString()+' Tokens':'Token 未提供',
-  Number.isFinite(amount)?'US$'+amount.toFixed(4)+'（預估）':'成本未提供'
- ].join(' · ')));
- const section=el('div','task-step-list');section.append(el('h4','','部門分工與實際交付'));
- if(!steps.length)section.append(el('p','helper','沒有可查閱的部門工作項目'));
- steps.forEach(step=>{
-  const card=el('div','task-step-card');
-  const dept=EMPLOYEES.find(e=>e.id===step.role_id)?.name||step.role_id;
-  card.append(el('strong','',String(step.sequence_no||'')+'｜'+dept+'　'+(step.status==='done'?'已產出成果':step.status==='pending'?'待執行':step.status||'')),
-   taskDetailLine('工作指示',step.instruction||'未提供'));
-  if(step.result)card.append(taskDetailLine('交付內容',step.result));
-  else card.append(el('p','helper','尚未有可驗收的工作成果'));
-  if(step.last_error)card.append(el('p','task-evidence-warning','異常：'+step.last_error));
-  section.append(card);
- });
- container.append(section);
- if(run.consolidated_report){
-  container.append(el('h4','','整合成果報告'),el('pre','task-result-report',run.consolidated_report));
- }
+ container.hidden=!willOpen;if(!willOpen)return;
+ const latest=taskCache.find(t=>t.id===task.id)||task;
+ const project=projectCache.find(p=>p.id===latest.project_id);
+ const heading=el('div','task-detail-heading');heading.append(el('h3','','工作內容及執行記錄'),el('span','status-pill',statuses[latest.status]||latest.status));
+ const body=el('div','task-detail-body');body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作內容',latest.brief||'尚未填寫'));
  const actions=el('div','task-detail-actions');
- if(run.plan_status==='draft'){
-  const btn=el('button','primary-btn','CEO 核准分工與預估成本');
-  btn.addEventListener('click',async()=>{
-   if(!confirm('確認接受目前 AI 方案及預估費用？核准方案不會立刻執行付費的部門工作。'))return;
-   btn.disabled=true;
-   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/approve',{method:'POST'});showToast('方案已核准，可以逐步執行');container.hidden=true;await openTaskDetails(task,container);}
-   catch(e){showToast('核准方案失敗：'+e.message);}finally{btn.disabled=false;}
-  });actions.append(btn);
- }
- if(['ready','running','failed','paused'].includes(run.plan_status)){
-  const btn=el('button','primary-btn',run.plan_status==='ready'?'開始執行第一個部門工作':'執行下一個／重試部門工作');
-  btn.addEventListener('click',async()=>{
-   if(!confirm('每次只執行一項 AI 部門工作，會呼叫真實 API 並可能產生費用。確定執行？'))return;
-   btn.disabled=true;
-   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/advance',{method:'POST'});showToast('部門工作已產出結果，請重新查看任務詳情');await refreshManagement();}
-   catch(e){showToast('部門執行失敗：'+e.message);}finally{btn.disabled=false;}
-  });actions.append(btn);
- }
- if(run.plan_status==='review'&&run.consolidated_report&&steps.length&&steps.every(s=>s.status==='done'&&s.result)){
-  const btn=el('button','primary-btn','確認已閱讀成果並驗收完成');
-  btn.addEventListener('click',async()=>{
-   if(!confirm('確認已檢視各部門成果與整合報告，驗收此任務？'))return;
-   btn.disabled=true;
-   try{await api('/orchestrations/'+encodeURIComponent(run.id)+'/complete',{method:'POST'});showToast('成果已完成 CEO 驗收');await refreshManagement();}
-   catch(e){showToast('驗收失敗：'+e.message);}finally{btn.disabled=false;}
-  });actions.append(btn);
- }
- if(actions.children.length)container.append(actions);
- if(run.plan_status==='done'&&!run.consolidated_report)container.append(el('p','task-evidence-warning','此任務缺少整合報告，請檢查執行紀錄。'));
+ const edit=el('button','outline-btn','編輯'),decide=el('button','primary-btn','決策');edit.type=decide.type='button';
+ edit.disabled=decide.disabled=latest.status==='done';
+ edit.addEventListener('click',()=>{
+  $('taskEditId').value=latest.id;$('taskEditTitle').value=latest.title;
+  const match=(latest.brief||'').match(/^【完成期限：(\\d{4}-\\d{2}-\\d{2})】\\n?/);
+  $('taskEditDeadline').value=match?.[1]||'';
+  $('taskEditBrief').value=(latest.brief||'').replace(/^【完成期限：\\d{4}-\\d{2}-\\d{2}】\\n?/,'');
+  $('taskEditDialog').showModal();
+ });
+ decide.addEventListener('click',async()=>{
+  $('taskDecisionId').value=latest.id;$('taskDecisionContent').value='';
+  try{const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');$('taskDecisionContent').value=r.preliminary||'';}catch(e){showToast(e.message);}
+  $('taskDecisionDialog').showModal();
+ });
+ actions.append(edit,decide);container.replaceChildren(heading,body,actions);
+ const records=el('div','task-records');records.append(el('h4','','執行記錄'));
+ if(workspaceMode()==='local'){records.append(el('p','helper','本機模式：決策紀錄需要雲端資料庫。'));container.append(records);return;}
+ try{
+  const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');
+  if(r.preliminary)container.append(taskDetailLine('初步定案',r.preliminary));
+  if(r.final)container.append(taskDetailLine('最終決策',r.final));
+  if(!(r.records||[]).length)records.append(el('p','helper','尚無編輯或決策記錄。'));
+  for(const x of r.records||[]){const label=x.event==='task.ceo_edited'?'編輯工作內容':x.event==='task.ceo_draft_decision'?'儲存初步定案':'CEO 最終決定';records.append(taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||''));}
+ }catch(e){records.append(el('p','helper','讀取執行記錄失敗：'+e.message));}
+ container.append(records);
 }
 function renderTaskCards(){
  const root=$('taskCards');if(!root)return;root.replaceChildren();
@@ -694,11 +630,6 @@ function renderTaskCards(){
   const project=projectCache.find(p=>p.id===t.project_id);
   row.append(el('small','task-project-name',project?.name||'未分類'));
   const actions=el('div','task-row-actions');
-  if(t.status==='proposed'){
-   for(const [decision,label] of [['approved','核准'],['rejected','駁回']]){
-    const btn=el('button','outline-btn',label);btn.type='button';btn.addEventListener('click',()=>approveTaskRecord(t,decision));actions.append(btn);
-   }
-  }
   const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
   const remove=el('button','danger-outline','刪除');remove.type='button';remove.setAttribute('aria-label','刪除任務 '+t.title);remove.addEventListener('click',()=>deleteTaskRecord(t));actions.append(remove);
   row.append(actions);const details=el('section','task-evidence-panel');details.hidden=true;
@@ -879,6 +810,24 @@ $('taskForm').addEventListener('submit',async event=>{
  try{await api('/tasks',{method:'POST',body});form.reset();$('taskCreatePanel').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast('新增任務成功，已儲存至任務清單');}
  catch(e){showToast('任務建立失敗：'+e.message);}
  finally{button.disabled=false;}
+});
+$('closeTaskEdit')?.addEventListener('click',()=>$('taskEditDialog').close());
+$('closeTaskDecision')?.addEventListener('click',()=>$('taskDecisionDialog').close());
+$('taskEditForm')?.addEventListener('submit',async e=>{
+ e.preventDefault();const f=e.currentTarget,fd=new FormData(f),id=String(fd.get('id'));
+ const date=String(fd.get('due_date')||'');
+ const brief=(date?'【完成期限：'+date+'】\\n':'')+String(fd.get('brief')||'');
+ try{await api('/tasks/'+encodeURIComponent(id)+'/ceo-edit',{method:'PUT',body:{title:String(fd.get('title')),brief}});$('taskEditDialog').close();await loadTasks();showToast('任務內容已更新');}
+ catch(err){showToast('編輯失敗：'+err.message);}
+});
+$('taskDecisionForm')?.addEventListener('click',async e=>{
+ const btn=e.target.closest('button[data-decision-action]');if(!btn)return;
+ const f=e.currentTarget;if(!f.reportValidity())return;
+ const action=btn.dataset.decisionAction;
+ if(action==='decide'&&!confirm('按下「決定」將儲存最終決策，並將任務歸類為已完成。確定？'))return;
+ btn.disabled=true;
+ try{await api('/tasks/'+encodeURIComponent($('taskDecisionId').value)+'/ceo-decision',{method:'POST',body:{content:$('taskDecisionContent').value,action}});$('taskDecisionDialog').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast(action==='save'?'初步定案已儲存':'最終決策已儲存，任務已完成');}
+ catch(err){showToast('決策失敗：'+err.message);}finally{btn.disabled=false;}
 });
 async function chooseChat(role){
  currentEmployee=role;
