@@ -464,8 +464,8 @@ $('toggleProjectNotes')?.addEventListener('click',()=>{const pre=$('quickProject
 function filteredTasks(){
  const q=$('taskSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
  return taskCache.filter(t=>{
-  const done=t.status==='done',inProgress=['in_progress','approved','review'].includes(t.status);
-  const filter=taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&!done)||(taskFilter==='in_progress'&&inProgress);
+  const done=t.status==='done',inProgress=!done&&(Boolean(t.has_activity)||['in_progress','review'].includes(t.status)),pending=!done&&!inProgress;
+  const filter=taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&pending)||(taskFilter==='in_progress'&&inProgress);
   return filter&&(t.title+' '+(t.brief||'')).toLocaleLowerCase('zh-TW').includes(q);
  });
 }
@@ -595,7 +595,7 @@ async function openTaskDetails(task,container){
  const project=projectCache.find(p=>p.id===latest.project_id);
  const heading=el('div','task-detail-heading');
  const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'),el('span','status-pill',statuses[latest.status]||latest.status));
- const edit=el('button','outline-btn task-edit-top','編輯');edit.type='button';edit.disabled=latest.status==='done';
+ const edit=el('button','outline-btn task-edit-top',latest.status==='done'?'已決議':'編輯');edit.type='button';edit.disabled=latest.status==='done';
  heading.append(headingLeft,edit);
  const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
  const plain=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'').trim();
@@ -612,7 +612,7 @@ async function openTaskDetails(task,container){
  const drafts=el('div','task-decision-drafts');
  const records=el('div','task-records');records.append(el('h4','','執行記錄'));
  const footer=el('div','task-detail-footer');
- const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn','決策');history.type=decide.type='button';decide.disabled=latest.status==='done';
+ const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn',latest.status==='done'?'方案重議':'決策');history.type=decide.type='button';
  history.addEventListener('click',()=>{
   const dlg=$('taskHistoryDialog'),target=$('taskHistoryBody');target.replaceChildren();
   const decisionGroup=el('section','task-history-group task-history-decisions');
@@ -629,6 +629,7 @@ async function openTaskDetails(task,container){
   dlg.showModal();
  });
  decide.addEventListener('click',async()=>{
+  if(latest.status==='done'){$('taskReopenId').value=latest.id;$('taskReopenDialog').showModal();return;}
   $('taskDecisionId').value=latest.id;$('taskDecisionContent').value='';
   try{const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');$('taskDecisionContent').value=r.preliminary||'';}catch(e){showToast(e.message);}
   $('taskDecisionDialog').showModal();
@@ -851,6 +852,12 @@ $('taskEditForm')?.addEventListener('submit',async e=>{
  const brief=(date?'【完成期限：'+date+'】\n':'')+String(fd.get('brief')||'');
  try{await api('/tasks/'+encodeURIComponent(id)+'/ceo-edit',{method:'PUT',body:{title:String(fd.get('title')),brief}});$('taskEditDialog').close();await loadTasks();await reopenTaskDetail(id);showToast('任務內容已更新');}
  catch(err){showToast('編輯失敗：'+err.message);}
+});
+$('taskReopenCancel')?.addEventListener('click',()=>$('taskReopenDialog').close());
+$('taskReopenConfirm')?.addEventListener('click',async()=>{
+ const btn=$('taskReopenConfirm'),id=$('taskReopenId').value;btn.disabled=true;
+ try{await api('/tasks/'+encodeURIComponent(id)+'/reopen-decision',{method:'POST'});$('taskReopenDialog').close();taskFilter='in_progress';document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x.dataset.taskFilter==='in_progress'));await Promise.all([loadTasks(),loadDashboard()]);await reopenTaskDetail(id);showToast('任務已移至執行中，可重新決策');}
+ catch(e){showToast('重新決策失敗：'+e.message);}finally{btn.disabled=false;}
 });
 function confirmTaskFinalDecision(){
  const dialog=$('taskFinalConfirmDialog');
