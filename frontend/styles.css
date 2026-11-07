@@ -1403,3 +1403,5 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 .task-create-scroll input[type=date]{width:100%;min-width:0}
 .task-create-scroll button[type=submit]{width:100%}
 @media(max-width:600px){.task-create-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.task-create-header{padding:13px 15px}.task-create-scroll{padding:14px 15px;max-height:calc(100dvh - 86px)}}
+
+.task-decision-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}.task-decision-buttons button{width:100%}.task-records{margin-top:16px;border-top:1px solid #dce5ee;padding-top:12px}.task-records h4{margin:0 0 12px}
