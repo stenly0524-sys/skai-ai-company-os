@@ -180,7 +180,7 @@ app.put('/api/tasks/:id/ceo-edit',async(req,res)=>{
   const prev=await client.query('SELECT title,brief,status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
   if(!prev.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
   if(prev.rows[0].status==='done'){await client.query('ROLLBACK');return res.status(409).json({error:'completed_task_read_only'});}
-  const q=await client.query('UPDATE tasks SET title=$2,brief=$3,status='in_progress',updated_at=NOW() WHERE id=$1 RETURNING *',[id,title,brief]);
+  const q=await client.query("UPDATE tasks SET title=$2,brief=$3,status='in_progress',updated_at=NOW() WHERE id=$1 RETURNING *",[id,title,brief]);
   await record(client,'task.ceo_edited','task',id,{previous:prev.rows[0],title,brief});
   await client.query('COMMIT');res.json({task:q.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
