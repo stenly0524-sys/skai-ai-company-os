@@ -1619,3 +1619,17 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 .project-progress-category span{font-size:12px;font-weight:700;color:#47749e}
 .project-progress-category .project-progress-track{grid-column:1/-1;width:100%;height:9px;border-radius:99px;background:#dbe5f1;overflow:hidden}
 .project-progress-category .project-progress-fill{display:block;height:100%;border-radius:99px;background:#3086e8}
+
+/* Project edit: date input must never exceed modal content width on iOS. */
+#projectEditDialog,#projectEditDialog *{box-sizing:border-box}
+#projectEditDialog{max-width:calc(100vw - 24px);overflow-x:hidden}
+#projectEditForm{min-width:0;max-width:100%;width:100%;overflow-x:hidden}
+#projectEditForm>label{min-width:0;max-width:100%;width:100%}
+#projectEditForm input,#projectEditForm textarea,#projectEditForm input[type=date]{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+#projectEditForm input[type=date]{-webkit-appearance:none;appearance:none;min-height:42px}
+/* Task filter order: project, category + create, search, new task. */
+#page-tasks .listing-actions .task-category-toolbar{display:flex;align-items:flex-end;flex-wrap:nowrap;gap:10px;flex:1 1 100%;width:100%;min-width:0;margin:0}
+#page-tasks .listing-actions .task-category-toolbar .task-project-filter-label{flex:1 1 auto;min-width:0;max-width:none;display:grid;gap:4px;font-size:12px;color:#526987;font-weight:650}
+#page-tasks .listing-actions #taskCategoryFilter{display:block;width:100%;max-width:100%;min-width:0;min-height:39px;box-sizing:border-box;background:#fff;color:#243a55;font-size:16px}
+#page-tasks .listing-actions #manageTaskCategories{flex:0 0 auto;min-height:39px;white-space:nowrap}
+@media(max-width:720px){#page-tasks .listing-actions .task-category-toolbar{gap:8px}#page-tasks .listing-actions #manageTaskCategories{padding-left:11px;padding-right:11px}}
