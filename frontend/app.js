@@ -1237,6 +1237,44 @@ function updateTaipeiClock(){
  elClock.dateTime=date.toISOString();
 }
 updateTaipeiClock();setInterval(updateTaipeiClock,60000);
+
+/* Assistant portrait picker: iPhone Photos, same-device persistent preview. */
+(function setupAssistantAvatarPicker(){
+ const input=document.getElementById('assistantAvatarFile');
+ const buttons=[...document.querySelectorAll('.assistant-avatar-picker')];
+ const portraits=[...document.querySelectorAll('#homeAssistantPortrait,.assistant-portrait')];
+ const storageKey='skai-os-assistant-avatar-v1';
+ if(!input||!buttons.length||!portraits.length)return;
+ const apply=(src)=>portraits.forEach(img=>{img.src=src;});
+ try{const saved=localStorage.getItem(storageKey);if(saved&&saved.startsWith('data:image/'))apply(saved);}catch(e){}
+ buttons.forEach(button=>button.addEventListener('click',()=>input.click()));
+ input.addEventListener('change',async()=>{
+  const file=input.files?.[0];input.value='';
+  if(!file)return;
+  if(!file.type.startsWith('image/')){showToast('請選擇圖片檔案');return;}
+  if(file.size>20*1024*1024){showToast('圖片不得超過 20MB');return;}
+  try{
+   const url=URL.createObjectURL(file);
+   const img=new Image();
+   try{await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});}
+   finally{URL.revokeObjectURL(url);}
+   const maxDimension=1200;
+   const scale=Math.min(1,maxDimension/Math.max(img.naturalWidth,img.naturalHeight));
+   const canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+   canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+   const context=canvas.getContext('2d');
+   if(!context)throw Error('無法處理圖片');
+   context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';
+   context.drawImage(img,0,0,canvas.width,canvas.height);
+   const data=canvas.toDataURL('image/jpeg',0.88);
+   localStorage.setItem(storageKey,data);
+   apply(data);
+   showToast('智能助理圖片已更新');
+  }catch(error){showToast('圖片儲存失敗，請選擇較小的圖片');}
+ });
+})();
+
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
 if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','assistant','data'].includes(initialPage))showPage(initialPage);
