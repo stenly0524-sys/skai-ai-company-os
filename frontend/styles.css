@@ -1490,3 +1490,7 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Remove border from cancel/no button in task delete and restore confirmation */
 #taskArchiveConfirmDialog #taskArchiveConfirmNo{border:0!important;box-shadow:none!important;background:#fff}
 #taskArchiveConfirmDialog #taskArchiveConfirmNo:hover{border:0!important;background:#f4f6f9}
+
+/* Match task creation button height to task search input */
+#page-tasks #taskSearch,#page-tasks #jumpTaskCreate{height:42px;min-height:42px;box-sizing:border-box}
+#page-tasks #jumpTaskCreate{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;line-height:1.2}
