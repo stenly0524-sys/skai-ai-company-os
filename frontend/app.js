@@ -834,7 +834,7 @@ $('closeTaskDecision')?.addEventListener('click',()=>$('taskDecisionDialog').clo
 $('taskEditForm')?.addEventListener('submit',async e=>{
  e.preventDefault();const f=e.currentTarget,fd=new FormData(f),id=String(fd.get('id'));
  const date=String(fd.get('due_date')||'');
- const brief=(date?'【完成期限：'+date+'】\\n':'')+String(fd.get('brief')||'');
+ const brief=(date?'【完成期限：'+date+'】\n':'')+String(fd.get('brief')||'');
  try{await api('/tasks/'+encodeURIComponent(id)+'/ceo-edit',{method:'PUT',body:{title:String(fd.get('title')),brief}});$('taskEditDialog').close();await loadTasks();await reopenTaskDetail(id);showToast('任務內容已更新');}
  catch(err){showToast('編輯失敗：'+err.message);}
 });
