@@ -500,7 +500,10 @@ function taskActionConfirm(message,yesLabel='確定',noLabel='取消'){
  const dlg=$('taskArchiveConfirmDialog');$('taskArchiveConfirmMessage').textContent=message;$('taskArchiveConfirmYes').textContent=yesLabel;$('taskArchiveConfirmNo').textContent=noLabel;
  return new Promise(resolve=>{let settled=false;const finish=v=>{if(settled)return;settled=true;dlg.removeEventListener('close',onClose);dlg.close();resolve(v);};const onClose=()=>{if(!settled){settled=true;resolve(false);}};dlg.addEventListener('close',onClose);$('taskArchiveConfirmNo').onclick=()=>finish(false);$('taskArchiveConfirmYes').onclick=()=>finish(true);dlg.showModal();});
 }
-async function restoreTaskRecord(task){try{await api('/tasks/'+encodeURIComponent(task.id)+'/restore',{method:'POST'});showToast('任務已復原');await refreshManagement();}catch(e){showToast('復原失敗：'+e.message);}}
+async function restoreTaskRecord(task){
+ if(!(await taskActionConfirm('是否要復原此工作任務？','確認','取消')))return;
+ try{await api('/tasks/'+encodeURIComponent(task.id)+'/restore',{method:'POST'});showToast('任務已復原');await refreshManagement();}catch(e){showToast('復原失敗：'+e.message);}
+}
 async function deleteTaskRecord(task){
  const permanent=Boolean(task.is_archived);
  if(!(await taskActionConfirm(permanent?'是否徹底刪除此工作內容？':'是否將此工作任務移至已封存？',permanent?'是':'確認',permanent?'否':'取消')))return;
