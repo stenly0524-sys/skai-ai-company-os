@@ -1572,3 +1572,6 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 
 #page-projects .listing-header .project-listing-heading{padding-left:12px}
 @media(max-width:720px){#page-projects .listing-header .project-listing-heading{padding-left:12px}}
+
+/* iOS Safari: prevent auto-zoom when focusing project/task search fields */
+#page-projects #projectSearch,#page-tasks #taskSearch{font-size:16px!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
