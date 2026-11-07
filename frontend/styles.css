@@ -1671,3 +1671,12 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 .project-avatar-options button{border:1px solid #c7d8ee;background:#fff;color:#2b5487;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer}
 .project-avatar-hint{margin:0;font-size:12px}
 .project-graphic{overflow:hidden}
+
+/* Hide native avatar file fields regardless of generic form input styles. */
+#projectForm input[data-avatar-file],
+#projectEditForm input[data-avatar-file]{display:none!important}
+#projectForm .project-avatar-hint,
+#projectEditForm .project-avatar-hint{display:none!important}
+/* Task project/category filters must share identical typography. */
+#page-tasks .listing-actions #taskProjectFilter,
+#page-tasks .listing-actions #taskCategoryFilter{font-family:inherit!important;font-size:16px!important;font-weight:600!important;line-height:1.35!important;letter-spacing:0!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
