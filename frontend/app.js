@@ -583,7 +583,10 @@ async function appendTaskDeliverables(task,container){
  }catch(e){section.append(el('p','helper','雲端交付紀錄讀取失敗：'+e.message));}
  container.append(section);
 }
-function decisionDraftLabel(n){return n===1?'初步定案':'第'+n+'次定案';}
+function chineseCount(n){const d='零一二三四五六七八九';if(n<10)return d[n];if(n<20)return '十'+(n%10?d[n%10]:'');if(n<100)return d[Math.floor(n/10)]+'十'+(n%10?d[n%10]:'');return String(n).split('').map(x=>d[Number(x)]).join('');}
+function decisionDraftLabel(n){return n===1?'初步定案':'第'+chineseCount(n)+'次定案';}
+async function reopenTaskDetail(id){const task=taskCache.find(t=>t.id===id);if(!task)return;const row=[...document.querySelectorAll('#taskCards .visual-task-row')].find(x=>x.querySelector('.task-list-title')?.textContent===task.title);const panel=row?.nextElementSibling;if(panel){panel.hidden=true;await openTaskDetails(task,panel);}}
+
 async function openTaskDetails(task,container){
  const willOpen=container.hidden;
  document.querySelectorAll('#taskCards .task-evidence-panel').forEach(p=>p.hidden=true);
@@ -594,25 +597,29 @@ async function openTaskDetails(task,container){
  const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'),el('span','status-pill',statuses[latest.status]||latest.status));
  const edit=el('button','outline-btn task-edit-top','編輯');edit.type='button';edit.disabled=latest.status==='done';
  heading.append(headingLeft,edit);
- const body=el('div','task-detail-body');body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'),taskDetailLine('工作內容',latest.brief||'尚未填寫'));
+ const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
+ const plain=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'').trim();
+ body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
+ if(parsed)body.append(taskDetailLine('完成期限',parsed[1]));
+ if(plain)body.append(taskDetailLine('工作內容',plain));
  edit.addEventListener('click',()=>{
   $('taskEditId').value=latest.id;$('taskEditTitle').value=latest.title;
-  const match=(latest.brief||'').match(/^【完成期限：(\\d{4}-\\d{2}-\\d{2})】\\n?/);
+  const match=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
   $('taskEditDeadline').value=match?.[1]||'';
-  $('taskEditBrief').value=(latest.brief||'').replace(/^【完成期限：\\d{4}-\\d{2}-\\d{2}】\\n?/,'');
+  $('taskEditBrief').value=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'');
   $('taskEditDialog').showModal();
  });
  const drafts=el('div','task-decision-drafts');
- const records=el('div','task-records');records.hidden=true;records.append(el('h4','','執行記錄'));
+ const records=el('div','task-records');records.append(el('h4','','執行記錄'));
  const footer=el('div','task-detail-footer');
  const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn','決策');history.type=decide.type='button';decide.disabled=latest.status==='done';
- history.addEventListener('click',()=>{records.hidden=!records.hidden;history.textContent=records.hidden?'執行記錄':'收合記錄';});
+ history.addEventListener('click',()=>{const dlg=$('taskHistoryDialog');$('taskHistoryBody').replaceChildren(...[...records.children].slice(1).map(x=>x.cloneNode(true)));dlg.showModal();});
  decide.addEventListener('click',async()=>{
   $('taskDecisionId').value=latest.id;$('taskDecisionContent').value='';
   try{const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');$('taskDecisionContent').value=r.preliminary||'';}catch(e){showToast(e.message);}
   $('taskDecisionDialog').showModal();
  });
- footer.append(history,decide);container.replaceChildren(heading,body,drafts,records,footer);
+ footer.append(history,decide);container.replaceChildren(heading,body,drafts,footer);
  if(workspaceMode()==='local'){records.append(el('p','helper','本機模式：決策紀錄需要雲端資料庫。'));return;}
  try{
   const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');
@@ -821,13 +828,14 @@ $('taskForm').addEventListener('submit',async event=>{
  catch(e){showToast('任務建立失敗：'+e.message);}
  finally{button.disabled=false;}
 });
+$('closeTaskHistory')?.addEventListener('click',()=>$('taskHistoryDialog').close());
 $('closeTaskEdit')?.addEventListener('click',()=>$('taskEditDialog').close());
 $('closeTaskDecision')?.addEventListener('click',()=>$('taskDecisionDialog').close());
 $('taskEditForm')?.addEventListener('submit',async e=>{
  e.preventDefault();const f=e.currentTarget,fd=new FormData(f),id=String(fd.get('id'));
  const date=String(fd.get('due_date')||'');
  const brief=(date?'【完成期限：'+date+'】\\n':'')+String(fd.get('brief')||'');
- try{await api('/tasks/'+encodeURIComponent(id)+'/ceo-edit',{method:'PUT',body:{title:String(fd.get('title')),brief}});$('taskEditDialog').close();await loadTasks();showToast('任務內容已更新');}
+ try{await api('/tasks/'+encodeURIComponent(id)+'/ceo-edit',{method:'PUT',body:{title:String(fd.get('title')),brief}});$('taskEditDialog').close();await loadTasks();await reopenTaskDetail(id);showToast('任務內容已更新');}
  catch(err){showToast('編輯失敗：'+err.message);}
 });
 $('taskDecisionForm')?.addEventListener('click',async e=>{
@@ -836,7 +844,7 @@ $('taskDecisionForm')?.addEventListener('click',async e=>{
  const action=btn.dataset.decisionAction;
  if(action==='decide'&&!confirm('按下「決定」將儲存最終決策，並將任務歸類為已完成。確定？'))return;
  btn.disabled=true;
- try{await api('/tasks/'+encodeURIComponent($('taskDecisionId').value)+'/ceo-decision',{method:'POST',body:{content:$('taskDecisionContent').value,action}});$('taskDecisionDialog').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);showToast(action==='save'?'初步定案已儲存':'最終決策已儲存，任務已完成');}
+ try{const id=$('taskDecisionId').value;await api('/tasks/'+encodeURIComponent(id)+'/ceo-decision',{method:'POST',body:{content:$('taskDecisionContent').value,action}});$('taskDecisionDialog').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard()]);await reopenTaskDetail(id);showToast(action==='save'?'初步定案已儲存':'最終決策已儲存，任務已完成');}
  catch(err){showToast('決策失敗：'+err.message);}finally{btn.disabled=false;}
 });
 async function chooseChat(role){
