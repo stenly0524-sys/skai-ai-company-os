@@ -184,6 +184,8 @@ app.delete('/api/projects/:id',async(req,res)=>{
   await client.query('BEGIN');
   const p=await client.query('SELECT id,name FROM projects WHERE id=$1 FOR UPDATE',[id]);
   if(!p.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'project_not_found'});}
+  const archive=await client.query("SELECT event FROM audit_log WHERE target_type='project' AND target_id=$1 AND event IN ('project.archived','project.restored') ORDER BY created_at DESC,id DESC LIMIT 1",[id]);
+  if(archive.rows[0]?.event!=='project.archived'){await client.query('ROLLBACK');return res.status(409).json({error:'project_must_be_archived_before_permanent_delete'});}
   const active=await client.query("SELECT r.id FROM orchestration_runs r JOIN tasks t ON t.id=r.task_id WHERE t.project_id=$1 AND r.plan_status='running' LIMIT 1 FOR UPDATE OF r",[id]);
   if(active.rowCount){await client.query('ROLLBACK');return res.status(409).json({error:'project_has_running_ai_jobs'});}
   const count=await client.query('SELECT COUNT(*)::int n FROM tasks WHERE project_id=$1',[id]);
