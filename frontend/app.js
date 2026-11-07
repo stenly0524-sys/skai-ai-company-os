@@ -613,7 +613,21 @@ async function openTaskDetails(task,container){
  const records=el('div','task-records');records.append(el('h4','','執行記錄'));
  const footer=el('div','task-detail-footer');
  const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn','決策');history.type=decide.type='button';decide.disabled=latest.status==='done';
- history.addEventListener('click',()=>{const dlg=$('taskHistoryDialog');$('taskHistoryBody').replaceChildren(...[...records.children].slice(1).map(x=>x.cloneNode(true)));dlg.showModal();});
+ history.addEventListener('click',()=>{
+  const dlg=$('taskHistoryDialog'),target=$('taskHistoryBody');target.replaceChildren();
+  const decisionGroup=el('section','task-history-group task-history-decisions');
+  const editGroup=el('section','task-history-group task-history-edits');
+  decisionGroup.append(el('h3','','定案記錄'));editGroup.append(el('h3','','編輯工作內容記錄'));
+  const decisionRows=[...records.querySelectorAll('[data-record-type="decision"]')];
+  const editRows=[...records.querySelectorAll('[data-record-type="edit"]')];
+  for(const row of decisionRows)decisionGroup.append(row.cloneNode(true));
+  for(const row of editRows)editGroup.append(row.cloneNode(true));
+  if(!decisionRows.length)decisionGroup.append(el('p','helper','尚無定案記錄。'));
+  if(!editRows.length)editGroup.append(el('p','helper','尚無編輯記錄。'));
+  target.append(decisionGroup,editGroup);
+  const error=records.querySelector('[data-record-type="error"]');if(error)target.prepend(error.cloneNode(true));
+  dlg.showModal();
+ });
  decide.addEventListener('click',async()=>{
   $('taskDecisionId').value=latest.id;$('taskDecisionContent').value='';
   try{const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');$('taskDecisionContent').value=r.preliminary||'';}catch(e){showToast(e.message);}
@@ -631,7 +645,7 @@ async function openTaskDetails(task,container){
   let draftNumber=0;
   for(const x of r.records||[]){
    const label=x.event==='task.ceo_edited'?'編輯工作內容':x.event==='task.ceo_draft_decision'?decisionDraftLabel(++draftNumber):'CEO 最終決定';
-   records.append(taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||''));
+   const item=taskDetailLine(new Date(x.created_at).toLocaleString('zh-TW')+'｜'+label,x.details?.content||x.details?.title||'');item.dataset.recordType=x.event==='task.ceo_edited'?'edit':'decision';records.append(item);
   }
  }catch(e){records.append(el('p','helper','讀取執行記錄失敗：'+e.message));}
 }
