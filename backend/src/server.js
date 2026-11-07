@@ -192,7 +192,7 @@ app.post('/api/tasks/:id/reopen-decision',async(req,res)=>{
   const previous=await client.query('SELECT status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
   if(!previous.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
   if(previous.rows[0].status!=='done'){await client.query('ROLLBACK');return res.status(409).json({error:'task_not_completed'});}
-  const updated=await client.query("UPDATE tasks SET status='in_progress',updated_at=NOW() WHERE id=$1 RETURNING *",[id]);
+  const updated=await client.query("UPDATE tasks SET status='in_progress',progress=0,updated_at=NOW() WHERE id=$1 RETURNING *",[id]);
   await record(client,'task.ceo_reopened_decision','task',id,{from:'done',to:'in_progress'});
   await client.query('COMMIT');res.json({task:updated.rows[0]});
  }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
