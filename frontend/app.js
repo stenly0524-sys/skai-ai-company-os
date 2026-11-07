@@ -428,7 +428,6 @@ async function openQuickProject(project){
  fullNotes.textContent=project.notes||'';
  notesPanel.hidden=!String(project.notes||'').trim();fullNotes.hidden=true;
  $('toggleProjectNotes').textContent='查看完整方案';$('toggleProjectNotes').setAttribute('aria-expanded','false');
- $('quickProjectStatus').textContent='階段：'+(project.stage||'未設定')+'｜進度：'+(project.progress===undefined||project.progress===null?'未設定':project.progress+'%');
  const linkHost=$('quickProjectDriveFolders');
  if(linkHost){linkHost.replaceChildren();
   if(workspaceMode()!=='local'){
@@ -455,9 +454,22 @@ async function openQuickProject(project){
  }
  try{
   const data=await api('/tasks');
-  const linked=(data.tasks||[]).filter(t=>t.project_id===project.id);
-  renderList($('quickProjectTasks'),linked,'這個專案尚無已保存任務。',t=>listItem(t.title,((statuses[t.status]||t.status)+' · '+(t.brief||''))));
- }catch(e){$('quickProjectTasks').replaceChildren(el('p','helper','讀取相關任務失敗：'+e.message));}
+  const linked=(data.tasks||[]).filter(t=>t.project_id===project.id&&!t.is_archived);
+  const completed=linked.filter(t=>t.status==='done');
+  const ongoing=linked.filter(t=>t.status!=='done');
+  const fill=(id,rows,empty)=>{
+   const host=$(id);host.replaceChildren();
+   if(!rows.length){host.append(el('p','helper',empty));return;}
+   for(const t of rows){
+    const item=el('div','project-task-entry');
+    item.append(el('span','project-task-entry-title',t.title));
+    if(id==='quickProjectActiveTasks')item.append(el('span','project-task-entry-status',statuses[t.status]||t.status));
+    host.append(item);
+   }
+  };
+  fill('quickProjectFinalTasks',completed,'尚無已定案任務。');
+  fill('quickProjectActiveTasks',ongoing,'目前沒有進行中任務。');
+ }catch(e){$('quickProjectFinalTasks').replaceChildren(el('p','helper','讀取已定案任務失敗：'+e.message));$('quickProjectActiveTasks').replaceChildren(el('p','helper','讀取進行中任務失敗：'+e.message));}
  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 $('closeQuickDetail')?.addEventListener('click',()=>{$('projectQuickDetail').hidden=true;});
