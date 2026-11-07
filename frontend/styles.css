@@ -1575,3 +1575,7 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 
 /* iOS Safari: prevent auto-zoom when focusing project/task search fields */
 #page-projects #projectSearch,#page-tasks #taskSearch{font-size:16px!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+/* Remove the extra left indentation highlighted in the mobile project header */
+#page-projects .listing-header .project-listing-heading{padding-left:0!important;margin-left:0!important;transform:none!important}
+#page-projects .listing-header .project-listing-heading .center-heading-label{margin-left:0!important}
