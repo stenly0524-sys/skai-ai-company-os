@@ -1481,3 +1481,8 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #taskArchiveConfirmDialog .task-confirm-neutral-btn{appearance:none;border:1px solid #d9e0e8;background:#fff;color:#34465d;border-radius:9px;font:inherit;font-weight:600;cursor:pointer;box-shadow:none}
 #taskArchiveConfirmDialog .task-confirm-neutral-btn:hover{background:#f4f6f9;border-color:#cbd4de}
 #taskArchiveConfirmDialog .task-confirm-neutral-btn:focus-visible{outline:2px solid #8b9aaa;outline-offset:2px}
+
+/* Project label immediately after task title */
+#page-tasks .actionable-task-row .task-title-project-group{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;align-items:center;column-gap:7px;row-gap:3px;min-width:0;margin-top:3px}
+#page-tasks .actionable-task-row .task-title-project-group .task-list-title{margin:0;min-width:0;overflow-wrap:anywhere}
+#page-tasks .actionable-task-row .task-project-tag{display:inline-flex;align-items:center;max-width:100%;padding:3px 8px;border-radius:7px;background:#e5f2ff;color:#2864a5;font-size:11px;font-weight:650;line-height:1.35;overflow-wrap:anywhere}
