@@ -1588,3 +1588,9 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Equalize left inset of Projects and Tasks headings relative to their card border */
 #page-projects .listing-header .project-listing-heading,#page-tasks .listing-header .task-listing-heading{padding-left:0!important;margin-left:0!important;transform:none!important}
 #page-projects .listing-header .project-listing-heading .center-heading-label,#page-tasks .listing-header .task-listing-heading .center-heading-label{margin-left:0!important}
+
+/* Actual mobile fix: the project header was centering its heading container. */
+@media(max-width:720px){
+ #page-projects .listing-header{align-items:stretch!important}
+ #page-projects .listing-header .project-listing-heading{align-self:flex-start!important;width:100%;box-sizing:border-box;justify-content:flex-start!important}
+}
