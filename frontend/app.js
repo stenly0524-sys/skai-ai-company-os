@@ -673,10 +673,12 @@ function renderTaskCards(){
   const row=el('div','visual-task-row actionable-task-row');
   const label=el('label','task-select-label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selectedTaskIds.has(t.id);checkbox.setAttribute('aria-label','選取任務 '+t.title);
   checkbox.addEventListener('change',()=>{if(checkbox.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);updateTaskSelection();});
-  label.append(checkbox);row.append(label,el('span','task-list-title',t.title));
-  const statusColumn=el('div','task-status-column');statusColumn.append(el('span','status-pill',t.is_archived?'已封存':statuses[t.status]||t.status));
+  label.append(checkbox);
   const project=projectCache.find(p=>p.id===t.project_id);
-  row.append(el('small','task-project-name',project?.name||'未分類'));
+  const titleGroup=el('div','task-title-project-group');
+  titleGroup.append(el('span','task-list-title',t.title),el('span','task-project-tag','（'+(project?.name||'未分類')+'）'));
+  row.append(label,titleGroup);
+  const statusColumn=el('div','task-status-column');statusColumn.append(el('span','status-pill',t.is_archived?'已封存':statuses[t.status]||t.status));
   const days=taskRemainingDays(t);if(days!==null){const label=t.is_archived?'已封存':t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';statusColumn.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
   const actions=el('div','task-row-actions');
   const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
