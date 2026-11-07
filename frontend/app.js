@@ -475,12 +475,18 @@ async function openQuickProject(project){
   const linked=(data.tasks||[]).filter(t=>t.project_id===project.id&&!t.is_archived);
   const completed=linked.filter(t=>t.status==='done');
   const ongoing=linked.filter(t=>t.status!=='done');
+  const stats=$('quickProjectTaskStats');stats.replaceChildren();
+  for(const [cls,label] of [['total','共 '+linked.length+' 項任務'],['done','已完成 '+completed.length+' 項任務'],['ongoing','未完成 '+ongoing.length+' 項任務']])stats.append(el('span','project-task-stat project-task-stat-'+cls,label));
   const fill=(id,rows,empty)=>{
    const host=$(id);host.replaceChildren();
    if(!rows.length){host.append(el('p','helper',empty));return;}
    for(const t of rows){
     const item=el('button','project-task-entry');item.type='button';item.setAttribute('aria-label','前往任務中心查看 '+t.title);
     const info=el('span','project-task-entry-info');const titleLine=el('span','project-task-title-line');titleLine.append(el('span','project-task-entry-title',t.title));info.append(titleLine);
+    if(id==='quickProjectActiveTasks'){
+     const started=new Date(t.created_at),now=new Date();
+     if(Number.isFinite(started.getTime()))titleLine.append(el('span','project-task-duration','已耗時 '+Math.max(1,Math.ceil((now-started)/86400000))+' 日'));
+    }
     if(id==='quickProjectFinalTasks'){
      info.append(el('span','project-task-decision',t.final_decision||'尚無最終決策結果'));
      const started=new Date(t.created_at),ended=new Date(t.final_decided_at||t.updated_at);
@@ -660,8 +666,8 @@ async function openTaskDetails(task,container){
  heading.append(headingLeft,edit);if(latest.is_archived)edit.remove();
  const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
  const plain=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'').trim();
- if(latest.status!=='done'||latest.is_archived)body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
- if((latest.status!=='done'||latest.is_archived)&&parsed)body.append(taskDetailLine('完成期限',parsed[1]));
+ body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
+ if(parsed)body.append(taskDetailLine('完成期限',parsed[1]));
  if((latest.status!=='done'||latest.is_archived)&&plain)body.append(taskDetailLine('工作內容',plain));
  edit.addEventListener('click',()=>{
   $('taskEditId').value=latest.id;$('taskEditTitle').value=latest.title;
