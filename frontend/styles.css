@@ -1579,3 +1579,8 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Remove the extra left indentation highlighted in the mobile project header */
 #page-projects .listing-header .project-listing-heading{padding-left:0!important;margin-left:0!important;transform:none!important}
 #page-projects .listing-header .project-listing-heading .center-heading-label{margin-left:0!important}
+
+/* Task list: project name sits on the second line below the task title */
+#page-tasks .task-title-project-group{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0}
+#page-tasks .task-title-project-group .task-list-title{display:block;min-width:0;max-width:100%;overflow-wrap:anywhere}
+#page-tasks .task-title-project-group .task-project-tag{display:inline-flex;align-self:flex-start;max-width:100%;margin:0;white-space:normal;overflow-wrap:anywhere}
