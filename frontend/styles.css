@@ -1809,3 +1809,37 @@ body[data-current-page="home"] .top-actions .avatar-ceo{border:1px solid rgba(25
  body[data-current-page="home"] .top-actions .header-bell svg,
  body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{width:22px!important;height:22px!important}
 }
+
+/* CEO-approved header: replace crown with account outline, enlarge all three controls. */
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ width:52px!important;height:52px!important;min-width:52px!important;flex:0 0 52px!important;
+ border-radius:50%!important;background:linear-gradient(145deg,#fff 10%,#e8f4ff 100%)!important;
+ border:1.5px solid #fff!important;box-shadow:0 5px 15px rgba(43,117,201,.19)!important;
+}
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ font-size:0!important;background-image:linear-gradient(145deg,#fff 10%,#e8f4ff 100%)!important;
+}
+body[data-current-page="home"] .top-actions .avatar-ceo::before,
+body[data-current-page="home"] .top-actions .avatar-ceo::after{content:none!important;display:none!important}
+body[data-current-page="home"] .top-actions .avatar-ceo > :not(.header-account-icon){display:none!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{
+ display:block!important;position:relative!important;width:30px!important;height:30px!important;
+ flex:0 0 30px!important;stroke:#1676df!important;fill:none!important;
+}
+body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+body[data-current-page="home"] .top-actions .header-bell svg{width:30px!important;height:30px!important}
+@media(max-width:480px){
+ body[data-current-page="home"] .top-actions{gap:7px!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button,
+ body[data-current-page="home"] .top-actions .header-bell,
+ body[data-current-page="home"] .top-actions .avatar-ceo{
+  width:45px!important;height:45px!important;min-width:45px!important;flex:0 0 45px!important;
+ }
+ body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+ body[data-current-page="home"] .top-actions .header-bell svg,
+ body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{
+  width:27px!important;height:27px!important;
+ }
+}
