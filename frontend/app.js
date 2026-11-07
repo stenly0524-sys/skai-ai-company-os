@@ -469,7 +469,7 @@ function filteredTasks(){
  const projectId=$('taskProjectFilter')?.value||'';
  return taskCache.filter(t=>{
   const done=t.status==='done',inProgress=!done&&(Boolean(t.has_activity)||['in_progress','review'].includes(t.status)),pending=!done&&!inProgress;
-  const filter=taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&pending)||(taskFilter==='in_progress'&&inProgress);
+  const filter=t.is_archived?taskFilter==='archived':taskFilter==='all'||(taskFilter==='done'&&done)||(taskFilter==='today'&&pending)||(taskFilter==='in_progress'&&inProgress);
   return filter&&(!projectId||t.project_id===projectId)&&(t.title+' '+(t.brief||'')).toLocaleLowerCase('zh-TW').includes(q);
  }).sort((a,b)=>{if(!projectId){const da=taskDeadline(a)||'9999-12-31',db=taskDeadline(b)||'9999-12-31';if(da!==db)return da.localeCompare(db);}return String(b.created_at||'').localeCompare(String(a.created_at||''));});
 }
@@ -496,10 +496,16 @@ async function deleteProjectRecord(project){
  try{await api('/projects/'+encodeURIComponent(project.id),{method:'DELETE'});$('projectQuickDetail').hidden=true;showToast('專案已刪除');await refreshManagement();}
  catch(e){showToast('刪除失敗：'+e.message);}
 }
+function taskActionConfirm(message,yesLabel='確定',noLabel='取消'){
+ const dlg=$('taskArchiveConfirmDialog');$('taskArchiveConfirmMessage').textContent=message;$('taskArchiveConfirmYes').textContent=yesLabel;$('taskArchiveConfirmNo').textContent=noLabel;
+ return new Promise(resolve=>{let settled=false;const finish=v=>{if(settled)return;settled=true;dlg.removeEventListener('close',onClose);dlg.close();resolve(v);};const onClose=()=>{if(!settled){settled=true;resolve(false);}};dlg.addEventListener('close',onClose);$('taskArchiveConfirmNo').onclick=()=>finish(false);$('taskArchiveConfirmYes').onclick=()=>finish(true);dlg.showModal();});
+}
+async function restoreTaskRecord(task){try{await api('/tasks/'+encodeURIComponent(task.id)+'/restore',{method:'POST'});showToast('任務已復原');await refreshManagement();}catch(e){showToast('復原失敗：'+e.message);}}
 async function deleteTaskRecord(task){
- if(!confirm('永久刪除任務「'+task.title+'」？其審批及 AI 規劃將一併刪除，無法復原。'))return;
- try{await api('/tasks/'+encodeURIComponent(task.id),{method:'DELETE'});selectedTaskIds.delete(task.id);showToast('任務已刪除');await refreshManagement();}
- catch(e){showToast('刪除失敗：'+e.message);}
+ const permanent=Boolean(task.is_archived);
+ if(!(await taskActionConfirm(permanent?'是否徹底刪除此工作內容？':'是否將此工作任務移至已封存？',permanent?'是':'確認',permanent?'否':'取消')))return;
+ try{await api('/tasks/'+encodeURIComponent(task.id)+(permanent?'':'/archive'),{method:permanent?'DELETE':'POST'});selectedTaskIds.delete(task.id);showToast(permanent?'任務已徹底刪除':'任務已移至已封存');await refreshManagement();}
+ catch(e){showToast((permanent?'刪除':'封存')+'失敗：'+e.message);}
 }
 async function approveTaskRecord(task,decision='approved'){
  const approval=approvalCache.find(a=>a.task_id===task.id&&a.status==='pending');
@@ -598,14 +604,14 @@ async function openTaskDetails(task,container){
  const latest=taskCache.find(t=>t.id===task.id)||task;
  const project=projectCache.find(p=>p.id===latest.project_id);
  const heading=el('div','task-detail-heading');
- const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'),el('span','status-pill',statuses[latest.status]||latest.status));
+ const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'),el('span','status-pill',latest.is_archived?'已封存':statuses[latest.status]||latest.status));
  const edit=el('button','outline-btn task-edit-top',latest.status==='done'?'已決議':'編輯');edit.type='button';edit.disabled=latest.status==='done';
- heading.append(headingLeft,edit);
+ heading.append(headingLeft,edit);if(latest.is_archived)edit.remove();
  const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
  const plain=(latest.brief||'').replace(/^【完成期限：\d{4}-\d{2}-\d{2}】\n?/,'').trim();
- if(latest.status!=='done')body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
- if(latest.status!=='done'&&parsed)body.append(taskDetailLine('完成期限',parsed[1]));
- if(latest.status!=='done'&&plain)body.append(taskDetailLine('工作內容',plain));
+ if(latest.status!=='done'||latest.is_archived)body.append(taskDetailLine('任務名稱',latest.title),taskDetailLine('所屬專案',project?.name||'未分類'));
+ if((latest.status!=='done'||latest.is_archived)&&parsed)body.append(taskDetailLine('完成期限',parsed[1]));
+ if((latest.status!=='done'||latest.is_archived)&&plain)body.append(taskDetailLine('工作內容',plain));
  edit.addEventListener('click',()=>{
   $('taskEditId').value=latest.id;$('taskEditTitle').value=latest.title;
   const match=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
@@ -616,7 +622,7 @@ async function openTaskDetails(task,container){
  const drafts=el('div','task-decision-drafts');
  const records=el('div','task-records');records.append(el('h4','','執行記錄'));
  const footer=el('div','task-detail-footer');
- const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn',latest.status==='done'?'方案重議':'決策');history.type=decide.type='button';
+ const history=el('button','outline-btn','執行記錄'),decide=el('button','primary-btn',latest.is_archived?'復原':latest.status==='done'?'方案重議':'決策');history.type=decide.type='button';
  history.addEventListener('click',()=>{
   const dlg=$('taskHistoryDialog'),target=$('taskHistoryBody');target.replaceChildren();
   const decisionGroup=el('section','task-history-group task-history-decisions');
@@ -633,6 +639,7 @@ async function openTaskDetails(task,container){
   dlg.showModal();
  });
  decide.addEventListener('click',async()=>{
+  if(latest.is_archived){await restoreTaskRecord(latest);return;}
   if(latest.status==='done'){$('taskReopenId').value=latest.id;$('taskReopenDialog').showModal();return;}
   $('taskDecisionId').value=latest.id;$('taskDecisionContent').value='';
   try{const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');$('taskDecisionContent').value=r.preliminary||'';}catch(e){showToast(e.message);}
@@ -644,7 +651,7 @@ async function openTaskDetails(task,container){
   const r=await api('/tasks/'+encodeURIComponent(latest.id)+'/ceo-records');
   const saved=(r.records||[]).filter(x=>x.event==='task.ceo_draft_decision');
   const lastFive=saved.slice(-5);
-  if(latest.status!=='done')lastFive.forEach((x,i)=>drafts.append(taskDetailLine(decisionDraftLabel(saved.length-lastFive.length+i+1),x.details?.content||'')));
+  if(latest.status!=='done'||latest.is_archived)lastFive.forEach((x,i)=>drafts.append(taskDetailLine(decisionDraftLabel(saved.length-lastFive.length+i+1),x.details?.content||'')));
   if(latest.status==='done')drafts.append(taskDetailLine('最終決策結果',r.final||'尚無最終決策內容'));
   else if(r.final)drafts.append(taskDetailLine('歷次最終決策',r.final));
   if(!(r.records||[]).length)records.append(el('p','helper','尚無編輯或決策記錄。'));
@@ -664,12 +671,13 @@ function renderTaskCards(){
   const label=el('label','task-select-label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selectedTaskIds.has(t.id);checkbox.setAttribute('aria-label','選取任務 '+t.title);
   checkbox.addEventListener('change',()=>{if(checkbox.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);updateTaskSelection();});
   label.append(checkbox);row.append(label,el('span','task-list-title',t.title));
-  const statusColumn=el('div','task-status-column');statusColumn.append(el('span','status-pill',statuses[t.status]||t.status));
+  const statusColumn=el('div','task-status-column');statusColumn.append(el('span','status-pill',t.is_archived?'已封存':statuses[t.status]||t.status));
   const project=projectCache.find(p=>p.id===t.project_id);
   row.append(el('small','task-project-name',project?.name||'未分類'));
-  const days=taskRemainingDays(t);if(days!==null){const label=t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';statusColumn.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
+  const days=taskRemainingDays(t);if(days!==null){const label=t.is_archived?'已封存':t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';statusColumn.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
   const actions=el('div','task-row-actions');
   const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
+  if(t.is_archived){const restore=el('button','outline-btn','復原');restore.type='button';restore.addEventListener('click',()=>restoreTaskRecord(t));actions.append(restore);}
   const remove=el('button','danger-outline','刪除');remove.type='button';remove.setAttribute('aria-label','刪除任務 '+t.title);remove.addEventListener('click',()=>deleteTaskRecord(t));actions.append(remove);
   row.append(actions,statusColumn);const details=el('section','task-evidence-panel');details.hidden=true;
   inspect.addEventListener('click',()=>openTaskDetails(t,details));root.append(row,details);
@@ -678,13 +686,10 @@ function renderTaskCards(){
 }
 $('selectAllTasks')?.addEventListener('change',e=>{for(const t of filteredTasks()){if(e.target.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);}renderTaskCards();});
 $('bulkDeleteTasks')?.addEventListener('click',async()=>{
- const ids=[...selectedTaskIds],names=taskCache.filter(t=>selectedTaskIds.has(t.id)).map(t=>t.title);
- if(!ids.length)return;
- if(!confirm('永久刪除 '+ids.length+' 項任務？\n'+names.slice(0,5).join('、')+'\n無法復原。'))return;
- let done=0,errors=[];
- for(const id of ids){try{await api('/tasks/'+encodeURIComponent(id),{method:'DELETE'});done++;selectedTaskIds.delete(id);}catch(e){errors.push(e.message);}}
- showToast('刪除 '+done+' 項，失敗 '+errors.length+' 項'+(errors.length?'：'+errors[0]:''));
- await refreshManagement();
+ const tasks=taskCache.filter(t=>selectedTaskIds.has(t.id));if(!tasks.length)return;
+ const permanent=tasks.every(t=>t.is_archived);if(!(await taskActionConfirm(permanent?'是否徹底刪除已選的 '+tasks.length+' 項工作內容？':'是否將已選的 '+tasks.length+' 項任務移至已封存？',permanent?'是':'確認',permanent?'否':'取消')))return;
+ let count=0,errors=[];for(const t of tasks){try{await api('/tasks/'+encodeURIComponent(t.id)+(t.is_archived?'':'/archive'),{method:t.is_archived?'DELETE':'POST'});count++;}catch(e){errors.push(e.message);}}
+ showToast('已處理 '+count+' 項，失敗 '+errors.length+' 項'+(errors.length?'：'+errors[0]:''));await refreshManagement();
 });
 $('projectSearch')?.addEventListener('input',renderProjectCards);
 $('taskSearch')?.addEventListener('input',renderTaskCards);
