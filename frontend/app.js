@@ -432,17 +432,20 @@ function projectAvatarPreview(mode,value){
  if(value){const img=document.createElement('img');img.src=value;img.alt='專案頭像預覽';button.append(img);}
  else button.textContent='＋';
 }
+let projectAvatarDesignCounter=0;
 function makeProjectAvatarFromName(name){
+ const variant=++projectAvatarDesignCounter;
  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
  const ctx=canvas.getContext('2d');const text=String(name||'專案').trim()||'專案';
  let hash=0;for(const char of text)hash=(hash*31+char.codePointAt(0))>>>0;
- const hue=hash%360;
+ const hue=(hash+variant*47)%360;
  const gradient=ctx.createLinearGradient(0,0,256,256);
- gradient.addColorStop(0,'hsl('+hue+',65%,44%)');gradient.addColorStop(1,'hsl('+((hue+65)%360)+',72%,24%)');
+ gradient.addColorStop(0,'hsl('+hue+',65%,44%)');gradient.addColorStop(1,'hsl('+((hue+65+variant*13)%360)+',72%,24%)');
  ctx.fillStyle=gradient;ctx.fillRect(0,0,256,256);
  ctx.strokeStyle='rgba(255,255,255,.19)';ctx.lineWidth=5;
- ctx.beginPath();ctx.arc(198,52,102,0,Math.PI*2);ctx.stroke();
- ctx.beginPath();ctx.arc(28,220,90,0,Math.PI*2);ctx.stroke();
+ if(variant%3===0){for(let n=0;n<5;n++){ctx.beginPath();ctx.arc(128,128,38+n*31,0,Math.PI*2);ctx.stroke();}}
+ else if(variant%3===1){ctx.beginPath();ctx.arc(198,52,102,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(28,220,90,0,Math.PI*2);ctx.stroke();}
+ else{for(let n=-2;n<=4;n++){ctx.beginPath();ctx.moveTo(n*65,0);ctx.lineTo(n*65+200,256);ctx.stroke();}}
  const chars=Array.from(text).filter(x=>x.trim()).slice(0,2).join('');
  ctx.fillStyle='#fff';ctx.font='bold 94px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
  ctx.fillText(chars||'專',128,128,214);
@@ -473,7 +476,7 @@ for(const editor of document.querySelectorAll('[data-avatar-editor]')){
    const form=editor.closest('form');
    projectAvatarDraft[mode]=makeProjectAvatarFromName(form.elements.name.value);
    projectAvatarPreview(mode,projectAvatarDraft[mode]);
-  }else editor.querySelector('[data-avatar-file="'+action+'"]').click();
+  }else editor.querySelector('[data-avatar-file="upload"]').click();
  }));
  editor.querySelectorAll('[data-avatar-file]').forEach(input=>input.addEventListener('change',async()=>{
   if(!input.files?.[0])return;
