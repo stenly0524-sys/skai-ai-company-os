@@ -119,7 +119,8 @@ app.get('/api/projects', async (_req,res) => {
 app.post('/api/projects', async(req,res) => {
  const name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000),deadline=txt(req.body?.deadline,10),avatar=req.body?.avatar;
  if(deadline&&!/^\d{4}-\d{2}-\d{2}$/.test(deadline))return res.status(400).json({error:'invalid_project_deadline'});
- if(!name) return res.status(400).json({error:'name_required'});\n if(avatar!==undefined&&!validProjectAvatar(avatar))return res.status(400).json({error:'invalid_project_avatar'});
+ if(!name) return res.status(400).json({error:'name_required'});
+ if(avatar!==undefined&&!validProjectAvatar(avatar))return res.status(400).json({error:'invalid_project_avatar'});
  const client=await db.connect();
  try{
   await client.query('BEGIN');
