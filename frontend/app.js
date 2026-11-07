@@ -8,7 +8,7 @@ import {el,listItem,renderList} from './ui.js';
 const $=id=>document.getElementById(id);
 const dialog=$('employeeDialog'),toast=$('toast');
 let currentEmployee=EMPLOYEES[0],isSignedIn=false,toastTimer;
-let projectCache=[],roleConversations=new Map(),chatHistoryRequest=0,projectFilter='all',taskFilter='all',taskCache=[],selectedTaskIds=new Set(),approvalCache=[];
+let activeQuickProjectId=null,projectCache=[],roleConversations=new Map(),chatHistoryRequest=0,projectFilter='all',taskFilter='all',taskCache=[],selectedTaskIds=new Set(),approvalCache=[];
 const orchestrationStatuses={draft:'待 CEO 審核提案',ready:'已核准，待執行',running:'分析中',paused:'暫停',failed:'分析失敗',review:'待 CEO 驗收',done:'已完成'};
 function showToast(message){
  toast.textContent=message;toast.hidden=false;clearTimeout(toastTimer);
@@ -420,10 +420,24 @@ function renderProjectCards(){
   const row=el('div','project-manage-row');const del=el('button','danger-outline','刪除');del.type='button';del.setAttribute('aria-label','刪除專案 '+p.name);del.addEventListener('click',()=>deleteProjectRecord(p));row.append(button,del);root.append(row);
  }
 }
+async function jumpToTaskDetail(taskId){
+ showPage('tasks');
+ $('taskProjectFilter').value='';$('taskSearch').value='';taskFilter='all';
+ document.querySelectorAll('[data-task-filter]').forEach(b=>b.classList.toggle('active',b.dataset.taskFilter==='all'));
+ await loadTasks();
+ const task=taskCache.find(t=>t.id===taskId);
+ if(!task){showToast('找不到此工作任務');return;}
+ const rows=[...$('taskCards').querySelectorAll('.actionable-task-row')];
+ const index=filteredTasks().findIndex(t=>t.id===taskId);
+ if(index<0||!rows[index]){showToast('任務不在目前清單');return;}
+ const details=rows[index].nextElementSibling;
+ await openTaskDetails(task,details);
+ rows[index].scrollIntoView({behavior:'smooth',block:'center'});
+}
 async function openQuickProject(project){
  const panel=$('projectQuickDetail');if(!panel)return;
- panel.hidden=false;$('quickProjectName').textContent=project.name;
- $('quickProjectGoal').textContent=project.goal||'尚未設定專案目標';
+ panel.hidden=false;activeQuickProjectId=project.id;$('quickProjectName').textContent=project.name;
+ $('quickProjectGoal').textContent='專案期限：'+(project.deadline||'尚未設定');
  const notesPanel=$('quickProjectNotesPanel');const fullNotes=$('quickProjectNotes');
  fullNotes.textContent=project.notes||'';
  notesPanel.hidden=!String(project.notes||'').trim();fullNotes.hidden=true;
@@ -461,10 +475,16 @@ async function openQuickProject(project){
    const host=$(id);host.replaceChildren();
    if(!rows.length){host.append(el('p','helper',empty));return;}
    for(const t of rows){
-    const item=el('div','project-task-entry');
-    item.append(el('span','project-task-entry-title',t.title));
+    const item=el('button','project-task-entry');item.type='button';item.setAttribute('aria-label','前往任務中心查看 '+t.title);
+    const info=el('span','project-task-entry-info');info.append(el('span','project-task-entry-title',t.title));
+    if(id==='quickProjectFinalTasks'){
+     info.append(el('span','project-task-decision',t.final_decision||'尚無最終決策結果'));
+     const started=new Date(t.created_at),ended=new Date(t.final_decided_at||t.updated_at);
+     if(Number.isFinite(started.getTime())&&Number.isFinite(ended.getTime()))info.append(el('span','project-task-duration','任務耗時 '+Math.max(1,Math.ceil((ended-started)/86400000))+' 日'));
+    }
+    item.append(info);
     if(id==='quickProjectActiveTasks')item.append(el('span','project-task-entry-status',statuses[t.status]||t.status));
-    host.append(item);
+    item.addEventListener('click',()=>jumpToTaskDetail(t.id));host.append(item);
    }
   };
   fill('quickProjectFinalTasks',completed,'尚無已定案任務。');
@@ -472,6 +492,18 @@ async function openQuickProject(project){
  }catch(e){$('quickProjectFinalTasks').replaceChildren(el('p','helper','讀取已定案任務失敗：'+e.message));$('quickProjectActiveTasks').replaceChildren(el('p','helper','讀取進行中任務失敗：'+e.message));}
  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+$('editQuickProject')?.addEventListener('click',()=>{
+ const p=projectCache.find(x=>x.id===activeQuickProjectId);if(!p)return;
+ const f=$('projectEditForm');f.elements.id.value=p.id;f.elements.name.value=p.name;f.elements.goal.value=p.goal||'';f.elements.deadline.value=p.deadline||'';$('projectEditDialog').showModal();
+});
+$('closeProjectEdit')?.addEventListener('click',()=>$('projectEditDialog').close());
+$('projectEditForm')?.addEventListener('submit',async e=>{
+ e.preventDefault();const f=e.currentTarget,fd=new FormData(f),id=String(fd.get('id'));
+ const button=f.querySelector('[type="submit"]');button.disabled=true;
+ try{await api('/projects/'+encodeURIComponent(id),{method:'PUT',body:{name:String(fd.get('name')||'').trim(),goal:String(fd.get('goal')||'').trim(),deadline:String(fd.get('deadline')||'')}});
+  $('projectEditDialog').close();await loadProjects();const updated=projectCache.find(p=>p.id===id);if(updated)await openQuickProject(updated);showToast('專案內容已更新');
+ }catch(err){showToast('更新專案失敗：'+err.message)}finally{button.disabled=false;}
+});
 $('closeQuickDetail')?.addEventListener('click',()=>{$('projectQuickDetail').hidden=true;});
 $('toggleProjectNotes')?.addEventListener('click',()=>{const pre=$('quickProjectNotes');pre.hidden=!pre.hidden;const open=!pre.hidden;$('toggleProjectNotes').textContent=open?'收起完整方案':'查看完整方案';$('toggleProjectNotes').setAttribute('aria-expanded',String(open));});
 function taskDeadline(task){const match=(task.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】/);return match?.[1]||null;}
@@ -619,7 +651,7 @@ async function openTaskDetails(task,container){
  const latest=taskCache.find(t=>t.id===task.id)||task;
  const project=projectCache.find(p=>p.id===latest.project_id);
  const heading=el('div','task-detail-heading');
- const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'),el('span','status-pill',latest.is_archived?'已封存':statuses[latest.status]||latest.status));
+ const headingLeft=el('div','task-detail-heading-left');headingLeft.append(el('h3','','工作內容'));
  const edit=el('button','outline-btn task-edit-top',latest.status==='done'?'已決議':'編輯');edit.type='button';edit.disabled=latest.status==='done';
  heading.append(headingLeft,edit);if(latest.is_archived)edit.remove();
  const body=el('div','task-detail-body');const parsed=(latest.brief||'').match(/^【完成期限：(\d{4}-\d{2}-\d{2})】\n?/);
@@ -854,10 +886,10 @@ async function refreshAll(){
 $('projectForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
  const form=event.currentTarget;
- const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim();
+ const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim(),deadline=String(fd.get('deadline')||'');
  if(!name)return;
  const button=form.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/projects',{method:'POST',body:{name,goal}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ try{await api('/projects',{method:'POST',body:{name,goal,deadline}});form.reset();await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
