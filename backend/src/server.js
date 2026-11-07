@@ -162,6 +162,46 @@ app.delete('/api/tasks/:id',async(req,res)=>{
   await client.query('COMMIT');res.json({ok:true,deleted_task:id});
  }catch(e){await client.query('ROLLBACK');if(e.code==='23503')return res.status(409).json({error:'task_has_other_dependencies'});sendError(res,e);}finally{client.release();}
 });
+// CEO task notes and decisions are recorded in the existing audit log, preserving history.
+app.get('/api/tasks/:id/ceo-records',async(req,res)=>{
+ const id=req.params.id;if(!uuid(id))return res.status(400).json({error:'invalid_task_id'});
+ try{
+  const t=await db.query('SELECT id FROM tasks WHERE id=$1',[id]);
+  if(!t.rowCount)return res.status(404).json({error:'task_not_found'});
+  const q=await db.query("SELECT event,details,created_at FROM audit_log WHERE target_type='task' AND target_id=$1 AND event IN ('task.ceo_edited','task.ceo_draft_decision','task.ceo_final_decision') ORDER BY created_at ASC",[id]);
+  res.json({records:q.rows,preliminary:q.rows.filter(x=>x.event==='task.ceo_draft_decision').at(-1)?.details?.content||null,final:q.rows.filter(x=>x.event==='task.ceo_final_decision').at(-1)?.details?.content||null});
+ }catch(e){sendError(res,e);}
+});
+app.put('/api/tasks/:id/ceo-edit',async(req,res)=>{
+ const id=req.params.id,title=txt(req.body?.title,160),brief=txt(req.body?.brief,8000);
+ if(!uuid(id)||!title||typeof req.body?.brief!=='string'||req.body.brief.length>8000)return res.status(400).json({error:'invalid_task_edit'});
+ const client=await db.connect();
+ try{await client.query('BEGIN');
+  const prev=await client.query('SELECT title,brief,status FROM tasks WHERE id=$1 FOR UPDATE',[id]);
+  if(!prev.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  if(prev.rows[0].status==='done'){await client.query('ROLLBACK');return res.status(409).json({error:'completed_task_read_only'});}
+  const q=await client.query('UPDATE tasks SET title=$2,brief=$3,updated_at=NOW() WHERE id=$1 RETURNING *',[id,title,brief]);
+  await record(client,'task.ceo_edited','task',id,{previous:prev.rows[0],title,brief});
+  await client.query('COMMIT');res.json({task:q.rows[0]});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
+app.post('/api/tasks/:id/ceo-decision',async(req,res)=>{
+ const id=req.params.id,content=txt(req.body?.content,6000),action=req.body?.action;
+ if(!uuid(id)||!content||!['save','decide'].includes(action))return res.status(400).json({error:'invalid_ceo_decision'});
+ const client=await db.connect();
+ try{await client.query('BEGIN');
+  const prev=await client.query('SELECT * FROM tasks WHERE id=$1 FOR UPDATE',[id]);
+  if(!prev.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'task_not_found'});}
+  if(prev.rows[0].status==='done'){await client.query('ROLLBACK');return res.status(409).json({error:'task_already_completed'});}
+  await record(client,action==='save'?'task.ceo_draft_decision':'task.ceo_final_decision','task',id,{content});
+  let task=prev.rows[0];
+  if(action==='decide'){
+   const q=await client.query("UPDATE tasks SET status='done',progress=100,updated_at=NOW() WHERE id=$1 RETURNING *",[id]);task=q.rows[0];
+   await client.query("UPDATE approvals SET status='rejected',note='CEO 已直接決策結案',decided_at=NOW() WHERE task_id=$1 AND status='pending'",[id]);
+  }
+  await client.query('COMMIT');res.json({task,action});
+ }catch(e){await client.query('ROLLBACK');sendError(res,e);}finally{client.release();}
+});
 app.post('/api/tasks/:id/transition',async(req,res)=>{
  const id=req.params.id,status=req.body?.status;
  if(!uuid(id)||typeof status!=='string')return res.status(400).json({error:'invalid_task_transition'});
