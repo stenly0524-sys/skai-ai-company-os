@@ -159,12 +159,17 @@ $('projectForm').addEventListener('submit',async event=>{
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
+$('openTaskCreate').addEventListener('click',()=>{$('taskCreateDialog').showModal();});
+$('closeTaskCreate').addEventListener('click',()=>{$('taskCreateDialog').close();});
+$('taskCreateDialog').addEventListener('click',event=>{if(event.target===event.currentTarget)event.currentTarget.close();});
 $('taskForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
  const fd=new FormData(event.currentTarget);
- const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:String(fd.get('brief')||'')};
+ const dueDate=String(fd.get('due_date')||'');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)){showToast('請選擇完成期限');return;}
+ const body={project_id:String(fd.get('project_id')||''),title:String(fd.get('title')||''),brief:'【完成期限：'+dueDate+'】\n'+String(fd.get('brief')||'')};
  const button=event.currentTarget.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/tasks',{method:'POST',body});event.currentTarget.reset();await Promise.all([loadTasks(),loadApprovals(),loadDashboard(),loadHomeSummary(),loadDataIndex()]);showToast('任務已送至 CEO 審批');}
+ try{await api('/tasks',{method:'POST',body});event.currentTarget.reset();$('taskCreateDialog').close();await Promise.all([loadTasks(),loadApprovals(),loadDashboard(),loadHomeSummary(),loadDataIndex()]);showToast('任務已新增至清單，待 CEO 核准');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
