@@ -77,7 +77,7 @@ export function applyInterfaceIcons(){
   observer.observe(root,{childList:true,subtree:true});
  }
  const other=[
-  ['#ceoInfo','ceo'],['#closeEmployee','settings'],['#useLocal','settings'],['#useCloud','relationships'],
+  ['#closeEmployee','settings'],['#useLocal','settings'],['#useCloud','relationships'],
   ['#employeeChat','relationships'],['#projectForm [type="submit"]','projects'],
   ['#taskForm [type="submit"]','tasks'],['#orchestrationForm [type="submit"]','orchestrations'],
   ['#chatPreviewForm [type="submit"]','chief_of_staff'],['#loginForm [type="submit"]','validation'],['#aiControlForm [type="submit"]','settings']
