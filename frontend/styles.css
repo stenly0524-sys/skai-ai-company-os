@@ -1863,3 +1863,44 @@ body[data-current-page="home"] .top-actions .header-bell svg{width:30px!importan
 #page-assistant .assistant-hero .assistant-portrait-wrap{width:100%;display:flex;justify-content:center;align-items:center;padding:4px 0 8px}
 #page-assistant .assistant-hero .assistant-portrait{display:block;width:min(100%,320px);height:auto;aspect-ratio:1;object-fit:cover;border-radius:22px;box-shadow:0 12px 30px rgba(14,75,148,.15)}
 @media(max-width:480px){#page-assistant .assistant-hero .assistant-portrait{width:min(100%,280px)}}
+
+/* Headquarters priority: four round controls -> assistant chat -> today's tasks. */
+#page-home .compact-home-kpis{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin:10px 0 16px!important}
+#page-home .compact-home-kpis .kpi{
+ display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+ width:100%!important;aspect-ratio:1!important;min-width:0!important;min-height:0!important;
+ padding:8px 4px!important;border-radius:50%!important;text-align:center!important;
+ background:linear-gradient(150deg,#fff,#e9f4ff)!important;border:1.5px solid #fff!important;
+ box-shadow:0 5px 15px rgba(54,126,205,.17)!important;
+}
+#page-home .compact-home-kpis .kpi span{font-size:clamp(9px,2.5vw,14px)!important;line-height:1.25!important;white-space:normal!important}
+#page-home .compact-home-kpis .kpi strong{font-size:clamp(16px,4.5vw,30px)!important;line-height:1.25!important;margin-top:4px!important}
+#page-home .compact-home-kpis .kpi small{display:none!important}
+#page-home .home-assistant-card{
+ display:grid!important;grid-template-columns:minmax(0,36%) minmax(0,1fr);gap:12px;
+ align-items:stretch;padding:12px!important;margin:0 0 16px!important;
+ background:linear-gradient(130deg,#e2f0ff,#f7fbff)!important;
+ overflow:hidden;
+}
+#page-home .home-assistant-portrait{min-width:0;min-height:210px;border-radius:17px;overflow:hidden;background:linear-gradient(155deg,#14478b,#72b8fc)}
+#page-home .home-assistant-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+#page-home .home-assistant-chat{min-width:0;display:flex;flex-direction:column;gap:8px}
+#page-home .home-assistant-chat>.card{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;margin:0!important}
+#page-home .home-assistant-chat .assistant-listing-heading{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:0!important}
+#page-home .home-assistant-chat .center-heading-label{font-size:18px;padding:7px 10px;background:#d9ebff;border-radius:10px;color:#195a9b}
+#page-home .home-assistant-chat .assistant-listing-heading .helper{margin:0;font-size:12px}
+#page-home .home-assistant-chat .section-top,#page-home .home-assistant-chat .chat-preview,#page-home .home-assistant-chat .card>.helper{display:none!important}
+#page-home .home-assistant-chat .chat-history{min-height:60px;max-height:180px;overflow:auto}
+#page-home .home-assistant-chat .chat-form{display:flex!important;gap:7px;flex-wrap:wrap}
+#page-home .home-assistant-chat .chat-form input{min-width:0;flex:1 1 100%;width:100%;border-radius:13px}
+#page-home .home-assistant-chat .chat-form button{margin-left:auto}
+#page-home .home-todo-card{margin-top:0}
+@media(max-width:480px){
+ #page-home .compact-home-kpis{gap:6px!important}
+ #page-home .compact-home-kpis .kpi{padding:5px 2px!important}
+ #page-home .home-assistant-card{grid-template-columns:minmax(0,37%) minmax(0,1fr);gap:9px;padding:9px!important}
+ #page-home .home-assistant-portrait{min-height:190px}
+ #page-home .home-assistant-chat .center-heading-label{font-size:15px;padding:6px 8px}
+ #page-home .home-assistant-chat .assistant-listing-heading .helper{font-size:10px}
+ #page-home .home-assistant-chat .chat-form input{font-size:14px}
+}
