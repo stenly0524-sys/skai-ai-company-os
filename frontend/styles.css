@@ -1494,3 +1494,15 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 /* Match task creation button height to task search input */
 #page-tasks #taskSearch,#page-tasks #jumpTaskCreate{height:42px;min-height:42px;box-sizing:border-box}
 #page-tasks #jumpTaskCreate{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;line-height:1.2}
+
+/* Project detail: separate finalized and active task groups */
+#page-projects .project-task-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+#page-projects .project-task-section{border-radius:12px;padding:16px;min-width:0;border:1px solid transparent}
+#page-projects .project-task-final{background:#eaf4ff;border-color:#d1e6fb}
+#page-projects .project-task-active{background:#f4f6fa;border-color:#e0e5ed}
+#page-projects .project-task-section h3{margin:0 0 12px;font-size:16px;color:#263e5b}
+#page-projects .project-task-entries{display:grid;gap:8px}
+#page-projects .project-task-entry{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px;border-radius:8px;background:#fff;color:#263e5b;font-size:13px}
+#page-projects .project-task-entry-title{font-weight:600;overflow-wrap:anywhere;min-width:0}
+#page-projects .project-task-entry-status{font-size:11px;color:#5d718b;white-space:nowrap}
+@media(max-width:700px){#page-projects .project-task-sections{grid-template-columns:1fr}}
