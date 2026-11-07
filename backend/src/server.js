@@ -24,7 +24,7 @@ const db = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.e
 configureAiUsage(db);
 const app = express();
 app.disable('x-powered-by');
-app.use(express.json({ limit: '32kb' }));
+app.use(express.json({ limit: '256kb' }));
 app.use((req, res, next) => {
  res.set('Cache-Control', 'no-store');
  res.set('X-Content-Type-Options', 'nosniff');
