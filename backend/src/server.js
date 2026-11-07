@@ -130,7 +130,8 @@ app.post('/api/projects', async(req,res) => {
 });
 app.put('/api/projects/:id',async(req,res)=>{
  const id=req.params.id,name=txt(req.body?.name,120),goal=txt(req.body?.goal,8000),deadline=txt(req.body?.deadline,10),avatar=req.body?.avatar;
- if(avatar!==undefined&&!validProjectAvatar(avatar))return res.status(400).json({error:'invalid_project_avatar'});\n if(!uuid(id)||!name||!/^\d{4}-\d{2}-\d{2}$/.test(deadline)&&deadline)return res.status(400).json({error:'invalid_project_update'});
+ if(avatar!==undefined&&!validProjectAvatar(avatar))return res.status(400).json({error:'invalid_project_avatar'});
+ if(!uuid(id)||!name||!/^\d{4}-\d{2}-\d{2}$/.test(deadline)&&deadline)return res.status(400).json({error:'invalid_project_update'});
  const client=await db.connect();
  try{await client.query('BEGIN');
   const q=await client.query('UPDATE projects SET name=$2,goal=$3 WHERE id=$1 RETURNING *',[id,name,goal]);
