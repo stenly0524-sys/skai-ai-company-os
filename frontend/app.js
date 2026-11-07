@@ -469,7 +469,7 @@ for(const editor of document.querySelectorAll('[data-avatar-editor]')){
  const mode=editor.dataset.avatarEditor;
  const picker=editor.querySelector('.project-avatar-picker');
  const options=editor.querySelector('.project-avatar-options');
- picker.addEventListener('click',()=>{options.hidden=!options.hidden;});
+ picker.addEventListener('click',()=>editor.querySelector('[data-avatar-file="upload"]').click());
  editor.querySelectorAll('[data-avatar-action]').forEach(button=>button.addEventListener('click',()=>{
   const action=button.dataset.avatarAction;options.hidden=true;
   if(action==='design'){
