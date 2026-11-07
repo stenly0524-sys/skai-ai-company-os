@@ -31,7 +31,7 @@ function showEmployee(employee){
 }
 $('closeEmployee').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
-function showPage(page){
+function showPage(page,skipRefresh=false){
  const target=$('page-'+page);if(!target)return;
  for(const section of document.querySelectorAll('.page')){
   const active=section===target;
@@ -49,7 +49,7 @@ function showPage(page){
  if(history.replaceState)history.replaceState(null,'','#'+page);
  const headings={home:['總部｜早安，CEO','SKAI OS｜個人企業智慧管理中心'],employees:['部門中心','各部門虛擬主管與工作內容'],projects:['專案中心','管理所有專案、進度與里程碑'],tasks:['任務中心','管理與追蹤所有任務執行進度'],data:['資料中心','集中管理知識與工作紀錄'],assistant:['智能助理','你的專屬策略與執行助理']};
  const heading=headings[page]||['SKAI 指揮中心','管理功能'];$('pageTitle').textContent=heading[0];$('pageSubtitle').textContent=heading[1];
- if(isSignedIn)refreshPage(page).catch(e=>showToast(e.message));
+ if(isSignedIn&&!skipRefresh)refreshPage(page).catch(e=>showToast(e.message));
 }
 for(const button of document.querySelectorAll('[data-page]'))button.addEventListener('click',()=>showPage(button.dataset.page));
 function closeMobileMore(){
@@ -421,18 +421,22 @@ function renderProjectCards(){
  }
 }
 async function jumpToTaskDetail(taskId){
- showPage('tasks');
+ // Avoid the page's automatic async refresh replacing task rows after expansion.
+ showPage('tasks',true);
+ await loadProjects();
  $('taskProjectFilter').value='';$('taskSearch').value='';taskFilter='all';
  document.querySelectorAll('[data-task-filter]').forEach(b=>b.classList.toggle('active',b.dataset.taskFilter==='all'));
  await loadTasks();
  const task=taskCache.find(t=>t.id===taskId);
  if(!task){showToast('找不到此工作任務');return;}
- const rows=[...$('taskCards').querySelectorAll('.actionable-task-row')];
+ if(task.is_archived){taskFilter='archived';document.querySelectorAll('[data-task-filter]').forEach(b=>b.classList.toggle('active',b.dataset.taskFilter==='archived'));}
+ renderTaskCards();
  const index=filteredTasks().findIndex(t=>t.id===taskId);
- if(index<0||!rows[index]){showToast('任務不在目前清單');return;}
- const details=rows[index].nextElementSibling;
+ const row=$('taskCards').querySelectorAll('.actionable-task-row')[index];
+ if(index<0||!row){showToast('任務不在目前清單');return;}
+ const details=row.nextElementSibling;
  await openTaskDetails(task,details);
- rows[index].scrollIntoView({behavior:'smooth',block:'center'});
+ row.scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function openQuickProject(project){
  const panel=$('projectQuickDetail');if(!panel)return;
@@ -476,14 +480,14 @@ async function openQuickProject(project){
    if(!rows.length){host.append(el('p','helper',empty));return;}
    for(const t of rows){
     const item=el('button','project-task-entry');item.type='button';item.setAttribute('aria-label','前往任務中心查看 '+t.title);
-    const info=el('span','project-task-entry-info');info.append(el('span','project-task-entry-title',t.title));
+    const info=el('span','project-task-entry-info');const titleLine=el('span','project-task-title-line');titleLine.append(el('span','project-task-entry-title',t.title));info.append(titleLine);
     if(id==='quickProjectFinalTasks'){
      info.append(el('span','project-task-decision',t.final_decision||'尚無最終決策結果'));
      const started=new Date(t.created_at),ended=new Date(t.final_decided_at||t.updated_at);
-     if(Number.isFinite(started.getTime())&&Number.isFinite(ended.getTime()))info.append(el('span','project-task-duration','任務耗時 '+Math.max(1,Math.ceil((ended-started)/86400000))+' 日'));
+     if(Number.isFinite(started.getTime())&&Number.isFinite(ended.getTime()))titleLine.append(el('span','project-task-duration','耗時 '+Math.max(1,Math.ceil((ended-started)/86400000))+' 日'));
     }
     item.append(info);
-    if(id==='quickProjectActiveTasks')item.append(el('span','project-task-entry-status',statuses[t.status]||t.status));
+    
     item.addEventListener('click',()=>jumpToTaskDetail(t.id));host.append(item);
    }
   };
@@ -722,7 +726,7 @@ function renderTaskCards(){
   const titleGroup=el('div','task-title-project-group');
   titleGroup.append(el('span','task-list-title',t.title),el('span','task-project-tag','（'+(project?.name||'未分類')+'）'));
   row.append(label,titleGroup);
-  const statusColumn=el('div','task-status-column');statusColumn.append(el('span','status-pill',t.is_archived?'已封存':statuses[t.status]||t.status));
+  const statusColumn=el('div','task-status-column');
   const days=taskRemainingDays(t);if(days!==null){const label=t.is_archived?'已封存':t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';statusColumn.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
   const actions=el('div','task-row-actions');
   const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
