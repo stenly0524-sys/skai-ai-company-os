@@ -1506,3 +1506,11 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-projects .project-task-entry-title{font-weight:600;overflow-wrap:anywhere;min-width:0}
 #page-projects .project-task-entry-status{font-size:11px;color:#5d718b;white-space:nowrap}
 @media(max-width:700px){#page-projects .project-task-sections{grid-template-columns:1fr}}
+
+/* Project detail task summaries and edit control */
+#page-projects .project-detail-actions{display:flex;align-items:center;gap:10px}
+#page-projects .project-task-entry{text-align:left;width:100%;border:1px solid transparent;cursor:pointer;font-family:inherit}
+#page-projects .project-task-entry:hover{border-color:#a7c8ed;box-shadow:0 2px 8px #244e7d15}
+#page-projects .project-task-entry-info{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;flex:1}
+#page-projects .project-task-decision{font-size:12px;font-weight:400;color:#455b75;white-space:pre-wrap;overflow-wrap:anywhere}
+#page-projects .project-task-duration{font-size:11px;font-weight:600;color:#47729e}
