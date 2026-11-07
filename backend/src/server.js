@@ -100,7 +100,7 @@ app.get('/api/projects', async (_req,res) => {
  COALESCE(task_counts.total_tasks,0)::integer AS total_tasks,
  COALESCE(task_counts.completed_tasks,0)::integer AS completed_tasks,
  CASE WHEN COALESCE(task_counts.total_tasks,0)=0 THEN 0
- ELSE ROUND(100.0*task_counts.completed_tasks/task_counts.total_tasks)::integer END AS progress
+ ELSE ROUND(100.0*task_counts.completed_tasks/task_counts.total_tasks)::integer END AS task_progress
  FROM projects p
  LEFT JOIN LATERAL (
  SELECT COUNT(*) AS total_tasks,COUNT(*) FILTER (WHERE t.status='done') AS completed_tasks
