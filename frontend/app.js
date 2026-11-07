@@ -663,14 +663,15 @@ function renderTaskCards(){
   const row=el('div','visual-task-row actionable-task-row');
   const label=el('label','task-select-label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selectedTaskIds.has(t.id);checkbox.setAttribute('aria-label','選取任務 '+t.title);
   checkbox.addEventListener('change',()=>{if(checkbox.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);updateTaskSelection();});
-  label.append(checkbox);row.append(label,el('span','task-list-title',t.title),el('span','status-pill',statuses[t.status]||t.status));
+  label.append(checkbox);row.append(label,el('span','task-list-title',t.title));
+  const statusColumn=el('div','task-status-column');statusColumn.append(el('span','status-pill',statuses[t.status]||t.status));
   const project=projectCache.find(p=>p.id===t.project_id);
   row.append(el('small','task-project-name',project?.name||'未分類'));
-  const days=taskRemainingDays(t);if(days!==null){const label=t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';row.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
+  const days=taskRemainingDays(t);if(days!==null){const label=t.status==='done'?'已完成':days<0?'逾期 '+Math.abs(days)+' 日':days===0?'今日到期':'剩餘 '+days+' 日';statusColumn.append(el('span','task-remaining-days'+(t.status!=='done'&&days<=3?' task-deadline-urgent':''),label));}
   const actions=el('div','task-row-actions');
   const inspect=el('button','outline-btn','查看內容');inspect.type='button';actions.append(inspect);
   const remove=el('button','danger-outline','刪除');remove.type='button';remove.setAttribute('aria-label','刪除任務 '+t.title);remove.addEventListener('click',()=>deleteTaskRecord(t));actions.append(remove);
-  row.append(actions);const details=el('section','task-evidence-panel');details.hidden=true;
+  row.append(actions,statusColumn);const details=el('section','task-evidence-panel');details.hidden=true;
   inspect.addEventListener('click',()=>openTaskDetails(t,details));root.append(row,details);
  }
  updateTaskSelection();
