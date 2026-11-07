@@ -1660,3 +1660,14 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #page-tasks #jumpTaskCreate i,
 #page-tasks #jumpTaskCreate .icon{display:none!important;content:none!important}
 #page-tasks #jumpTaskCreate{gap:0!important;background-image:linear-gradient(100deg,#4297fc,#1970df)}
+
+/* Project avatar chooser, consistent in create/edit forms and mobile layouts. */
+.project-avatar-editor{display:flex;flex-direction:column;align-items:flex-start;gap:9px;position:relative;min-width:0}
+.project-avatar-label{font-size:13px;font-weight:750;color:#526987}
+.project-avatar-picker{display:flex;align-items:center;justify-content:center;width:84px;height:84px;min-width:84px;padding:0;border:2px dashed #9cbbe4;border-radius:20px;background:#f0f6ff;color:#2e7bd5;font-size:34px;font-weight:400;overflow:hidden;cursor:pointer}
+.project-avatar-picker img,.project-graphic .project-avatar-image{width:100%;height:100%;display:block;object-fit:cover}
+.project-avatar-options{display:flex;gap:8px;flex-wrap:wrap;max-width:100%}
+.project-avatar-options[hidden]{display:none!important}
+.project-avatar-options button{border:1px solid #c7d8ee;background:#fff;color:#2b5487;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.project-avatar-hint{margin:0;font-size:12px}
+.project-graphic{overflow:hidden}
