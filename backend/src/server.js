@@ -95,7 +95,22 @@ app.get('/api/dashboard', async (_req,res) => {
  }catch(e){sendError(res,e)}
 });
 app.get('/api/projects', async (_req,res) => {
- try { const q=await db.query(`SELECT p.*, (SELECT a.details->>'deadline' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') ORDER BY a.created_at DESC LIMIT 1) AS deadline FROM projects p ORDER BY p.created_at DESC LIMIT 200`);res.json({projects:q.rows}); }
+ try { const q=await db.query(`SELECT p.*,
+ (SELECT a.details->>'deadline' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') ORDER BY a.created_at DESC LIMIT 1) AS deadline,
+ COALESCE(task_counts.total_tasks,0)::integer AS total_tasks,
+ COALESCE(task_counts.completed_tasks,0)::integer AS completed_tasks,
+ CASE WHEN COALESCE(task_counts.total_tasks,0)=0 THEN 0
+ ELSE ROUND(100.0*task_counts.completed_tasks/task_counts.total_tasks)::integer END AS progress
+ FROM projects p
+ LEFT JOIN LATERAL (
+ SELECT COUNT(*) AS total_tasks,COUNT(*) FILTER (WHERE t.status='done') AS completed_tasks
+ FROM tasks t
+ LEFT JOIN LATERAL (
+ SELECT a.event FROM audit_log a WHERE a.target_type='task' AND a.target_id=t.id AND a.event IN ('task.archived','task.restored') ORDER BY a.created_at DESC LIMIT 1
+ ) archive_state ON TRUE
+ WHERE t.project_id=p.id AND (archive_state.event IS NULL OR archive_state.event<>'task.archived')
+ ) task_counts ON TRUE
+ ORDER BY p.created_at DESC LIMIT 200`);res.json({projects:q.rows}); }
  catch(e){sendError(res,e);}
 });
 app.post('/api/projects', async(req,res) => {
