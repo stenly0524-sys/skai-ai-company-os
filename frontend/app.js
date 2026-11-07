@@ -398,6 +398,31 @@ function renderHomeTodos(tasks,pending){
   row.append(mark,name,state);row.addEventListener('click',()=>showPage('tasks'));root.append(row);
  }
 }
+
+async function openProjectProgress(project){
+ const dialog=$('projectProgressDialog'),root=$('projectProgressContent');
+ root.replaceChildren(el('p','helper','讀取專案進度中…'));dialog.showModal();
+ try{
+  const [tasksData,categoriesData]=await Promise.all([api('/tasks?project_id='+encodeURIComponent(project.id)),api('/task-categories?project_id='+encodeURIComponent(project.id))]);
+  const tasks=(tasksData.tasks||[]).filter(t=>!t.is_archived);
+  const categories=categoriesData.categories||[];
+  const done=tasks.filter(t=>t.status==='done').length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  root.replaceChildren();
+  root.append(el('h3','',project.name),el('p','helper','總進度：'+pct+'%　｜　已完成 '+done+' / '+tasks.length+' 項任務'));
+  const all=[...categories,{id:'',name:'未分類'}];
+  for(const c of all){
+   const group=tasks.filter(t=>c.id?t.category_id===c.id:!categories.some(x=>x.id===t.category_id));
+   if(!group.length&&c.id)continue;
+   const count=group.filter(t=>t.status==='done').length,ratio=group.length?Math.round(count/group.length*100):0;
+   const row=el('div','project-progress-category');
+   row.append(el('strong','',c.name),el('span','',ratio+'%（'+count+'/'+group.length+'）'));
+   const track=el('div','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=ratio+'%';track.append(fill);row.append(track);root.append(row);
+  }
+ }catch(e){root.replaceChildren(el('p','helper','進度載入失敗：'+e.message));}
+}
+$('closeProjectProgress')?.addEventListener('click',()=>$('projectProgressDialog').close());
+
 function renderProjectCards(){
  const root=$('projectCards');if(!root)return;root.replaceChildren();
  const query=$('projectSearch')?.value.trim().toLocaleLowerCase('zh-TW')||'';
@@ -417,7 +442,7 @@ function renderProjectCards(){
   const amount=Number(p.task_progress??0);const known=Number.isFinite(amount);
   const meter=el('span','project-row-meter');const track=el('span','project-progress-track');const fill=el('i','project-progress-fill');fill.style.width=(known?Math.min(100,Math.max(0,amount)):0)+'%';track.append(fill);
   meter.append(track,el('b','',known?amount+'%':'未設定'));button.append(graphic,body,stage,meter,el('span','project-arrow','›'));
-  const row=el('div','project-manage-row');const side=el('div','project-manage-actions');const progress=el('button','outline-btn project-progress-action','進度');progress.type='button';progress.addEventListener('click',async()=>{await openQuickProject(p);$('projectQuickDetail').scrollIntoView({behavior:'smooth',block:'start'});});side.append(progress);const del=el('button','danger-outline','刪除');del.type='button';del.setAttribute('aria-label','刪除專案 '+p.name);del.addEventListener('click',()=>deleteProjectRecord(p));side.append(del);row.append(button,side);root.append(row);
+  const row=el('div','project-manage-row');const side=el('div','project-manage-actions');const progress=el('button','outline-btn project-progress-action','進度');progress.type='button';progress.addEventListener('click',()=>openProjectProgress(p));side.append(progress);const del=el('button','danger-outline','刪除');del.type='button';del.setAttribute('aria-label','刪除專案 '+p.name);del.addEventListener('click',()=>deleteProjectRecord(p));side.append(del);row.append(button,side);root.append(row);
  }
 }
 async function jumpToTaskDetail(taskId){
