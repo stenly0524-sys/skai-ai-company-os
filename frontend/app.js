@@ -687,7 +687,7 @@ function renderTaskCards(){
 $('selectAllTasks')?.addEventListener('change',e=>{for(const t of filteredTasks()){if(e.target.checked)selectedTaskIds.add(t.id);else selectedTaskIds.delete(t.id);}renderTaskCards();});
 $('bulkDeleteTasks')?.addEventListener('click',async()=>{
  const tasks=taskCache.filter(t=>selectedTaskIds.has(t.id));if(!tasks.length)return;
- const permanent=tasks.every(t=>t.is_archived);if(!(await taskActionConfirm(permanent?'是否徹底刪除已選的 '+tasks.length+' 項工作內容？':'是否將已選的 '+tasks.length+' 項任務移至已封存？',permanent?'是':'確認',permanent?'否':'取消')))return;
+ const permanent=tasks.every(t=>t.is_archived);if(tasks.some(t=>t.is_archived)&&!permanent){showToast('請分別選取一般任務或已封存任務進行批次操作');return;}if(!(await taskActionConfirm(permanent?'是否徹底刪除已選的 '+tasks.length+' 項工作內容？':'是否將已選的 '+tasks.length+' 項任務移至已封存？',permanent?'是':'確認',permanent?'否':'取消')))return;
  let count=0,errors=[];for(const t of tasks){try{await api('/tasks/'+encodeURIComponent(t.id)+(t.is_archived?'':'/archive'),{method:t.is_archived?'DELETE':'POST'});count++;}catch(e){errors.push(e.message);}}
  showToast('已處理 '+count+' 項，失敗 '+errors.length+' 項'+(errors.length?'：'+errors[0]:''));await refreshManagement();
 });
