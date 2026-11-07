@@ -595,7 +595,7 @@ $('cancelTaskCategory')?.addEventListener('click',()=>{$('taskCategoryForm').res
 $('taskCategoryForm')?.addEventListener('submit',async e=>{
  e.preventDefault();const name=$('taskCategoryName').value.trim();
  if(!name||taskCategories.some(c=>c.name===name)){showToast('類別名稱不可空白或重複');return;}
- try{await saveTaskCategories([...taskCategories,{id:crypto.randomUUID(),name}]);e.currentTarget.reset();showToast('類別已儲存');}
+ try{await saveTaskCategories([...taskCategories,{id:crypto.randomUUID(),name}]);$('taskCategoryName').value='';showToast('類別已儲存');}
  catch(err){showToast('新增類別失敗：'+err.message);}
 });
 $('taskCategoryFilter')?.addEventListener('change',renderTaskCards);
