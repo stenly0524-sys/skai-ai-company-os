@@ -1433,3 +1433,12 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 #taskEditDialog .stack-form label{display:block;overflow:hidden}
 #taskEditDialog input[type="date"]{display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:44px;-webkit-appearance:none;appearance:none;overflow:hidden}
 #taskEditDialog .stack-form input,#taskEditDialog .stack-form textarea{box-sizing:border-box;max-width:100%}
+
+/* Execution history: visually separate decision and content-edit records */
+#taskHistoryBody{gap:14px}
+#taskHistoryBody .task-history-group{display:grid;gap:8px;min-width:0;border:1px solid;border-radius:12px;padding:14px}
+#taskHistoryBody .task-history-group h3{font-size:14px;line-height:1.4;margin:0 0 3px}
+#taskHistoryBody .task-history-decisions{background:#eaf3ff;border-color:#c8ddf6}
+#taskHistoryBody .task-history-edits{background:#f5f3ed;border-color:#e4ddca}
+#taskHistoryBody .task-history-group .task-detail-line{background:#ffffffb8;border:1px solid #ffffffd9;border-radius:8px;padding:9px 10px;margin:0;min-width:0;overflow-wrap:anywhere}
+#taskHistoryBody .task-history-group .helper{margin:0;font-size:12px}
