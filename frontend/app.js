@@ -1233,7 +1233,7 @@ $('dataQuickSearch')?.addEventListener('input',()=>{$('dataSearch').value=$('dat
 function updateTaipeiClock(){
  const elClock=$('todayClock');if(!elClock)return;
  const date=new Date();
- elClock.textContent='▦  '+new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+ elClock.textContent='▦  '+new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'}).format(date);
  elClock.dateTime=date.toISOString();
 }
 updateTaipeiClock();setInterval(updateTaipeiClock,60000);
