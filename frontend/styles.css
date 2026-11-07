@@ -1843,3 +1843,18 @@ body[data-current-page="home"] .top-actions .header-bell svg{width:30px!importan
   width:27px!important;height:27px!important;
  }
 }
+
+/* Assistant heading uses the same title badge and inline subtitle as Project Center. */
+#page-assistant .assistant-listing-heading{
+ display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;
+ gap:8px 12px;min-width:0;margin:0 0 16px;
+}
+#page-assistant .assistant-listing-heading .center-heading-label{
+ display:inline-flex;align-items:center;justify-content:flex-start;flex:0 0 auto;
+ margin:0;padding:9px 15px;border-radius:10px;background:#e6f1ff;
+ color:#1d568e;font-size:22px;font-weight:800;line-height:1.2;text-align:left;
+}
+#page-assistant .assistant-listing-heading .helper{margin:0;text-align:left}
+@media(max-width:720px){
+ #page-assistant .assistant-listing-heading .center-heading-label{font-size:20px;padding:8px 12px}
+}
