@@ -95,7 +95,7 @@ app.get('/api/dashboard', async (_req,res) => {
  }catch(e){sendError(res,e)}
 });
 app.get('/api/projects', async (_req,res) => {
- try { const q=await db.query(`SELECT p.*, (SELECT a.details->>'deadline' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') ORDER BY a.created_at DESC,a.id DESC LIMIT 1) AS deadline FROM projects p ORDER BY p.created_at DESC LIMIT 200`);res.json({projects:q.rows}); }
+ try { const q=await db.query(`SELECT p.*, (SELECT a.details->>'deadline' FROM audit_log a WHERE a.target_type='project' AND a.target_id=p.id AND a.event IN ('project.created','project.updated') ORDER BY a.created_at DESC LIMIT 1) AS deadline FROM projects p ORDER BY p.created_at DESC LIMIT 200`);res.json({projects:q.rows}); }
  catch(e){sendError(res,e);}
 });
 app.post('/api/projects', async(req,res) => {
