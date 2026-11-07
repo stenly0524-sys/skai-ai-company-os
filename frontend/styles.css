@@ -1476,3 +1476,8 @@ body:not([data-current-page="home"]) #page-home{display:none!important}
 
 /* Align task title vertically with the selection checkbox */
 #page-tasks .actionable-task-row .task-list-title{margin-top:3px}
+
+/* Neutral cancel button in task archive/delete/restore confirmation dialog */
+#taskArchiveConfirmDialog .task-confirm-neutral-btn{appearance:none;border:1px solid #d9e0e8;background:#fff;color:#34465d;border-radius:9px;font:inherit;font-weight:600;cursor:pointer;box-shadow:none}
+#taskArchiveConfirmDialog .task-confirm-neutral-btn:hover{background:#f4f6f9;border-color:#cbd4de}
+#taskArchiveConfirmDialog .task-confirm-neutral-btn:focus-visible{outline:2px solid #8b9aaa;outline-offset:2px}
