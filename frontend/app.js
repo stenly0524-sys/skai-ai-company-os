@@ -1,6 +1,7 @@
 import { EMPLOYEES, TASK_STATUS } from './data.js';
 import { api,workspaceMode,useLocalWorkspace,useCloudWorkspace,setCsrfToken } from './api.js';
 import { localCompany } from './storage.js';
+import {setupDriveBackup} from './drive-backup.js';
 import {renderOffice} from './scene.js';
 import { applyInterfaceIcons, makeIcon } from './icons.js';
 import {el,listItem,renderList} from './ui.js';
@@ -1394,6 +1395,7 @@ updateTaipeiClock();setInterval(updateTaipeiClock,60000);
  });
 })();
 
+setupDriveBackup(refreshAll);
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
 if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','data'].includes(initialPage))showPage(initialPage);
