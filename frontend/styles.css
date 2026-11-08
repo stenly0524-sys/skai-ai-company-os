@@ -2133,3 +2133,21 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
  width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;flex-basis:40px!important;
  }
 }
+
+/* Completely new isolated submit control, independent of old assistant-send-btn styles. */
+#page-assistant #chatPreviewForm button.skai-chat-submit-new{
+ all:unset!important;box-sizing:border-box!important;display:flex!important;
+ width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;
+ flex:0 0 40px!important;align-items:center!important;justify-content:center!important;
+ border:1px solid #cfdef0!important;border-radius:999px!important;
+ background:#fff!important;color:#1976df!important;cursor:pointer!important;
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+}
+#page-assistant #chatPreviewForm button.skai-chat-submit-new::before,
+#page-assistant #chatPreviewForm button.skai-chat-submit-new::after{content:none!important;display:none!important}
+#page-assistant #chatPreviewForm button.skai-chat-submit-new svg{
+ all:unset!important;display:block!important;width:22px!important;height:22px!important;
+ fill:none!important;stroke:#1976df!important;stroke-width:2.3!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none!important;
+}
+#page-assistant #chatPreviewForm button.skai-chat-submit-new:disabled{opacity:.5!important;cursor:not-allowed!important}
