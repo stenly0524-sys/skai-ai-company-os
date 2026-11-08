@@ -2045,3 +2045,24 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 #page-assistant .assistant-mode-bar select{max-width:100%;min-height:38px;border:1px solid #d8e2ee;border-radius:10px;background:#fff;color:#243c52;padding:6px 10px}
 #page-assistant .assistant-mode-bar small{font-size:11px;color:#637c92}
 @media(max-width:600px){#page-assistant .assistant-mode-bar{gap:5px;margin-bottom:6px}#page-assistant .assistant-mode-bar small{flex-basis:100%}}
+
+/* Assistant: one-screen fixed header, independently scrollable reply, compact composer. */
+#page-assistant{height:calc(100dvh - 190px);min-height:320px;display:flex!important;flex-direction:column;overflow:hidden;gap:0}
+#page-assistant .assistant-hero{flex:0 0 auto;position:relative;z-index:2;margin:0!important}
+#page-assistant .assistant-gpt-chat{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin-top:5px!important;padding:6px!important;overflow:hidden}
+#page-assistant .assistant-gpt-chat>.card{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#page-assistant .assistant-gpt-chat .assistant-mode-bar{flex:0 0 auto;margin:0 0 5px!important}
+#page-assistant .assistant-gpt-chat .chat-history{flex:1 1 0;min-height:0!important;height:auto!important;max-height:none!important;overflow-y:auto;overscroll-behavior:contain}
+#page-assistant .assistant-gpt-chat .chat-form{flex:0 0 auto;margin-top:6px!important;align-items:center!important;gap:7px!important}
+#page-assistant .assistant-gpt-chat #chatText{height:46px!important;min-height:46px!important;max-height:76px!important;padding:10px 12px!important;resize:none;font-size:16px!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn{border-radius:50%!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex:0 0 44px!important;background:#1976df!important;color:#fff!important;border:0!important;padding:0!important}
+#page-assistant .assistant-gpt-chat .assistant-voice-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;flex:0 0 44px;border-radius:50%;border:1px solid #cfdef0;background:#fff;color:#1976df;padding:0}
+#page-assistant .assistant-gpt-chat .assistant-voice-btn.is-listening{background:#dbeaff;color:#0c57b6;box-shadow:0 0 0 3px #b6d6ff}
+@media(max-width:600px){
+ #page-assistant{height:calc(100dvh - 176px);min-height:260px}
+ #page-assistant .assistant-hero{padding:7px 9px!important}
+ #page-assistant .assistant-overview-layout{margin:3px 0!important}
+ #page-assistant .assistant-side-kpis .kpi{min-height:0!important;padding:4px 6px!important}
+ #page-assistant .assistant-gpt-chat #chatText{height:42px!important;min-height:42px!important}
+ #page-assistant .assistant-gpt-chat .assistant-send-btn,#page-assistant .assistant-gpt-chat .assistant-voice-btn{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;flex-basis:40px!important}
+}
