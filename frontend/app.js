@@ -94,10 +94,10 @@ async function updatePasskeyControls(){
  $('faceIdLogin').hidden=!available||isSignedIn;
  $('faceIdRegister').hidden=!available||!isSignedIn;
  if(!available){$('passkeyHint').textContent='此瀏覽器不支援安全通行密鑰，請使用 iPhone Safari 與原密碼登入。';return;}
- if(!isSignedIn){
-  try{const status=await api('/session/passkey/status');$('faceIdLogin').hidden=!status.enabled;}
-  catch{$('faceIdLogin').hidden=true;}
- }
+ if(isSignedIn){$('passkeyHint').textContent='已登入 CEO，可設定 Face ID 通行密鑰；原密碼登入仍可使用。';return;}
+ $('passkeyHint').textContent='已設定 Face ID 可直接登入；首次使用請先以 CEO 密碼登入後設定。';
+ // Keep the login action visible even if the status endpoint is temporarily unavailable.
+ // The server still validates the passkey before granting access.
 }
 function credentialForServer(credential){
  const response=credential.response;
