@@ -32,11 +32,11 @@ export function sameOrigin(request){
 export function authRouter(db){
 
  const attempts=new Map();
- const passkeySetup=db.query("CREATE TABLE IF NOT EXISTS ceo_passkeys (id TEXT PRIMARY KEY, public_key TEXT NOT NULL, counter BIGINT NOT NULL DEFAULT 0, transports JSONB NOT NULL DEFAULT '[]', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())").then(()=>db.query("CREATE TABLE IF NOT EXISTS ceo_passkey_challenges (id TEXT PRIMARY KEY, challenge TEXT NOT NULL, kind TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, session_hash TEXT)"));
+ const passkeySetup=()=>db.query("CREATE TABLE IF NOT EXISTS ceo_passkeys (id TEXT PRIMARY KEY, public_key TEXT NOT NULL, counter BIGINT NOT NULL DEFAULT 0, transports JSONB NOT NULL DEFAULT '[]', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())").then(()=>db.query("CREATE TABLE IF NOT EXISTS ceo_passkey_challenges (id TEXT PRIMARY KEY, challenge TEXT NOT NULL, kind TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, session_hash TEXT)"));
  const rpID=()=>new URL(process.env.PUBLIC_ORIGIN).hostname;
  const origin=()=>new URL(process.env.PUBLIC_ORIGIN).origin;
  async function newChallenge(kind,challenge,sessionHash=null){
-  await passkeySetup;
+  await passkeySetup();
   const id=random();
   await db.query("DELETE FROM ceo_passkey_challenges WHERE expires_at<NOW()");
   await db.query("INSERT INTO ceo_passkey_challenges(id,challenge,kind,expires_at,session_hash) VALUES($1,$2,$3,NOW()+INTERVAL '5 minutes',$4)",[id,challenge,kind,sessionHash]);
