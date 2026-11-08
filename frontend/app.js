@@ -67,6 +67,15 @@ document.addEventListener('click',event=>{
  if(!event.target.closest('#mobileMore')&&!event.target.closest('#mobileMoreMenu'))closeMobileMore();
 });
 
+const notificationDialog=$('notificationDialog');
+$('openNotificationDialog').addEventListener('click',()=>{
+ if(document.body.dataset.currentPage!=='home'){showPage('home',true);}
+ notificationDialog.showModal();
+ if(isSignedIn)loadNotifications().catch(e=>showToast(e.message));
+});
+$('closeNotificationDialog').addEventListener('click',()=>notificationDialog.close());
+$('refreshNotificationDialog').addEventListener('click',()=>loadNotifications().catch(e=>showToast(e.message)));
+notificationDialog.addEventListener('click',event=>{if(event.target===notificationDialog)notificationDialog.close();});
 for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(which==='task')$('taskCreatePanel')?.showModal();if(button.dataset.jump==='data')$('dataSearch')?.focus();});
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
