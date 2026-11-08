@@ -1008,7 +1008,7 @@ $('closeProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').h
 $('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').showModal();});
 $('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').close();});
 $('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
-$('openSettingsMobile')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
+$('openSettingsMobile')?.addEventListener('click',()=>{const next=new URL(window.location.href);next.searchParams.set('refresh',String(Date.now()));window.location.replace(next.toString());});
 $('toggleChiefPlans')?.addEventListener('click',()=>{const x=$('chiefPlanContent');x.hidden=!x.hidden;$('chiefPlanToggleIcon').textContent=x.hidden?'展開':'收合';});
 async function loadDriveOAuthStatus(){
  const status=$('driveOAuthStatus'),badge=$('driveOAuthBadge'),connect=$('driveOAuthConnect'),disconnect=$('driveOAuthDisconnect');
