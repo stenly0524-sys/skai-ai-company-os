@@ -2101,3 +2101,8 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 .notification-dialog-close{width:42px;height:42px;min-width:42px;display:grid;place-items:center;border:1px solid #d3e4f8;border-radius:50%;background:#f5faff;color:#4677ac;font-size:28px;line-height:1}
 .notification-dialog-list{max-height:55dvh;overflow-y:auto;overscroll-behavior:contain;margin-top:12px}
 @media(max-width:600px){.notification-dialog{padding:18px;width:calc(100vw - 28px);max-height:78dvh}}
+
+/* Navigation isolation: never render inactive feature pages, including assistant.
+   This overrides the earlier assistant display:flex!important rule. */
+.page:not(.active),.page[hidden]{display:none!important}
+#page-assistant.page.active{display:flex!important}
