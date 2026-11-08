@@ -49,6 +49,8 @@ app.get('/health', async (_req,res) => {
  catch { res.status(503).json({ error: 'database_unavailable' }); }
 });
 app.post('/api/session/login',sessionAuth.login);
+app.post('/api/session/passkey/options',sessionAuth.authenticationOptions);
+app.post('/api/session/passkey/login',sessionAuth.authenticatePasskey);
 app.use('/api', (req,res,next) => {
  const authorization = req.get('authorization') || '';
  if (process.env.NODE_ENV!=='production' && !req.get('origin') && authorization.startsWith('Bearer ') && sameSecret(authorization.slice(7))) {
@@ -58,6 +60,9 @@ app.use('/api', (req,res,next) => {
  sessionAuth.authenticate(req,res,next);
 });
 app.get('/api/session',sessionAuth.session);
+app.get('/api/session/passkey/status',sessionAuth.passkeyStatus);
+app.post('/api/session/passkey/register/options',sessionAuth.registrationOptions);
+app.post('/api/session/passkey/register',sessionAuth.registerPasskey);
 app.post('/api/session/logout',sessionAuth.logout);
 const sendError = (res,e) => { console.error('SKAI API error:', e?.code || e?.message || e); res.status(500).json({error:'internal_error'}); };
 const txt = compactText;
