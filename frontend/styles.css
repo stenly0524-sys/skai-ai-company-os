@@ -2202,3 +2202,22 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 }
 :where(dialog, .modal) :is(button.icon-close,button.project-edit-close,button.notification-dialog-close,button[id^="close"],button[aria-label^="關閉"]):hover {background:#e4f0ff!important;border-radius:50%!important;}
 :where(dialog, .modal) :is(button.icon-close,button.project-edit-close,button.notification-dialog-close,button[id^="close"],button[aria-label^="關閉"]):focus-visible {outline:2px solid #2563eb!important;outline-offset:2px!important;border-radius:50%!important;}
+
+/* Verified-target override: four iPhone modal X controls. Higher ID specificity wins over legacy square rules. */
+html body #projectEditDialog #closeProjectEdit,
+html body #taskEditDialog #closeTaskEdit,
+html body #taskCategoryDialog #closeTaskCategory,
+html body #taskCreateDialog #closeTaskCreate,
+html body #taskCreatePanel #closeTaskCreate,
+html body #projectEditDialog .project-edit-close,
+html body #taskEditDialog .icon-close,
+html body #taskCategoryDialog .icon-close,
+html body #taskCreateDialog .icon-close,
+html body #taskCreatePanel .icon-close {
+ width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;
+ flex:0 0 42px!important;border-radius:9999px!important;aspect-ratio:1/1!important;
+ border:1px solid #d6e3f4!important;background:linear-gradient(145deg,#fff,#edf5ff)!important;
+ color:#527da9!important;box-shadow:0 3px 10px rgba(47,96,157,.09)!important;
+ padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ font:500 25px/1 Arial,sans-serif!important;box-sizing:border-box!important;
+}
