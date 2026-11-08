@@ -415,9 +415,7 @@ async function loadHomeAiUsage(){
   $('homeAiOutputTokens').textContent=output.toLocaleString('zh-TW');
   $('homeAiTotalTokens').textContent=(input+output).toLocaleString('zh-TW');
   const ok=Number(usage.completed_calls)||0,failed=Number(usage.failed_calls)||0;
-  status.textContent=(data.day?'台灣時間 '+data.day+' · ':'')+'成功 '+ok+' 次 · 失敗 '+failed+' 次'+
-   (Number.isFinite(Number(data.cap))?' · 上限 '+Number(data.cap).toLocaleString('zh-TW')+' 次':'')+
-   ' · 數值為後端已紀錄用量';
+  status.textContent='成功 '+ok+' 次，失敗 '+failed+' 次';
  }catch(e){
   status.textContent='AI API 用量暫時無法讀取：'+e.message;
  }
@@ -1293,6 +1291,9 @@ updateTaipeiClock();setInterval(updateTaipeiClock,60000);
  const buttons=[...document.querySelectorAll('.assistant-avatar-picker')];
  const portraits=[...document.querySelectorAll('#homeAssistantPortrait,.assistant-portrait')];
  const storageKey='skai-os-assistant-avatar-v1';
+ const homePortrait=document.getElementById('homeAssistantPortrait');
+ const assistantPortrait=document.querySelector('#page-assistant .assistant-portrait');
+ if(homePortrait&&assistantPortrait&&!homePortrait.getAttribute('src'))homePortrait.src=assistantPortrait.src;
  if(!input||!buttons.length||!portraits.length)return;
  const apply=(src)=>portraits.forEach(img=>{img.src=src;});
  try{const saved=localStorage.getItem(storageKey);if(saved&&saved.startsWith('data:image/'))apply(saved);}catch(e){}
