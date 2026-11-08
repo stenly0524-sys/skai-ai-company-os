@@ -27,7 +27,7 @@ export async function api(path,{method='GET',body}={}){
  if(workspaceMode()==='local')return localRequest(path,method,body);
  const headers={Accept:'application/json'};
  if(body!==undefined)headers['Content-Type']='application/json';
- if(!['GET','HEAD'].includes(method)&&!path.endsWith('/session/login')){
+ if(!['GET','HEAD'].includes(method)&&!['/session/login','/session/passkey/options','/session/passkey/login'].includes(path)){
   if(!csrfToken)throw Error('請先登入 CEO 帳號');
   headers['X-CSRF-Token']=csrfToken;
  }
