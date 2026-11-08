@@ -1981,3 +1981,36 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
  #page-assistant .assistant-side-kpis .kpi strong{font-size:19px}
  #page-assistant .assistant-side-kpis .kpi small{font-size:9px}
 }
+
+
+/* One-screen assistant workspace: compact portrait, KPI stack, and scrollable chat. */
+#page-assistant{min-height:0}
+#page-assistant .assistant-hero{padding:12px 16px!important}
+#page-assistant .assistant-hero .assistant-listing-heading{margin:0 0 4px!important}
+#page-assistant .assistant-hero .assistant-listing-heading h2{font-size:20px}
+#page-assistant .assistant-hero .assistant-listing-heading .helper{margin:2px 0 0}
+#page-assistant .assistant-overview-layout{grid-template-columns:minmax(0,160px) minmax(0,1fr);gap:14px;margin:6px 0!important;align-items:center}
+#page-assistant .assistant-overview-layout .assistant-portrait-wrap{width:100%;padding:0}
+#page-assistant .assistant-page-avatar-picker{width:100%!important;max-width:160px;aspect-ratio:1}
+#page-assistant .assistant-side-kpis .compact-home-kpis{gap:5px}
+#page-assistant .assistant-side-kpis .kpi{min-height:43px;padding:4px 8px}
+#page-assistant .assistant-side-kpis .kpi strong{font-size:18px}
+#page-assistant .assistant-side-kpis .kpi small{display:none}
+#page-assistant .assistant-gpt-chat{margin-top:8px;padding:10px}
+#page-assistant .assistant-gpt-chat .chat-history{min-height:110px;height:clamp(110px,calc(100dvh - 455px),570px);max-height:none;overflow-y:auto;overscroll-behavior:contain}
+#page-assistant .assistant-gpt-chat #chatText{min-height:56px;max-height:100px}
+@media(max-width:600px){
+ #page-assistant .assistant-hero{padding:9px 10px!important}
+ #page-assistant .assistant-hero .assistant-listing-heading h2{font-size:17px}
+ #page-assistant .assistant-hero .assistant-listing-heading .helper{font-size:11px}
+ #page-assistant .assistant-overview-layout{grid-template-columns:minmax(0,130px) minmax(0,1fr);gap:9px;margin:4px 0!important}
+ #page-assistant .assistant-page-avatar-picker{max-width:130px}
+ #page-assistant .assistant-side-kpis .compact-home-kpis{gap:4px}
+ #page-assistant .assistant-side-kpis .kpi{min-height:37px;padding:3px 5px}
+ #page-assistant .assistant-side-kpis .kpi span{font-size:10px}
+ #page-assistant .assistant-side-kpis .kpi strong{font-size:16px}
+ #page-assistant .assistant-gpt-chat{margin-top:6px;padding:7px}
+ #page-assistant .assistant-gpt-chat .chat-history{height:clamp(110px,calc(100dvh - 425px),570px);padding:8px}
+ #page-assistant .assistant-gpt-chat #chatText{min-height:48px}
+}
+@media(max-width:380px){#page-assistant .assistant-overview-layout{grid-template-columns:110px minmax(0,1fr)}#page-assistant .assistant-page-avatar-picker{max-width:110px}}
