@@ -2177,3 +2177,15 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 #projectCreatePanel.project-create-dialog #projectForm input,
 #projectCreatePanel.project-create-dialog #projectForm textarea { max-width:100%; min-width:0; box-sizing:border-box; }
 @media(max-width:480px){#projectCreatePanel.project-create-dialog{width:calc(100vw - 24px);max-height:calc(100dvh - 40px)}#projectCreatePanel.project-create-dialog .task-create-scroll{max-height:calc(100dvh - 40px);padding:16px}}
+
+/* Project creation modal: system-standard circular close and text-only submit. */
+#projectCreatePanel #closeProjectCreate.icon-close,
+#projectCreatePanel #closeProjectCreate.icon-close:hover,
+#projectCreatePanel #closeProjectCreate.icon-close:focus-visible {width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border-radius:50%!important;border:1px solid #d6e3f4!important;background:linear-gradient(145deg,#fff,#edf5ff)!important;box-shadow:0 3px 10px rgba(47,96,157,.09)!important;outline-offset:2px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding:0!important;}
+#projectCreatePanel #submitProjectCreate .skai-icon,
+#projectCreatePanel #submitProjectCreate svg,
+#projectCreatePanel #submitProjectCreate img,
+#projectCreatePanel #submitProjectCreate i,
+#projectCreatePanel #submitProjectCreate::before,
+#projectCreatePanel #submitProjectCreate::after {display:none!important;content:none!important;}
+#projectCreatePanel #submitProjectCreate{gap:0!important;}
