@@ -131,9 +131,12 @@ $('faceIdLogin').addEventListener('click',async()=>{
  finally{btn.disabled=false;updatePasskeyControls();}
 });
 
+$('closeLoginDialog').addEventListener('click',()=>$('loginDialog').close());
 function openLogin(){
  if($('loginDialog').open)return;
  $('loginError').textContent='';
+ $('loginForm').hidden=isSignedIn;
+ $('passkeyHint').textContent=isSignedIn?'已登入 CEO，您可以設定 Face ID 通行密鑰；不需要再次輸入密碼。':'首次使用請先以密碼登入，再設定 Face ID。原密碼登入將持續保留。';
  $('loginDialog').showModal();
  updatePasskeyControls();
 }
