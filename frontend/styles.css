@@ -2151,3 +2151,11 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
  stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none!important;
 }
 #page-assistant #chatPreviewForm button.skai-chat-submit-new:disabled{opacity:.5!important;cursor:not-allowed!important}
+
+/* Mobile Safari: prevent native date inputs from exceeding project form width. */
+#page-projects #projectForm,
+#page-projects #projectEditForm,
+#page-projects #projectForm > label,
+#page-projects #projectEditForm > label { min-width:0; max-width:100%; box-sizing:border-box; }
+#page-projects #projectForm input[type="date"],
+#page-projects #projectEditForm input[type="date"] { display:block; width:100%; max-width:100%; min-width:0; box-sizing:border-box; -webkit-appearance:none; appearance:none; }
