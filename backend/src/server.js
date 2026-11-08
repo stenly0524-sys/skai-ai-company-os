@@ -456,8 +456,8 @@ async function buildAssistantWorkspaceContext(projectId){
  if(projectId&&!projectQuery.rowCount)return null;
  const projects=projectQuery.rows.map(p=>({id:p.id,name:p.name,goal:String(p.goal||'').slice(0,900),status:p.status}));
  const ids=projects.map(p=>p.id);
- const taskQuery=ids.length?await db.query('SELECT id,project_id,title,brief,status,assigned_role,due_at FROM tasks WHERE project_id=ANY($1::uuid[]) ORDER BY created_at DESC LIMIT 100',[ids]):{rows:[]};
- const tasks=taskQuery.rows.map(t=>({id:t.id,project_id:t.project_id,title:t.title,brief:String(t.brief||'').slice(0,450),status:t.status,assigned_role:t.assigned_role,due_at:t.due_at}));
+ const taskQuery=ids.length?await db.query('SELECT id,project_id,title,brief,status,assigned_role FROM tasks WHERE project_id=ANY($1::uuid[]) ORDER BY created_at DESC LIMIT 100',[ids]):{rows:[]};
+ const tasks=taskQuery.rows.map(t=>({id:t.id,project_id:t.project_id,title:t.title,brief:String(t.brief||'').slice(0,450),status:t.status,assigned_role:t.assigned_role}));
  return {as_of:new Date().toISOString(),scope:projectId?'selected_project':'recent_projects',projects,tasks,limits:'最多20個專案與100項近期任務；未列出不代表不存在'};
 }
 app.post('/api/chat',async(req,res)=>{
