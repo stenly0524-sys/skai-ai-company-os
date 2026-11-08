@@ -9,7 +9,7 @@
 <meta name="color-scheme" content="light">
 <title>SKAI · CEO 指揮中心</title>
 <link rel="stylesheet" href="./styles.css">
-<script type="module" src="./app.js"></script>
+<script type="module" src="./app.js"></script><style>[data-page="assistant"],#page-assistant,.assistant-mode-bar,#employeeChat{display:none!important}</style>
 </head>
 <body>
 <div class="app-shell">
@@ -18,7 +18,7 @@
     <nav class="nav-list">
       <button class="navitem active" data-page="home"><span>⌂</span> 總部</button>
       
-      <button class="navitem" data-page="assistant"><span>✦</span> 智能助理</button>
+      <button class="navitem" data-page="assistant" hidden><span>✦</span> 智能助理</button>
       <button class="navitem" data-page="employees"><span>♙</span> 部門</button>
       <button class="navitem" data-page="projects"><span>▦</span> 專案</button>
       <button class="navitem" data-page="tasks"><span>☷</span> 任務 <span id="taskNavBadge" class="nav-notification" hidden></span></button>
