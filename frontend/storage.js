@@ -30,11 +30,11 @@ export const localCompany={
   if(typeof name!=='string'||!name.trim()||name.length>120)throw Error('請輸入有效的專案名稱');
   return change(s=>{const project={id:id(),name:name.trim(),goal:String(goal).slice(0,8000),stage:'draft',status:'planning',created_at:new Date().toISOString()};s.projects.unshift(project);return project;});
  },
- createTask({project_id,title,brief=''}){
+ createTask({project_id,title,brief='',category_id=''}){
   if(typeof title!=='string'||!title.trim()||title.length>160)throw Error('請輸入有效的任務名稱');
   return change(s=>{
    if(!s.projects.some(p=>p.id===project_id))throw Error('請先選擇專案');
-   const task={id:id(),project_id,category_id:arguments[0]?.category_id||'',title:title.trim(),brief:String(brief).slice(0,8000),status:'approved',assigned_role:'ceo',created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+   const task={id:id(),project_id,category_id,title:title.trim(),brief:String(brief).slice(0,8000),status:'approved',assigned_role:'ceo',created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
    s.tasks.unshift(task);return {task};
   });
  },
