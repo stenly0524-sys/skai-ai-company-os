@@ -2241,14 +2241,11 @@ body[data-current-page="tasks"] #page-tasks .task-listing-heading{align-self:fle
 #taskCreatePanel,#taskCreatePanel .task-create-scroll,#taskCreatePanel #taskForm,#taskCreatePanel #taskForm>label{min-width:0;max-width:100%;box-sizing:border-box;}
 #taskCreatePanel #taskForm input[type="date"]{display:block;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;-webkit-appearance:none;appearance:none;}
 
-/* iPhone task center: compensate for the 200px blank header reservation visible in installed app. */
+
+/* Task Center mobile: remove excess top reserve without clipping the heading. */
 @media (max-width:720px) and (orientation:portrait){
- body[data-current-page="tasks"] #page-tasks.page.active{
-   margin-top:-200px!important;
-   position:relative!important;
-   top:0!important;
-   transform:none!important;
- }
- body[data-current-page="tasks"] .main-column,
- body[data-current-page="tasks"] .main-column>main{overflow:visible!important;}
+ body[data-current-page="tasks"] .topbar{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;}
+ body[data-current-page="tasks"] .main-column{padding-top:8px!important;margin-top:0!important;}
+ body[data-current-page="tasks"] .main-column>main{margin-top:0!important;padding-top:0!important;}
+ body[data-current-page="tasks"] #page-tasks.page.active{margin-top:0!important;top:auto!important;transform:none!important;}
 }
