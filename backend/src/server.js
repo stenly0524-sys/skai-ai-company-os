@@ -488,8 +488,17 @@ async function freeAssistantReply(message){
 app.post('/api/chat',async(req,res)=>{
  const role=txt(req.body?.role_id,32)||'chief_of_staff',prompt=txt(req.body?.message,4000);
  const conversationId=req.body?.conversation_id||null,projectId=req.body?.project_id||null;
+ const mode=req.body?.mode||'auto';
+ if(!['auto','free','ai'].includes(mode))return res.status(400).json({error:'invalid_chat_mode'});
  if(!ROLES[role]||!prompt|| (conversationId&&!uuid(conversationId))||(projectId&&!uuid(projectId))) return res.status(400).json({error:'invalid_chat_request'});
  try {
+  if(mode!=='ai'){
+   const freeReply=await freeAssistantReply(prompt);
+   if(freeReply!==null)return res.json({reply:freeReply,mode:'free',usage:{total_tokens:0},notice:'資料庫規則查詢，未呼叫 AI API。'});
+   if(mode==='free')return res.json({reply:'此指令尚未支援免費執行，請改用專案或任務查詢指令。',mode:'free',usage:{total_tokens:0}});
+   return res.json({requires_ai_confirmation:true,mode:'confirmation_required',reply:'此需求需 GPT 分析，確認後才會呼叫 API。'});
+  }
+  if(req.body?.confirm_ai!==true)return res.status(400).json({error:'ai_confirmation_required'});
   let conversation=conversationId;
   let history=[];
   let selectedProjectId=projectId;
