@@ -122,7 +122,10 @@ $('faceIdRegister').addEventListener('click',async()=>{
   if(!credential)return;
   await api('/session/passkey/register',{method:'POST',body:{requestId,response:credentialForServer(credential)}});
   $('loginDialog').close();showToast('Face ID 通行密鑰設定成功');
- }catch(e){$('loginError').textContent='Face ID 設定失敗：'+e.message;}
+ }catch(e){
+  const duplicate=e?.name==='InvalidStateError'||/invalid state/i.test(e?.message||'');
+  $('loginError').textContent=duplicate?'此裝置可能已儲存 SKAI OS 通行密鑰。請先登出 CEO，再使用「Face ID 登入」測試既有密鑰；無須重複設定。':'Face ID 設定失敗：'+(e?.message||'未知錯誤');
+ }
  finally{btn.disabled=false;updatePasskeyControls();}
 });
 $('faceIdLogin').addEventListener('click',async()=>{
