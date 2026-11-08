@@ -76,7 +76,7 @@ $('openNotificationDialog').addEventListener('click',()=>{
 $('closeNotificationDialog').addEventListener('click',()=>notificationDialog.close());
 $('refreshNotificationDialog').addEventListener('click',()=>loadNotifications().catch(e=>showToast(e.message)));
 notificationDialog.addEventListener('click',event=>{if(event.target===notificationDialog)notificationDialog.close();});
-for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});}if(which==='task')$('taskCreatePanel')?.showModal();if(button.dataset.jump==='data')$('dataSearch')?.focus();});
+for(const button of document.querySelectorAll('[data-jump]'))button.addEventListener('click',()=>{showPage(button.dataset.jump);const which=button.dataset.open;if(which==='project'){$('projectCreatePanel')?.showModal();}if(which==='task')$('taskCreatePanel')?.showModal();if(button.dataset.jump==='data')$('dataSearch')?.focus();});
 for(const button of document.querySelectorAll('[data-refresh]'))button.addEventListener('click',()=>refreshPage(button.dataset.refresh).catch(e=>showToast(e.message)));
 function setConnection(connected){
  isSignedIn=connected;
@@ -1003,8 +1003,8 @@ document.querySelectorAll('[data-project-filter]').forEach(b=>b.addEventListener
 document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{
  taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTaskCards();
 }));
-$('jumpProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=false;$('projectForm')?.scrollIntoView({behavior:'smooth',block:'center'});});
-$('closeProjectCreate')?.addEventListener('click',()=>{$('projectCreatePanel').hidden=true;});
+$('jumpProjectCreate')?.addEventListener('click',()=>$('projectCreatePanel')?.showModal());
+$('closeProjectCreate')?.addEventListener('click',()=>$('projectCreatePanel')?.close());
 $('jumpTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').showModal();});
 $('closeTaskCreate')?.addEventListener('click',()=>{$('taskCreatePanel').close();});
 $('openSettings')?.addEventListener('click',()=>{$('workspaceToggle').hidden=!$('workspaceToggle').hidden;});
@@ -1143,7 +1143,7 @@ $('projectForm').addEventListener('submit',async event=>{
  const fd=new FormData(form),name=String(fd.get('name')||'').trim(),goal=String(fd.get('goal')||'').trim(),deadline=String(fd.get('deadline')||'');
  if(!name)return;
  const button=form.querySelector('button[type=submit]');button.disabled=true;
- try{await api('/projects',{method:'POST',body:{name,goal,deadline,...(projectAvatarDraft.create?{avatar:projectAvatarDraft.create}:{})}});form.reset();projectAvatarDraft.create=null;projectAvatarPreview('create',null);await Promise.all([loadProjects(),loadDashboard()]);showToast('專案已儲存');}
+ try{await api('/projects',{method:'POST',body:{name,goal,deadline,...(projectAvatarDraft.create?{avatar:projectAvatarDraft.create}:{})}});form.reset();projectAvatarDraft.create=null;projectAvatarPreview('create',null);await Promise.all([loadProjects(),loadDashboard()]);$('projectCreatePanel')?.close();showToast('專案已儲存');}
  catch(e){showToast(e.message)}
  finally{button.disabled=false;}
 });
