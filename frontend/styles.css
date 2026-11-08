@@ -1940,7 +1940,7 @@ body[data-current-page="home"] .top-actions .header-bell svg{width:30px!importan
 #mobileMore,#mobileMoreMenu{display:none!important}
 
 /* Unified circular X close buttons across all system dialogs. */
-dialog .icon-close,dialog button[id^="close"],dialog button[id^="cancel"][class~="icon-close"],.modal .icon-close{
+dialog .icon-close,dialog #closeLoginDialog,dialog button[id^="cancel"][class~="icon-close"],.modal .icon-close{
   width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;
   display:inline-flex!important;align-items:center!important;justify-content:center!important;
   padding:0!important;border-radius:50%!important;border:1px solid #d6e3f4!important;
@@ -1948,4 +1948,4 @@ dialog .icon-close,dialog button[id^="close"],dialog button[id^="cancel"][class~
   font-size:25px!important;font-weight:500!important;line-height:1!important;
   box-shadow:0 3px 10px rgba(47,96,157,.09)!important;flex-shrink:0!important;
 }
-dialog .icon-close:hover,dialog button[id^="close"]:hover{background:#e4f0ff!important}
+dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!important}
