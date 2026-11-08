@@ -88,7 +88,7 @@ async function startSession(){
 }
 
 const b64urlToBytes=(value)=>Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-value.length%4)%4)),x=>x.charCodeAt(0));
-const bytesToB64url=(value)=>btoa(String.fromCharCode(...new Uint8Array(value))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');
+const bytesToB64url=(value)=>btoa(String.fromCharCode(...new Uint8Array(value))).replace(/[+]/g,'-').replace(/[/]/g,'_').replace(/=+$/,'');
 async function updatePasskeyControls(){
  const available=Boolean(window.PublicKeyCredential&&navigator.credentials&&window.isSecureContext);
  $('faceIdLogin').hidden=!available||isSignedIn;
