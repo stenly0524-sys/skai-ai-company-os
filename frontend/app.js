@@ -69,7 +69,6 @@ document.addEventListener('click',event=>{
 
 const notificationDialog=$('notificationDialog');
 $('openNotificationDialog').addEventListener('click',()=>{
- if(document.body.dataset.currentPage!=='home'){showPage('home',true);}
  notificationDialog.showModal();
  if(isSignedIn)loadNotifications().catch(e=>showToast(e.message));
 });
