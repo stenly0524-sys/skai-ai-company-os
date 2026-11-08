@@ -43,7 +43,7 @@ export function authRouter(db){
   return id;
  }
  async function consumeChallenge(id,kind,sessionHash=null){
-  await passkeySetup;
+  await passkeySetup();
   const q=await db.query("DELETE FROM ceo_passkey_challenges WHERE id=$1 AND kind=$2 AND expires_at>NOW() AND ($3::text IS NULL OR session_hash=$3) RETURNING challenge",[id,kind,sessionHash]);
   return q.rows[0]?.challenge;
  }
@@ -74,12 +74,12 @@ export function authRouter(db){
   },
 
   async passkeyStatus(req,res){
-   try{await passkeySetup;const q=await db.query('SELECT COUNT(*)::int AS count FROM ceo_passkeys');res.json({enabled:q.rows[0].count>0,count:q.rows[0].count});}
+   try{await passkeySetup();const q=await db.query('SELECT COUNT(*)::int AS count FROM ceo_passkeys');res.json({enabled:q.rows[0].count>0,count:q.rows[0].count});}
    catch{res.status(503).json({error:'passkey_unavailable'});}
   },
   async registrationOptions(req,res){
    try{
-    await passkeySetup;
+    await passkeySetup();
     const keys=await db.query('SELECT id,transports FROM ceo_passkeys');
     const options=await generateRegistrationOptions({rpName:'SKAI OS',rpID:rpID(),userName:'SKAI CEO',userDisplayName:'CEO',attestationType:'none',authenticatorSelection:{residentKey:'required',userVerification:'required'},excludeCredentials:keys.rows.map(x=>({id:x.id,transports:x.transports}))});
     const requestId=await newChallenge('register',options.challenge,req.ceoSession);
@@ -101,7 +101,7 @@ export function authRouter(db){
    if(!sameOrigin(req))return res.status(403).json({error:'origin_not_allowed'});
    if(!rateLimit('passkey:'+req.ip))return res.status(429).json({error:'too_many_attempts'});
    try{
-    await passkeySetup;
+    await passkeySetup();
     const keys=await db.query('SELECT id,transports FROM ceo_passkeys');
     if(!keys.rowCount)return res.status(404).json({error:'passkey_not_registered'});
     const options=await generateAuthenticationOptions({rpID:rpID(),userVerification:'required',allowCredentials:keys.rows.map(x=>({id:x.id,transports:x.transports}))});
