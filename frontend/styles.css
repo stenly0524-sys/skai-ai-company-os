@@ -1,0 +1,2153 @@
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang TC","Noto Sans TC",sans-serif;color:#253342;background:#f4f6f8;font-synthesis:none;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #6aa1d5;outline-offset:3px}button:disabled{cursor:not-allowed}h1,h2,p{margin-top:0}h2{font-size:18px;letter-spacing:-.02em;margin-bottom:0}p{line-height:1.6}.app-shell{max-width:1600px;min-height:100vh;margin:auto;display:grid;grid-template-columns:220px minmax(0,1fr)}.desktop-nav{background:#fbfcfe;border-right:1px solid #e6ebf0;display:flex;flex-direction:column;padding:31px 17px 20px;position:sticky;top:0;height:100vh}.brand{display:flex;gap:10px;align-items:center;padding:0 12px 32px;color:#253342;text-decoration:none;font-size:18px;font-weight:800;letter-spacing:.06em}.brand small{display:block;font-size:9px;color:#9ca9b5;letter-spacing:.18em;font-weight:600;padding-top:3px}.logo{display:grid;place-items:center;width:36px;height:36px;color:#fff;border-radius:12px;background:linear-gradient(140deg,#a2b9d1,#637f9f);box-shadow:0 6px 14px #8ba5c342}.nav-list{display:grid;gap:6px}.navitem{display:flex;align-items:center;gap:14px;width:100%;padding:13px 15px;border:0;border-radius:13px;background:transparent;color:#647484;font-size:14px;text-align:left;font-weight:600}.navitem span{font-size:24px;line-height:16px;min-width:20px;text-align:center}.navitem:hover,.mobileitem:hover{background:#eef2f6}.navitem.active{background:#e8eff8;color:#3c658e}.nav-footer{margin-top:auto;color:#9ba8b5;font-size:11px;line-height:1.8;padding:16px 12px}.nav-footer span{color:#5e83a6}.main-column{min-width:0;padding:28px clamp(18px,3.3vw,50px) 60px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:23px}.eyebrow,.overline{font-size:10px;color:#879bab;letter-spacing:.18em;font-weight:750}.topbar h1{font-size:clamp(25px,2.6vw,34px);font-weight:750;letter-spacing:-.04em;margin:7px 0 3px}.subhead{font-size:13px;color:#9ca8b3;margin-bottom:0}.top-actions{display:flex;gap:12px;align-items:center}.offline-chip,.quiet-pill{border-radius:50px;padding:7px 11px;background:#eff3f7;color:#7890a7;font-size:11px;white-space:nowrap;font-weight:650}.status-dot{width:7px;height:7px;display:inline-block;border-radius:100%;background:#e7b070;margin-right:5px}.status-dot.green{background:#8cbaa5}.avatar-ceo{width:39px;height:39px;background:#e4ecf4;border:1px solid #d4e1ec;border-radius:50%;color:#50708f;font-size:11px;font-weight:800}.page{display:none}.page.active{display:block}.content-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.85fr);gap:18px}.primary-area,.secondary-area{min-width:0;display:grid;align-content:start;gap:17px}.card{background:linear-gradient(155deg,#ffffff 5%,#fafdff 100%);border:1px solid #e5eaf0;border-radius:22px;box-shadow:0 12px 30px #64778d0b;padding:21px}.section-top,.section-heading,.scene-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px}.section-top h2{margin:4px 0 0}.helper{font-size:12px;color:#91a0ad;line-height:1.65;margin:10px 0 10px}.scene-card{overflow:hidden}.office-scene{position:relative;height:clamp(210px,30vw,330px);border-radius:18px;background:radial-gradient(ellipse at 50% 30%,#fefefe 0%,#f4f7fa 55%,#e9eef3 100%);overflow:hidden}.office-art{position:absolute;width:100%;height:100%;inset:0;object-fit:contain}.office-people{position:absolute;inset:0}.office-person{position:absolute;transform:translate(-50%,-50%);border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;color:#4b6178;text-shadow:0 1px 2px white;min-width:55px}.office-person:hover .person-head,.office-person:focus-visible .person-head{transform:translateY(-6px) scale(1.08)}.person-head{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;font-size:21px;background:linear-gradient(#fff,#e8edf3);border:2px solid #fff;box-shadow:0 5px 10px #6e819944;transition:transform .2s}.person-label{border-radius:8px;background:#fffffff0;box-shadow:0 2px 7px #8697a41a;padding:3px 5px;font-size:10px;font-weight:750;white-space:nowrap}.scene-bottom{margin-top:11px;color:#8196a6;font-size:11px}.section-heading{margin:2px 2px -8px}.section-heading h2{font-size:17px}.section-heading span{color:#99a9b5;font-size:11px}.kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.kpi{background:#fff;border:1px solid #e5ebf0;border-radius:18px;text-align:left;padding:17px 18px;display:flex;flex-direction:column;gap:5px;box-shadow:0 7px 20px #64778d08}.kpi span{font-size:12px;color:#73889a}.kpi strong{font-size:25px;color:#334b5f}.kpi small{font-size:11px;color:#a0adba}.chat-preview{display:flex;gap:11px;padding:14px 0 15px;border-bottom:1px solid #edf1f4}.mini-face,.large-face{border-radius:50%;background:linear-gradient(140deg,#dae6f1,#b8cfdf);display:grid;place-items:center;color:#456e91;flex:none}.mini-face{width:33px;height:33px;font-size:20px}.chat-preview b{font-size:13px}.chat-preview p{font-size:12px;color:#798b9b;margin:6px 0 0}.chat-form{display:flex;gap:10px;margin-top:15px}.chat-form input{flex:1;min-width:0;border:1px solid #dce5ee;background:#f7f9fb;border-radius:12px;padding:11px 13px;font-size:14px}.primary-btn{border:0;border-radius:12px;background:#6f95b8;color:white;font-size:13px;font-weight:750;padding:11px 17px}.primary-btn:hover{background:#5b84a9}.empty-state{display:grid;justify-items:center;text-align:center;align-content:center;min-height:180px;color:#99a8b5}.empty-state.compact{min-height:130px}.empty-symbol{color:#b3c1cd;font-size:30px;margin-bottom:9px}.empty-state p{font-size:13px;font-weight:650;color:#7c92a6;margin-bottom:4px}.empty-state small{font-size:11px;line-height:1.65;max-width:250px}.employee-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}.employee-card{border:1px solid #e3eaf0;background:#fbfcfd;border-radius:16px;padding:15px 11px;text-align:center;display:grid;justify-items:center;gap:6px}.employee-card .person-head{width:48px;height:48px;font-size:26px}.employee-card b{font-size:13px}.employee-card small{font-size:11px;color:#9babb7}.mobile-nav{display:none}.employee-dialog{border:1px solid #e6ecf2;border-radius:24px;width:min(calc(100vw - 24px),410px);max-height:min(90dvh,680px);padding:22px;color:#304557;background:#ffffff;box-shadow:0 24px 75px #41586b50}.employee-dialog::backdrop{background:#253a4f70;backdrop-filter:blur(5px)}.dialog-top{display:flex;align-items:center;justify-content:space-between}.icon-close{background:#edf2f5;border:0;border-radius:50%;height:32px;width:32px;font-size:23px;color:#617688}.dialog-identity{display:flex;align-items:center;gap:15px;margin:18px 0}.large-face{width:72px;height:72px;font-size:40px}.dialog-identity h2{font-size:20px}.dialog-identity p{margin:5px 0 0;font-size:12px;color:#8da0ae}.dialog-description{font-size:14px;color:#617789}.dialog-status{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #edf1f4;font-size:13px}.dialog-status span{color:#7c90a2}.dialog-status b{font-weight:650}.dialog-action{width:100%;margin-top:14px}.toast{position:fixed;z-index:100;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 16px;background:#344a5d;color:#fff;border-radius:14px;box-shadow:0 7px 25px #182c4360;text-align:center;font-size:13px;max-width:min(90vw,450px)}.toast[hidden]{display:none}
+@media(max-width:1000px){.app-shell{grid-template-columns:170px minmax(0,1fr)}.desktop-nav{padding-left:9px;padding-right:9px}.content-grid{grid-template-columns:minmax(0,1fr)}.secondary-area{grid-template-columns:repeat(2,minmax(0,1fr))}.secondary-area .card:last-child{grid-column:1/-1}.employee-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.app-shell{display:block}.desktop-nav{display:none}.main-column{padding:calc(env(safe-area-inset-top) + 18px) 14px calc(env(safe-area-inset-bottom) + 90px)}.topbar{margin-bottom:16px;align-items:flex-start}.topbar h1{font-size:27px}.subhead{font-size:12px}.eyebrow{font-size:9px}.top-actions{gap:7px}.offline-chip{font-size:0;padding:9px}.offline-chip .status-dot{margin:0;width:8px;height:8px}.avatar-ceo{height:36px;width:36px}.card{padding:17px;border-radius:20px}.scene-card{padding:17px 14px}.office-scene{height:205px}.person-head{width:29px;height:29px;font-size:17px}.person-label{font-size:9px;padding:2px 4px}.office-person{min-width:40px}.kpi{padding:14px 12px}.kpi span{font-size:11px}.kpi strong{font-size:22px}.kpi small{font-size:10px}.mobile-nav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;z-index:50;bottom:0;left:0;right:0;background:#fffffff2;border-top:1px solid #e5eaf0;backdrop-filter:blur(18px);padding:9px max(env(safe-area-inset-right),7px) calc(env(safe-area-inset-bottom) + 6px) max(env(safe-area-inset-left),7px);box-shadow:0 -6px 20px #6f849914}.mobileitem{border:0;background:transparent;border-radius:12px;color:#93a4b2;padding:5px 0;display:grid;justify-items:center;gap:2px;font-size:10px}.mobileitem span{font-size:23px;line-height:23px}.mobileitem.active{color:#5a83a9;background:#ecf2f9}.secondary-area{grid-template-columns:1fr}.secondary-area .card:last-child{grid-column:auto}.employee-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px) and (orientation:landscape){.main-column{padding-top:calc(env(safe-area-inset-top) + 11px);padding-bottom:calc(env(safe-area-inset-bottom) + 69px)}.topbar{margin-bottom:8px}.topbar h1{font-size:23px}.subhead{display:none}.content-grid{grid-template-columns:minmax(0,1.25fr) minmax(215px,.8fr)}.secondary-area{grid-template-columns:1fr}.office-scene{height:160px}.scene-card .helper{display:none}.kpi-grid{gap:7px}.kpi{padding:10px}.kpi strong{font-size:18px}.card{padding:13px}.person-head{width:24px;height:24px;font-size:13px}.person-label{font-size:8px}.mobile-nav{padding-top:4px;padding-bottom:calc(env(safe-area-inset-bottom) + 2px)}.mobileitem span{font-size:19px}.empty-state{min-height:80px}.empty-state.compact{min-height:55px}}
+@media(max-width:720px) and (max-height:430px) and (orientation:landscape){.office-scene{height:140px}.topbar h1{font-size:21px}.scene-bottom{margin-top:5px}.office-person .person-label{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* iPhone 15 Pro Max landscape: 932 CSS px wide, but still a phone UI. */
+@media (orientation:landscape) and (max-width:1024px) and (max-height:550px){
+ .app-shell{display:block}
+ .desktop-nav{display:none}
+ .main-column{padding:calc(env(safe-area-inset-top) + 10px) max(15px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom) + 67px) max(15px,env(safe-area-inset-right))}
+ .topbar{margin-bottom:8px}
+ .topbar h1{font-size:23px}
+ .subhead{display:none}
+ .content-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,.8fr);gap:11px}
+ .primary-area,.secondary-area{gap:9px}
+ .secondary-area{grid-template-columns:1fr}
+ .secondary-area .card:last-child{grid-column:auto}
+ .card{padding:12px;border-radius:16px}
+ .office-scene{height:165px}
+ .person-head{width:25px;height:25px;font-size:14px}
+ .person-label{font-size:9px;padding:2px 4px}
+ .scene-card .helper{display:none}
+ .scene-bottom{margin-top:5px}
+ .kpi-grid{gap:7px}
+ .kpi{padding:10px;border-radius:12px}
+ .kpi strong{font-size:20px}
+ .kpi span{font-size:11px}
+ .empty-state{min-height:86px}
+ .empty-state.compact{min-height:55px}
+ .mobile-nav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;z-index:50;left:0;right:0;bottom:0;background:#fffffff2;backdrop-filter:blur(18px);border-top:1px solid #e5eaf0;padding:5px max(10px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 3px) max(10px,env(safe-area-inset-left))}
+ .mobileitem{border:0;background:transparent;border-radius:10px;color:#93a4b2;padding:3px 0;display:grid;justify-items:center;gap:1px;font-size:10px}
+ .mobileitem span{font-size:20px;line-height:20px}
+ .mobileitem.active{color:#5a83a9;background:#ecf2f9}
+ .topbar .offline-chip{font-size:11px}
+}
+
+/* Authenticated data and form controls */
+.stack-form{display:grid;gap:14px;margin:20px 0 24px}
+.stack-form label{display:grid;gap:7px;font-size:13px;font-weight:650;color:#63788a}
+.stack-form input,.stack-form textarea,.stack-form select{width:100%;border:1px solid #dce5ee;background:#f7f9fb;color:#2c4052;border-radius:12px;padding:12px 13px;font-size:16px;min-height:44px}
+.stack-form textarea{min-height:90px;resize:vertical}
+.stack-form .primary-btn{justify-self:start}
+.data-list{display:grid;gap:10px;margin-top:14px}
+.data-item{padding:15px;border:1px solid #e1e9ef;background:#f9fbfd;border-radius:14px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:9px}
+.data-item>b{font-size:14px;flex:1 1 180px}
+.data-item .helper{flex-basis:100%;margin:0}
+.inline-actions{display:flex;gap:8px;flex-wrap:wrap}
+.outline-btn{background:#fff;border:1px solid #d3dfe8;border-radius:12px;color:#5d7186;font-size:13px;font-weight:700;padding:11px 17px}
+.text-btn{background:transparent;border:0;color:#6389ac;font-size:12px;padding:8px}
+.chat-history{display:grid;gap:10px;margin-top:10px;max-height:320px;overflow-y:auto}
+.chat-bubble{white-space:pre-wrap;overflow-wrap:anywhere;border-radius:15px;padding:12px 13px;line-height:1.65;font-size:14px;margin:0}
+.user-bubble{background:#e8f0fa;color:#375875;justify-self:end;max-width:92%}
+.ai-bubble{background:#f2f5f7;color:#445d72;justify-self:start;max-width:100%}
+.login-dialog h2{margin:20px 0 5px;font-size:23px}
+.login-dialog .stack-form{margin-bottom:5px}
+@media(max-width:720px){.data-item{padding:13px}.stack-form{gap:12px}.chat-history{max-height:250px}}
+
+.mode-toggle{border:1px solid #dce6f0;border-radius:10px;padding:8px 10px;background:#fff;white-space:nowrap}
+#localBackupTools{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+#localBackupTools label{cursor:pointer}
+@media(max-width:720px){
+ .top-actions{flex-wrap:wrap;justify-content:flex-end;max-width:190px}
+ .top-actions .mode-toggle{font-size:10px;padding:5px 7px}
+ .topbar h1{font-size:25px}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .top-actions{max-width:none;flex-wrap:nowrap}
+}
+
+/* CEO-governed AI orchestration and readable persisted reports */
+.orchestration-entry{display:grid;gap:10px;padding:14px;border:1px solid #e2e9ef;background:#fafcfd;border-radius:14px;min-width:0}
+.orchestration-entry>.outline-btn{justify-self:start}
+.orchestration-detail{display:grid;gap:8px;min-width:0}
+.orchestration-report{min-width:0}
+.orchestration-result{white-space:pre-wrap;overflow-wrap:anywhere;max-height:330px;overflow:auto;margin:4px 0;padding:12px;border-radius:12px;border:1px solid #e4ebf2;background:#f3f6fa;color:#41586e;font:inherit;font-size:13px;line-height:1.65}
+@media(max-width:720px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))}.mobileitem{min-width:0;font-size:9px;letter-spacing:-.2px}.mobileitem span{font-size:20px}}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))}.mobileitem{min-width:0;font-size:9px}}
+
+
+/* SKAI V0.6 — mobile-first navigation and report readability */
+.mobile-more-menu[hidden],.orchestration-result[hidden]{display:none!important}
+.mobile-more-menu{display:none}
+.report-toggle{justify-self:start;max-width:100%;white-space:normal;text-align:left}
+.orchestration-detail>.helper{overflow-wrap:anywhere}
+@media(max-width:720px){
+ .mobile-nav{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  padding:8px max(8px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 8px) max(8px,env(safe-area-inset-left));
+  gap:3px;
+ }
+ .mobileitem{min-width:0;min-height:48px;font-size:11px;letter-spacing:0;gap:4px;padding:5px 2px;touch-action:manipulation}
+ .mobileitem span{font-size:23px;line-height:24px}
+ .mobileitem.active,#mobileMore[aria-expanded="true"]{color:#4d769c;background:#e7f0f8}
+ .mobile-more-menu:not([hidden]){
+  position:fixed;display:grid;gap:6px;
+  bottom:calc(env(safe-area-inset-bottom) + 79px);right:12px;
+  width:min(230px,calc(100vw - 24px));z-index:55;
+  padding:10px;background:#fff;border:1px solid #dce5ee;border-radius:16px;
+  box-shadow:0 18px 36px #24364c30;
+ }
+ .mobile-more-link{
+  width:100%;text-align:left;border:0;border-radius:10px;padding:13px 14px;
+  background:#f6f9fc;color:#425f78;font-size:15px;font-weight:650;min-height:48px;
+ }
+ .mobile-more-link span{display:inline-block;min-width:25px}
+ .mobile-more-link.active{background:#e8eff8;color:#35658e}
+ .main-column{padding-bottom:calc(env(safe-area-inset-bottom) + 105px)}
+ .inline-actions{display:grid;grid-template-columns:1fr;gap:9px}
+ .inline-actions button,.orchestration-entry>.outline-btn,.orchestration-detail>.outline-btn{width:100%;min-height:46px;justify-self:stretch}
+ .orchestration-entry{padding:12px;gap:12px}
+ .orchestration-result{max-height:none;font-size:15px;line-height:1.85;padding:15px;overflow-wrap:anywhere}
+ .chat-form input{font-size:16px}
+ .chat-form button{min-height:46px}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))}
+ .mobile-more-menu:not([hidden]){bottom:calc(env(safe-area-inset-bottom) + 65px)}
+}
+
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .mobile-more-menu:not([hidden]){
+  position:fixed;display:grid;gap:6px;z-index:55;
+  right:12px;bottom:calc(env(safe-area-inset-bottom) + 65px);
+  width:min(220px,calc(100vw - 24px));padding:9px;
+  background:white;border:1px solid #dce5ee;border-radius:14px;
+  box-shadow:0 16px 32px #24364c30;
+ }
+ .mobile-more-link{
+  border:0;border-radius:9px;text-align:left;min-height:42px;
+  padding:10px 12px;background:#f6f9fc;color:#425f78;font-size:14px;font-weight:650;
+ }
+ .mobile-more-link.active{background:#e8eff8;color:#35658e}
+}
+
+
+/* SKAI command-center visual system — reference-inspired, real interactive HTML/CSS */
+:root{--skai-navy:#12203b;--skai-deep:#101b32;--skai-steel:#273b61;--skai-blue:#4d8ce8;--skai-gold:#e6bc7b;--skai-mist:#eff3fb}
+html{background:#e8edf7}
+body{background:linear-gradient(125deg,#dfe6f5,#f0f3fb 55%,#dce5f3);color:#1e2e49}
+.app-shell{max-width:1800px;grid-template-columns:205px minmax(0,1fr);background:linear-gradient(120deg,#eef2f9 15%,#e4eaf6);box-shadow:0 24px 90px #1e2d4a1b}
+.desktop-nav{background:linear-gradient(178deg,#182845,#0f1a30);border-right:1px solid #40577c;box-shadow:inset -1px 0 #ffffff11;z-index:5}
+.brand{color:#fff;font-size:24px;letter-spacing:.02em;gap:13px}
+.brand small{color:#aabbd8;letter-spacing:.17em}
+.logo{background:linear-gradient(150deg,#a1cafa,#3670cd 58%,#284778);color:#fff;border-radius:10px;font-size:24px;font-weight:900}
+.navitem{color:#cfdaee;font-size:14px;border:1px solid transparent}
+.navitem:hover{background:#ffffff16}
+.navitem.active{background:linear-gradient(110deg,#64a4ff,#2d67c7);color:#fff;border-color:#82b7ff;box-shadow:0 6px 20px #387ddc66}
+.nav-footer{color:#a9b8d0}
+.main-column{padding:18px clamp(15px,2vw,36px) 60px}
+.topbar{background:linear-gradient(118deg,#17263f,#273b62);color:#fff;border:1px solid #4a5f86;border-radius:17px;padding:15px 22px;margin-bottom:18px;box-shadow:0 12px 35px #1a305634}
+.topbar h1{color:#fff;font-size:25px;margin:4px 0 1px}
+.topbar .eyebrow{color:#a6c8fa}
+.topbar .subhead{color:#b9cbe2}
+.topbar .offline-chip{color:#d0e5fb;background:#ffffff17}
+.topbar .mode-toggle{background:#ffffff12;border:1px solid #7f9abb5c;color:#e5eeff}
+.topbar .avatar-ceo{border-color:#7fb3ed;background:linear-gradient(155deg,#c8e8ff,#669bdc);color:#183057;box-shadow:0 2px 10px #244b9366}
+.content-grid{grid-template-columns:minmax(0,1.7fr) minmax(235px,.7fr);gap:16px}
+.primary-area,.secondary-area{gap:13px}
+.card{border:1px solid #cad6ea;background:linear-gradient(160deg,#fff,#f1f5fd);box-shadow:0 10px 30px #203a6720;border-radius:18px}
+.secondary-area .card{border-color:#c5d5ee;background:linear-gradient(145deg,#fff,#eaf0fc)}
+.secondary-area .section-top{margin:-4px -4px 8px;padding:8px 11px;border-radius:10px;background:linear-gradient(95deg,#dce6f8,#f5f7fc)}
+.secondary-area .section-top h2{font-size:16px;color:#233858}
+.secondary-area .empty-state{min-height:115px}
+.secondary-area .empty-state.compact{min-height:95px}
+.quiet-pill{background:#e4edfa;color:#55759d;font-size:11px}
+#page-home .scene-card{padding:12px;overflow:hidden;background:linear-gradient(145deg,#f5f9ff,#e1ebfa);border-color:#b5c9e6;box-shadow:0 18px 36px #263f6d24}
+#page-home .scene-heading{padding:4px 6px 9px}
+#page-home .scene-heading h2{font-size:18px;color:#203c68}
+#page-home .scene-heading .overline{color:#7698c7}
+#page-home .scene-card>.helper{margin:0 6px 10px;color:#718dad}
+.office-scene{height:clamp(350px,36vw,510px);background:linear-gradient(155deg,#c7ddf4,#fbf7f0 54%,#e1e5ef);border:1px solid #bfd3ea;border-radius:21px;isolation:isolate;box-shadow:inset 0 4px 22px #ffffffa8,0 12px 25px #324d7b27}
+.office-backdrop{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:inherit;pointer-events:none;background:linear-gradient(164deg,transparent 0 46%,#efddc6 46.4%,#f8f6f5 70%,#d7dcea 100%)}
+.office-backdrop:before{content:"";position:absolute;inset:0 0 49% 0;background:repeating-linear-gradient(90deg,#ffffff20 0 2px,transparent 2px 74px),linear-gradient(90deg,#d0e7fa,#f8f7f4 40%,#d8ddeb 80%,#d5dded)}
+.office-window{position:absolute;left:3%;top:3%;width:27%;height:45%;border:8px solid #ffffff91;border-radius:12px;box-shadow:0 3px 15px #749cce47;background:linear-gradient(175deg,#a8d2f6,#e0f1fb 56%,#bed5e7)}
+.office-window:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 46%,#fdfefeaa 46% 49%,transparent 49%),linear-gradient(transparent 57%,#fdfefeaa 57% 61%,transparent 61%)}
+.office-sign{position:absolute;left:38%;top:2%;width:29%;min-height:32%;border-radius:0 0 18px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;text-shadow:0 0 14px #b4d7ff;background:repeating-linear-gradient(90deg,#51627a 0 4px,#35465f 4px 10px);box-shadow:0 13px 25px #30435d52;font-size:27px}
+.office-sign strong{font-size:32px;letter-spacing:.04em}
+.office-sign small{font-size:8px;letter-spacing:.23em}
+.office-floor{position:absolute;inset:51% -15% -25%;background:repeating-linear-gradient(0deg,#c3cede55 0 1px,transparent 1px 48px),repeating-linear-gradient(90deg,#becddc44 0 1px,transparent 1px 70px);transform:perspective(260px) rotateX(32deg);border-radius:45%}
+.office-art{z-index:1;opacity:.78;filter:drop-shadow(0 8px 9px #7d8daa55);transform:scale(1.01) translateY(12%);}
+.office-people{z-index:2}
+.office-person{gap:4px;min-width:82px;filter:drop-shadow(0 8px 6px #172f5a3b)}
+.office-person:before{content:"";position:absolute;top:27px;width:66px;height:23px;border-radius:6px 6px 10px 10px;background:linear-gradient(125deg,#f9fbff,#a6bad4 65%,#7d91ae);border:2px solid #ffffffd9;box-shadow:0 7px 0 #849ab6,0 12px 10px #6b7c9866;z-index:-1}
+.office-person .person-head{width:46px;height:46px;border:3px solid #fff;box-shadow:0 3px 0 #92abc8,0 8px 14px #587aa35b;background:linear-gradient(145deg,#fff,var(--person-accent,#d4dfee));font-size:27px;line-height:1;transform:translateY(-6px)}
+.office-person.office-lead{z-index:5}
+.office-person.office-lead .person-head{width:62px;height:62px;font-size:37px;border-color:#ffe6af;box-shadow:0 0 0 3px #ffffff77,0 0 23px #ffd88eb6}
+.office-person.office-lead:before{top:40px;width:94px;height:28px;background:linear-gradient(115deg,#f8f5ea,#a78a67);box-shadow:0 7px 0 #9a7753,0 16px 14px #826c585e}
+.office-person .person-label{background:linear-gradient(155deg,#fff,#edf3ff);color:#273d61;font-size:11px;font-weight:850;padding:5px 8px;border:1px solid #b7c8e4;border-radius:999px;box-shadow:0 4px 14px #4e699044}
+.office-lead .person-label{color:#503718;background:linear-gradient(145deg,#fff3d3,#e2bd7f);border-color:#e5c48f}
+.scene-bottom{margin-top:10px;color:#647e9c}
+.mobile-office-grid{display:none}
+#page-home .kpi{border-color:#c6d7ec;background:linear-gradient(145deg,#fff,#edf3fd)}
+#page-home .kpi strong{color:#254f86}
+#page-home .section-heading h2{color:#23395a}
+#page-home .section-heading span{color:#607e9f}
+#page-home .chat-history{scrollbar-width:thin}
+#page-home .chat-bubble.ai-bubble{background:#ecf1fa}
+#page-employees .employee-card .person-head{background:linear-gradient(145deg,#fff,var(--person-accent,#dce5f3));box-shadow:0 6px 14px #344d7933}
+@media(min-width:1100px){
+ #page-home .content-grid{align-items:start}
+ #page-home .secondary-area{position:sticky;top:15px}
+}
+@media(max-width:1000px){
+ .content-grid{grid-template-columns:minmax(0,1fr)}
+ .secondary-area{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+ .app-shell{background:#e9eef8}
+ .main-column{padding:calc(env(safe-area-inset-top) + 9px) 10px calc(env(safe-area-inset-bottom) + 112px)}
+ .topbar{padding:12px 13px;margin-bottom:10px;border-radius:0 0 18px 18px;gap:9px;align-items:center}
+ .topbar h1{font-size:20px;line-height:1.15}
+ .topbar .eyebrow{font-size:8px}
+ .topbar .subhead{display:none}
+ .top-actions{max-width:155px;gap:5px}
+ .top-actions .mode-toggle{font-size:9px;padding:5px}
+ .topbar .avatar-ceo{width:34px;height:34px;flex:0 0 34px}
+ .content-grid,.primary-area,.secondary-area{gap:10px}
+ #page-home .scene-card{padding:10px;border-radius:18px}
+ #page-home .scene-heading{padding:3px 3px 8px}
+ #page-home .scene-heading h2{font-size:16px}
+ #page-home .scene-card>.helper{display:none}
+ #page-home .office-scene{height:225px;border-radius:15px}
+ .office-scene .office-sign{font-size:15px}
+ .office-scene .office-sign strong{font-size:18px}
+ .office-scene .office-sign small{font-size:5px}
+ .office-scene .office-person{min-width:40px;transform:translate(-50%,-50%) scale(.72)}
+ .office-person:before{width:52px;height:17px;top:21px}
+ .office-person .person-head{width:34px;height:34px;font-size:21px}
+ .office-person.office-lead .person-head{width:44px;height:44px;font-size:26px}
+ .office-person.office-lead:before{width:70px;top:31px;height:20px}
+ .office-person .person-label{display:none}
+ .mobile-office-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+ .mobile-office-person{border:1px solid #b9cce6;border-radius:13px;background:linear-gradient(155deg,#fff,#e8f0fb);min-height:80px;display:grid;justify-items:center;align-content:center;gap:4px;padding:8px 3px;box-shadow:0 5px 11px #2d4c7930}
+ .mobile-office-person .person-head{width:36px;height:36px;display:grid;place-items:center;font-size:23px;border:2px solid white;border-radius:12px;background:linear-gradient(145deg,#fff,var(--person-accent,#dce5f3));box-shadow:0 4px 9px #49688c33}
+ .mobile-office-person .person-name{font-size:11px;color:#294668;font-weight:800}
+ .mobile-office-person:first-child{grid-column:span 3;min-height:65px;display:flex;align-items:center;gap:9px;background:linear-gradient(100deg,#d6e7ff,#f6ebdc)}
+ .mobile-office-person:first-child .person-name{font-size:13px}
+ .mobile-office-person:first-child .person-head{border-color:#f8dda0}
+ #page-home .scene-bottom{font-size:10px}
+ #page-home .secondary-area{grid-template-columns:1fr}
+ #page-home .secondary-area .card{padding:13px}
+ #page-home .secondary-area .empty-state{min-height:90px}
+ #page-home .secondary-area .empty-state.compact{min-height:72px}
+ #page-home .kpi-grid{gap:7px}
+ #page-home .kpi{padding:12px 9px;border-radius:13px}
+ #page-home .kpi strong{font-size:24px}
+ #page-home .kpi span{font-size:10px}
+ .mobile-nav{background:linear-gradient(155deg,#172844,#172c4f);border-color:#304f7b;box-shadow:0 -5px 22px #20395a57}
+ .mobileitem{color:#afc5e5}
+ .mobileitem.active{color:#fff;background:linear-gradient(160deg,#3472cc,#25539b)}
+ .mobileitem:hover{background:#ffffff18}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .topbar{border-radius:13px}
+ #page-home .content-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(185px,.65fr);gap:9px}
+ #page-home .secondary-area{display:grid;grid-template-columns:1fr;gap:8px}
+ #page-home .scene-card{padding:8px}
+ #page-home .office-scene{height:clamp(185px,43vh,260px)}
+ #page-home .scene-card>.helper{display:none}
+ #page-home .mobile-office-grid{display:none}
+ #page-home .secondary-area .empty-state{min-height:70px}
+ #page-home .secondary-area .empty-state.compact{min-height:50px}
+}
+
+
+/* SKAI V0.6 reference-faithful LIGHT silver-blue dashboard.
+   Actual approved reference office illustration, not emoji-based simulated artwork. */
+:root{--skai-navy:#283b60;--skai-blue:#7297c6;--skai-mist:#f3f6fc}
+html,body{background:#f1f4fa;color:#263750}
+.app-shell{background:linear-gradient(135deg,#f9fbff,#e8eef8);box-shadow:0 20px 60px #667fa126}
+.desktop-nav{background:linear-gradient(160deg,#fafbff,#edf2fb);border-right:1px solid #dbe3f1;box-shadow:none}
+.brand{color:#283955}
+.brand small{color:#8a9db5}
+.logo{background:linear-gradient(155deg,#c1d2e9,#638ac4);color:white;box-shadow:0 4px 12px #9eb8db66}
+.navitem{color:#536580;border-color:transparent}
+.navitem:hover{background:#e4ecf8}
+.navitem.active{background:linear-gradient(135deg,#bbcde6,#e5ebf7);color:#344e78;border-color:#d1dff0;box-shadow:0 4px 14px #90a5c75c}
+.nav-footer{color:#94a4b8}
+.topbar{background:linear-gradient(145deg,#ffffff,#f5f8fe);color:#233855;border:1px solid #dbe5f3;box-shadow:0 6px 20px #7a91b31c}
+.topbar h1{color:#253855}
+.topbar .eyebrow,.topbar .subhead{color:#8a9db8}
+.topbar .offline-chip{color:#5e799a;background:#eaf1fa}
+.topbar .mode-toggle{color:#54749a;background:#f6f9ff;border-color:#d8e4f3}
+.topbar .avatar-ceo{border-color:#8fb6e5;background:linear-gradient(155deg,#e0edff,#96b7e9);color:#2f517e}
+.card{border:1px solid #dce5f2;background:linear-gradient(150deg,#fff,#f5f8fe);box-shadow:0 10px 27px #7390b220}
+.secondary-area .card{background:linear-gradient(160deg,#fff,#f1f5fc);border-color:#d9e4f3}
+.secondary-area .section-top{background:linear-gradient(95deg,#e7eef8,#fafbff)}
+.quiet-pill{background:#e9f0f8;color:#6683a8}
+#page-home .scene-card{background:linear-gradient(155deg,#fff,#f2f6ff);border-color:#d4e1f1;box-shadow:0 13px 28px #5f7b9c24}
+#page-home .scene-heading h2{color:#263d62}
+#page-home .scene-card>.helper{color:#748ca8}
+#page-home .office-scene{
+ position:relative;
+ height:auto;
+ aspect-ratio:606 / 504;
+ background-color:#f7f9fd;
+ background-image:url('./assets/skai-office-reference.webp');
+ background-size:100% 100%;
+ background-position:center;
+ background-repeat:no-repeat;
+ border:1px solid #dfe8f4;
+ border-radius:20px;
+ box-shadow:0 9px 24px #7896b123;
+ overflow:hidden;
+}
+#page-home .office-art,#page-home .office-backdrop{display:none!important}
+#page-home .office-people{position:absolute;inset:0;z-index:2}
+#page-home .office-hotspot{
+ position:absolute;display:block;
+ transform:translate(-50%,-50%);
+ width:25%;height:18%;min-width:0;padding:0;
+ border:2px solid transparent;border-radius:17px;
+ background:transparent;box-shadow:none;
+ text-shadow:none;filter:none;cursor:pointer;
+}
+#page-home .office-hotspot.office-person:before{display:none!important}
+#page-home .office-hotspot:hover,#page-home .office-hotspot:focus-visible{
+ background:#b8d3f51c;border-color:#689bd9;outline:0;
+ box-shadow:0 0 0 3px #ffffff8c,0 5px 20px #7195bd55;
+}
+#page-home .office-hotspot-hint{
+ position:absolute;bottom:calc(100% + 3px);left:50%;
+ transform:translateX(-50%);
+ white-space:nowrap;pointer-events:none;
+ border-radius:12px;padding:5px 9px;
+ background:#fffffff0;color:#355b8b;border:1px solid #c1d6ed;
+ box-shadow:0 4px 15px #708ca64d;font-size:12px;font-weight:700;
+ opacity:0;transition:opacity .15s;
+}
+#page-home .office-hotspot:hover .office-hotspot-hint,#page-home .office-hotspot:focus-visible .office-hotspot-hint{opacity:1}
+#page-home .scene-bottom{color:#6b839f}
+#page-home .kpi{background:linear-gradient(135deg,#fff,#f0f5fc)}
+#page-home .kpi strong{color:#355d8f}
+.mobile-office-person .person-head{color:#466999}
+.mobile-office-person .person-name{color:#345175}
+@media(min-width:1100px){
+ #page-home .content-grid{grid-template-columns:minmax(0,1.55fr) minmax(250px,.7fr)}
+}
+@media(max-width:720px){
+ html,body{background:#f0f4fa}
+ .app-shell{background:#f1f5fb}
+ .topbar{background:#fcfdff;padding:10px 13px;border-color:#e2e9f4}
+ .topbar h1{color:#253958}
+ #page-home .office-scene{height:auto;aspect-ratio:606 / 504;max-height:290px}
+ #page-home .office-hotspot{min-width:0;width:26%;height:19%;border-radius:8px}
+ #page-home .office-hotspot-hint{font-size:10px;padding:3px 6px}
+ #page-home .mobile-office-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #page-home .mobile-office-person{
+  grid-column:auto;min-height:76px;
+  display:grid;align-content:center;justify-items:center;gap:4px;
+  background:linear-gradient(148deg,#fff,#e9f0fb);
+  border:1px solid #d5e1ef;border-radius:14px;
+  box-shadow:0 5px 12px #7896b030;
+ }
+ #page-home .mobile-office-person:first-child{
+  grid-column:auto;min-height:76px;display:grid;gap:4px;
+  background:linear-gradient(148deg,#fff,#e9f0fb)
+ }
+ #page-home .mobile-office-person .person-head{
+  width:35px;height:35px;border-radius:11px;font-size:21px;
+  display:grid;place-items:center;border:1px solid #dde7f3;
+  background:linear-gradient(145deg,#fff,#dfeafb);
+ }
+ #page-home .mobile-office-person .person-name,#page-home .mobile-office-person:first-child .person-name{font-size:11px}
+ .mobile-nav{background:#fff;border-color:#e0e7f1;box-shadow:0 -5px 20px #667f9f24}
+ .mobileitem{color:#8295b1}
+ .mobileitem.active{background:linear-gradient(150deg,#dce8f8,#edf3fc);color:#4c74a3}
+ .mobileitem:hover{background:#eaf0f8}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ #page-home .office-scene{height:auto;aspect-ratio:606 / 504}
+ #page-home .mobile-office-grid{display:none}
+}
+
+
+/* SKAI V0.6 — approved white/silver tech-icon design language.
+   Inline SVG means symbols remain crisp on retina phones and landscape monitors. */
+.skai-icon{
+ display:inline-grid;place-items:center;flex:0 0 auto;
+ width:37px;height:37px;border:1px solid #d6e2f1;border-radius:12px;
+ color:#6288b8;
+ background:linear-gradient(145deg,#fff 4%,#f8fbff 55%,#e7effb);
+ box-shadow:inset 2px 2px 3px #ffffff,inset -2px -2px 3px #d9e5f3,0 5px 9px #637e9e2a;
+ vertical-align:middle;
+}
+.skai-icon svg{width:65%;height:65%;overflow:visible;filter:drop-shadow(0 1px 0 #ffffff);stroke:currentColor}
+.desktop-nav .navitem{display:flex;align-items:center;gap:11px}
+.desktop-nav .navitem .skai-icon{width:34px;height:34px;min-width:34px;border-radius:11px}
+.desktop-nav .navitem.active .skai-icon{color:#3d679a;background:linear-gradient(130deg,#fff,#e6eef9)}
+.mobile-nav .mobileitem{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mobile-nav .mobileitem .skai-icon{width:31px;height:31px;border-radius:10px}
+.mobile-more-link .skai-icon{width:29px;height:29px;margin-right:8px}
+#page-home .kpi .skai-icon{width:32px;height:32px;border-radius:11px}
+#page-home .mobile-office-person .person-head{padding:0;background:none;border:0;box-shadow:none}
+#page-home .mobile-office-person .person-head .skai-icon{width:39px;height:39px}
+#page-employees .employee-card .person-head{background:transparent;border:0;box-shadow:none}
+#page-employees .employee-card .person-head .skai-icon{width:48px;height:48px}
+#employeeFace .skai-icon{width:56px;height:56px}
+.mini-face .skai-icon{width:31px;height:31px}
+button .skai-icon+span:not(.status-dot){vertical-align:middle}
+.primary-btn .skai-icon,.outline-btn .skai-icon,.mode-toggle .skai-icon{width:27px;height:27px;margin-right:7px;border-radius:9px}
+.avatar-ceo .skai-icon{width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#fff,#dbe8fb)}
+.avatar-ceo{display:grid;place-items:center}
+#page-home .office-hotspot .skai-icon{background:transparent;border:0;box-shadow:none}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ /* Landscape phones use desktop-style left navigation. Portrait uses bottom tabs. */
+ .app-shell{display:block;max-width:none;min-height:100dvh}
+ .desktop-nav{
+  display:flex!important;position:fixed!important;inset:0 auto 0 0;
+  height:100dvh!important;width:164px!important;
+  padding:13px 7px!important;overflow-y:auto;overscroll-behavior:contain;z-index:70;
+  border-right:1px solid #d5e0ee;gap:6px
+ }
+ .desktop-nav .brand{font-size:15px;gap:7px;padding:0 6px 10px}
+ .desktop-nav .brand .logo{width:26px;height:26px;font-size:18px;border-radius:8px}
+ .desktop-nav .brand small{font-size:6px;letter-spacing:0}
+ .desktop-nav .nav-list{display:grid;gap:2px}
+ .desktop-nav .navitem{font-size:12px;padding:5px 6px;gap:6px;border-radius:9px;min-height:36px}
+ .desktop-nav .navitem .skai-icon{width:28px;height:28px;min-width:28px;border-radius:8px}
+ .desktop-nav .nav-footer{display:none}
+ .main-column{display:block;margin-left:164px!important;padding:8px 10px 18px!important;min-width:0}
+ .mobile-nav,.mobile-more-menu{display:none!important}
+ .topbar{padding:7px 10px;margin-bottom:8px;gap:8px}
+ .topbar h1{font-size:18px}
+ .topbar .eyebrow{display:none}
+ .topbar .top-actions{flex-wrap:nowrap;max-width:none}
+ .topbar .mode-toggle{font-size:9px;padding:5px 6px}
+ #page-home .content-grid{display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(180px,.7fr)!important;gap:8px!important}
+ #page-home .primary-area,#page-home .secondary-area{min-width:0}
+ #page-home .office-scene{height:auto!important;max-height:none;aspect-ratio:606 / 504}
+ #page-home .scene-heading h2{font-size:14px}
+ #page-home .scene-card{padding:8px!important}
+ #page-home .mobile-office-grid{display:none!important}
+ #page-home .kpi-grid{gap:5px}
+ #page-home .kpi{padding:7px}
+ #page-home .secondary-area .card{padding:10px}
+ #page-home .secondary-area .section-top h2{font-size:13px}
+ #page-home .secondary-area .empty-state{min-height:72px}
+ .employee-dialog{max-height:95dvh}
+}
+@media(max-width:720px) and (orientation:portrait){
+ .mobile-nav .mobileitem .skai-icon{width:29px;height:29px;border-radius:9px}
+ .mobile-nav .mobileitem{min-height:53px;gap:3px;font-size:10px}
+ .topbar{margin-top:0}
+ .mobile-office-person{min-height:92px}
+ .mobile-office-person .person-name{font-size:11px}
+}
+
+
+/* Crisp live HTML labels overlay the office raster; no fuzzy baked UI typography. */
+#page-home .office-hotspot .office-position-label{
+ display:inline-flex;align-items:center;justify-content:center;gap:4px;
+ position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);
+ padding:4px 8px;white-space:nowrap;
+ border:1px solid #cfdbef;border-radius:999px;
+ background:linear-gradient(155deg,#fff,#edf3fb);
+ color:#345376;box-shadow:0 2px 10px #476c9952;
+ font-size:11px;line-height:1.25;font-weight:750;
+ text-shadow:none;
+}
+#page-home .office-hotspot .office-position-label .skai-icon{
+ width:20px;height:20px;border-radius:6px;box-shadow:none;
+}
+#page-home .office-hotspot .office-position-label .skai-icon svg{width:76%;height:76%}
+#page-home .office-hotspot:hover .office-position-label,#page-home .office-hotspot:focus-visible .office-position-label{
+ background:#e7f0fc;border-color:#91b2df;box-shadow:0 3px 15px #406c9e70
+}
+#page-home .office-scene{background-size:100% 100%;filter:contrast(1.035) saturate(1.06)}
+@media(max-width:720px) and (orientation:portrait){
+ #page-home .office-hotspot .office-position-label{font-size:9px;padding:2px 4px;gap:2px}
+ #page-home .office-hotspot .office-position-label .skai-icon{width:16px;height:16px;border-radius:4px}
+}
+
+
+/* SKAI V0.6: native scalable HQ art replaces the 720x600 lossy office crop.
+   Preserve the established 7 interactive hotspots and 9 manager quick actions. */
+#page-home .office-scene{
+ background-image:url('./assets/skai-office-hd.svg')!important;
+ background-size:100% 100%;
+ background-repeat:no-repeat;
+ filter:none!important;
+ image-rendering:auto;
+}
+#page-home .office-hotspot{isolation:isolate}
+#page-home .office-hotspot .office-position-label{font-synthesis:none}
+@media (min-width:721px){
+ #page-home .office-scene{min-height:390px}
+}
+@media (max-width:720px) and (orientation:portrait){
+ #page-home .office-scene{min-height:0;height:auto;aspect-ratio:6/5}
+}
+@media (orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ #page-home .office-scene{min-height:0!important;max-height:none!important;aspect-ratio:6/5}
+}
+
+
+/* SKAI CEO -> Chief-of-Staff planning workflow */
+#chiefPlanPanel{margin-top:16px}
+#chiefPlanPanel .orchestration-entry{padding:14px 0;border-bottom:1px solid #dae4f0}
+#chiefPlanPanel .orchestration-entry:last-child{border-bottom:0}
+#chiefPlanPanel .orchestration-detail{margin-top:12px;display:grid;gap:10px;min-width:0}
+#chiefPlanPanel .orchestration-detail[hidden]{display:none}
+#chiefPlanPanel .chief-budget-summary{padding:13px 14px;border:1px solid #b5cce8;border-radius:12px;background:linear-gradient(130deg,#f0f6ff,#e2edfa);font-weight:760;color:#2e4f78;line-height:1.5}
+#chiefPlanPanel .chief-step-card{padding:12px 14px;border:1px solid #dce6f3;border-radius:12px;background:#fff;display:grid;gap:6px}
+#chiefPlanPanel .chief-step-card p{margin:0;overflow-wrap:anywhere}
+#chiefPlanPanel .chief-feedback-form,#chiefPlanPanel .chief-edit-body{display:grid;gap:10px;padding:14px;border:1px solid #d6e2f0;border-radius:12px;background:#f7faff}
+#chiefPlanPanel .chief-feedback-form label,#chiefPlanPanel .chief-edit-body label{display:grid;gap:6px;font-weight:640;font-size:13px;color:#425b7c}
+#chiefPlanPanel textarea,#chiefPlanPanel input,#chiefPlanPanel select{box-sizing:border-box;display:block;width:100%;max-width:100%;min-width:0;border:1px solid #c7d6e9;border-radius:9px;padding:10px;color:#263e5c;background:#fff;font:inherit}
+#chiefPlanPanel .chief-feedback-form button,#chiefPlanPanel .chief-edit-body button{justify-self:start}
+#chiefPlanPanel .chief-step-editor{display:grid;gap:9px;padding:12px;margin:8px 0;border:1px solid #d5e1ef;border-radius:10px;background:#fff}
+#chiefPlanPanel .chief-estimate-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+#chiefPlanPanel .chief-edit-panel{display:grid;gap:10px}
+#chiefPlanPanel .chief-edit-body[hidden]{display:none}
+#chiefPlanPanel .orchestration-result{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+@media(max-width:650px){#chiefPlanPanel .chief-estimate-row{grid-template-columns:1fr 1fr}#chiefPlanPanel .chief-estimate-row button{grid-column:1 / -1}}
+
+/* Department-owned observability; use existing SKAI white/silver-blue visual system. */
+#page-department-tech .card,#page-department-finance .card{max-width:100%;min-width:0}
+.department-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.department-stat{padding:16px;border:1px solid #d3e1ef;border-radius:14px;background:linear-gradient(145deg,#fff,#edf4fb);box-shadow:0 4px 14px #859db521;min-width:0}
+.department-stat span{display:block;font-size:12px;color:#59718f;margin-bottom:8px}
+.department-stat strong{font-size:clamp(18px,2.5vw,29px);font-weight:760;letter-spacing:-.02em;color:#2d4e74;overflow-wrap:anywhere}
+#page-department-tech .stack-form,#page-department-finance .stack-form{margin-top:16px}
+#page-department-tech .stack-form h3,#page-department-finance .stack-form h3{font-size:15px;color:#3c628d;margin:4px 0 12px}
+#page-department-tech .department-stats,#page-department-finance .department-stats{max-width:750px}
+@media(max-width:520px){.department-stats{gap:8px}.department-stat{padding:12px}.department-stat strong{font-size:18px}}
+
+/* V0.6 command center refinement — non-destructive presentation changes. */
+.compact-home-kpis{margin-bottom:16px}.compact-home-kpis .kpi{padding:12px 16px}.compact-home-kpis .kpi strong{font-size:25px}.content-grid{grid-template-columns:minmax(0,1fr) minmax(300px,1.12fr)}.scene-card{padding:15px}.office-scene{height:clamp(140px,17vw,205px)}.scene-card .helper{margin:5px 0}.home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.home-shortcuts .outline-btn{padding:10px 5px;font-size:12px}.data-search-label{display:block;color:#607a94;font-size:12px;margin:16px 0 8px}.data-search{width:100%;padding:12px 14px;border:1px solid #d5e1ee;border-radius:12px;background:#f9fbfd;font-size:15px}.secondary-area .card:last-child{grid-column:auto}@media(max-width:1050px){.content-grid{grid-template-columns:1fr}}@media(max-width:720px){.office-scene{height:160px}.compact-home-kpis{gap:7px}.compact-home-kpis .kpi{padding:10px}.home-shortcuts{grid-template-columns:repeat(2,1fr)}}
+
+/* SKAI V0.6 reference UI — faithful five-screen silver-blue dashboard.
+   Real data only; avoids pretending that the supplied mock numbers are actual KPIs. */
+:root{--skai-blue:#2878dc;--skai-ink:#162944;--skai-border:#d9e4f1;--skai-pale:#edf4ff}
+body{background:linear-gradient(135deg,#e8eef7 0%,#f6f8fd 57%,#e8effb 100%);color:var(--skai-ink)}
+.app-shell{max-width:1760px;grid-template-columns:190px minmax(0,1fr);margin:12px auto;min-height:calc(100vh - 24px);background:#f4f7fc;border:1px solid #dbe5f2;border-radius:25px;box-shadow:0 16px 44px #54749c1c;overflow:clip}
+.desktop-nav{background:linear-gradient(145deg,#f8fbff,#eaf1fb);border-right:1px solid #dce5f3;padding:25px 13px;min-height:calc(100vh - 24px);height:calc(100vh - 24px)}
+.brand{font-weight:850;letter-spacing:-.01em;font-size:21px;padding:9px 10px 34px}
+.logo{background:linear-gradient(150deg,#9dc5f1,#2878dc);border-radius:8px;box-shadow:none}
+.nav-list{gap:5px}.navitem{border-radius:12px;padding:14px 13px;font-weight:720;color:#334864}
+.navitem.active{background:linear-gradient(120deg,#60a4f1,#226ad0);color:#fff;box-shadow:0 5px 12px #3577d242}
+.navitem.active .skai-icon{color:white}.navitem span{min-width:22px}
+.main-column{padding:25px clamp(15px,2vw,32px) 40px}
+.topbar{margin-bottom:19px}.topbar h1{font-size:clamp(24px,2.1vw,31px);font-weight:850;color:#0c1d37}.subhead{color:#657b97}
+.card{border:1px solid var(--skai-border);border-radius:20px;background:linear-gradient(145deg,#fff,#f1f5fc);box-shadow:0 7px 19px #5876a015}
+.kpi-grid.compact-home-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:14px}
+.compact-home-kpis .kpi{min-height:92px;padding:14px;gap:8px;border-radius:18px;box-shadow:0 5px 13px #5879a017;background:linear-gradient(135deg,#fff,#edf3fb)}
+.compact-home-kpis .kpi span{font-weight:750;color:#4e6480}.compact-home-kpis .kpi strong{font-size:clamp(20px,2.2vw,31px);color:#102b56}
+.compact-home-kpis .kpi small{font-size:10px;color:#7288a2}.compact-home-kpis .kpi .skai-icon{color:#317bdd}
+#page-home .content-grid{grid-template-columns:minmax(250px,.85fr) minmax(350px,1.15fr);gap:13px}
+#page-home .primary-area,#page-home .secondary-area{display:flex;flex-direction:column;gap:11px}
+#page-home .scene-card{padding:12px 13px}.scene-heading{margin-bottom:3px}
+#page-home .scene-card .section-top h2{font-size:15px}.office-description{display:none}
+#page-home .office-scene{height:195px!important;min-height:0!important;max-height:195px!important;aspect-ratio:auto!important;background-size:contain!important;background-position:center!important;background-color:#f0f5fc!important;border-radius:14px}
+#page-home .office-hotspot .office-position-label{font-size:9px}
+#page-home .mobile-office-grid{display:none}
+#page-home .scene-bottom{margin-top:7px}
+.home-todo-card{padding:14px 17px;min-height:160px}
+.home-todo-card .section-top h2,.progress-overview .section-top h2{font-size:16px}
+#homeTodoList{display:grid;gap:3px;margin-top:10px}
+.home-todo-row{width:100%;border:0;background:transparent;padding:7px 5px;display:flex;align-items:center;gap:9px;text-align:left;border-bottom:1px solid #e8edf6;color:#283f59;font-size:12px}
+.home-todo-row:hover,.project-progress-row:hover{background:#edf4ff;border-radius:8px}
+.todo-check{font-size:20px;color:#5f83b7;line-height:1;flex:none}
+.todo-status{margin-left:auto;font-size:10px;color:#788da6;white-space:nowrap}
+.progress-overview{padding:15px 17px;min-height:237px}
+.project-bars{display:grid;gap:8px;margin-top:12px}
+.project-progress-row{display:grid;grid-template-columns:minmax(100px,1fr) minmax(70px,1.25fr) 46px;align-items:center;gap:9px;width:100%;border:0;background:transparent;padding:7px 2px;text-align:left}
+.project-progress-name{font-weight:700;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#21354e}
+.project-progress-track{display:block;position:relative;background:#dfe7f2;border-radius:999px;height:9px;overflow:hidden;min-width:0}
+.project-progress-fill{display:block;height:100%;width:0;background:linear-gradient(90deg,#2075ee,#3ca4fa);border-radius:inherit}
+.project-progress-value{font-size:12px;color:#344965;text-align:right;white-space:nowrap}
+.home-action-card{padding:10px;flex:1;display:grid;align-content:center}
+#page-home .home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#page-home .home-shortcuts .outline-btn{display:grid;place-items:center;gap:8px;background:linear-gradient(160deg,#fff,#eaf2fc);min-height:99px;padding:11px 5px;font-size:11px;font-weight:750;border-radius:14px}
+.shortcut-emoji{font-size:27px;color:#2879e1;line-height:1}
+.subtle-source{margin:0 4px;font-size:10px}
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
+.listing-card{padding:19px}
+.listing-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.listing-header h2,.data-hub h2,.assistant-hero h2{font-size:26px;color:#122844}
+.listing-header .helper{margin:5px 0 0}
+.listing-actions{display:flex;align-items:center;gap:8px}.listing-search{border:1px solid #d4e1f2;border-radius:25px;background:#fff;padding:11px 15px;min-width:170px;max-width:240px;font-size:13px;color:#203b5a}
+.primary-btn{background:linear-gradient(100deg,#4297fc,#1970df);color:white;border-radius:12px;box-shadow:0 3px 12px #2671ca29}
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:11px 0 18px}
+.filter-tab{border:1px solid #e0e8f3;border-radius:25px;background:linear-gradient(150deg,#fff,#ecf2fa);padding:9px 17px;color:#47617f;font-weight:700;font-size:12px}
+.filter-tab.active{background:linear-gradient(130deg,#3a8fee,#1c6dd8);color:#fff;border-color:#2d7bdd}
+.visual-project-list,.visual-task-list{display:grid;gap:10px;margin:14px 0 24px}
+.visual-project-row{display:grid;grid-template-columns:62px minmax(0,1.2fr) auto minmax(90px,.8fr) 16px;gap:13px;align-items:center;min-height:80px;padding:11px 14px;border:1px solid #dce6f2;border-radius:15px;background:linear-gradient(115deg,#fff,#f2f6fc);box-shadow:0 3px 9px #5874a012;text-align:left;color:#1c3352}
+.visual-project-row:hover,.visual-task-row:hover{border-color:#7ab2f4;box-shadow:0 5px 13px #518fd42c}
+.project-graphic{display:grid;place-items:center;width:58px;height:58px;background:linear-gradient(130deg,#dceeff,#bad5fa);color:#2a71d1;font-size:30px;border-radius:12px}
+.project-row-main{display:grid;gap:4px;min-width:0}.project-row-main b{font-size:14px}.project-row-main small{font-size:11px;color:#8092a7;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.status-pill{display:inline-flex;align-items:center;justify-content:center;border-radius:50px;padding:5px 9px;color:#2666ae;background:#e0eeff;font-size:11px;font-weight:750;white-space:nowrap}
+.project-row-meter{display:flex;align-items:center;gap:8px;min-width:0}.project-row-meter .project-progress-track{flex:1}.project-row-meter b{font-size:11px;min-width:40px;text-align:right}
+.project-arrow{font-size:26px;color:#8295b0}
+.visual-task-row{display:grid;grid-template-columns:26px minmax(0,1fr) auto 130px;align-items:center;gap:13px;min-height:55px;padding:10px 14px;border:1px solid #e0e8f4;border-radius:12px;background:linear-gradient(130deg,#fff,#f2f6fc);color:#1d3350;text-align:left}
+.task-list-title{font-weight:700;font-size:13px}.task-project-name{color:#7e90a7;font-size:10px;text-align:right}
+#page-projects .section-heading,#page-tasks .section-heading{margin:20px 0 12px}
+.knowledge-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.knowledge-tile{display:grid;justify-items:center;align-content:center;gap:9px;min-height:135px;border:1px solid #dce6f2;border-radius:16px;background:linear-gradient(135deg,#fff,#eaf3ff);box-shadow:0 5px 15px #597ba014;color:#1d3962}
+.knowledge-tile span{font-size:35px;color:#2778dc}.knowledge-tile b{font-size:14px}.knowledge-tile small{font-size:10px;color:#7a92ad}
+.assistant-hero-body{display:grid;grid-template-columns:minmax(100px,170px) minmax(0,1fr);align-items:center;gap:18px;margin:20px 0}
+.chief-avatar{width:160px;height:160px;display:grid;place-items:center;border-radius:25px;background:radial-gradient(circle at 40% 18%,#fff,#d4e5fb);box-shadow:inset 0 0 0 1px #d2e0ef;font-size:100px}
+.assistant-intro{padding:20px;border:1px solid #dfe8f3;background:#fff;border-radius:18px;font-size:14px;color:#263f61;line-height:1.75}.assistant-intro b{font-size:18px}.assistant-intro p{margin:8px 0 0}
+.assistant-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.assistant-actions button{font-size:12px;padding:12px 4px}
+#page-assistant .card{margin-bottom:14px}
+#page-assistant .chat-form{margin-top:20px}
+@media(max-width:1050px){
+ #page-home .content-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ #page-home .office-scene{height:165px!important;max-height:165px!important}
+ .project-progress-row{grid-template-columns:minmax(70px,.9fr) minmax(50px,1fr) 43px}
+ .kpi-grid.compact-home-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:720px){
+ .app-shell{margin:0;min-height:100vh;border-radius:0;display:block}
+ .main-column{padding:16px 12px 92px}.topbar h1{font-size:23px}
+ #page-home .content-grid{grid-template-columns:1fr}
+ #page-home .office-scene{height:195px!important;max-height:195px!important}
+ #page-home .mobile-office-grid{display:grid}
+ #page-home .home-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #page-home .home-shortcuts .outline-btn{min-height:80px;font-size:10px}
+ .listing-header{align-items:stretch;flex-direction:column}
+ .listing-actions{width:100%}.listing-search{width:100%;min-width:0;max-width:none;flex:1}
+ .visual-project-row{grid-template-columns:45px minmax(0,1fr) auto 14px;gap:9px;padding:10px}
+ .project-graphic{width:42px;height:42px;font-size:23px}
+ .visual-project-row .project-row-meter{grid-column:2/4;width:100%}
+ .visual-project-row .status-pill{font-size:9px}
+ .visual-project-row .project-arrow{grid-column:4;grid-row:1}
+ .visual-task-row{grid-template-columns:26px minmax(0,1fr) auto}
+ .task-project-name{grid-column:2/4;text-align:left}
+ .knowledge-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .assistant-hero-body{grid-template-columns:94px minmax(0,1fr);gap:10px}
+ .chief-avatar{width:94px;height:110px;font-size:63px}.assistant-intro{padding:12px;font-size:12px}
+ .assistant-actions{grid-template-columns:1fr}
+}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ #page-home .office-scene{height:145px!important;min-height:0!important;max-height:145px!important;aspect-ratio:auto!important}
+ .kpi-grid.compact-home-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+.project-quick-detail{padding:16px 19px;margin:16px 0 24px;border-radius:17px;background:linear-gradient(135deg,#edf5ff,#fff);border:1px solid #cfe0f4}.project-quick-detail[hidden]{display:none}.project-quick-detail h3{font-size:16px;margin:0;color:#27466e}.project-quick-detail .section-heading{margin:12px 0}.project-quick-detail .data-list{margin-top:10px}
+
+/* V0.7 fidelity correction: keep screenshot-style primary screens clean.
+   Creation forms and advanced workflows remain accessible, but are collapsed until requested. */
+.creation-panel[hidden],#chiefPlanContent[hidden],.workspace-toggle[hidden]{display:none!important}
+.sidebar-ceo{display:flex;align-items:center;gap:10px;padding:17px 9px 2px;margin-top:10px;border-top:1px solid #e1eaf5;font-size:13px}
+.sidebar-ceo-avatar{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:#e2eaf8;font-size:24px}
+.sidebar-settings{border:0;background:transparent;color:#758da9;margin-left:auto;font-size:17px}
+.desktop-nav .nav-footer{margin-top:auto;padding-bottom:6px}
+.workspace-toggle{position:absolute;right:36px;top:77px;z-index:20;display:flex;gap:8px;border:1px solid #d4e1f0;background:#fff;border-radius:15px;box-shadow:0 10px 30px #375b8530;padding:8px}
+#page-projects .creation-panel,#page-tasks .creation-panel{margin-top:24px;border:1px solid #dae6f3;border-radius:14px;background:#f4f8ff;padding:14px}
+#page-projects .creation-panel .section-heading,#page-tasks .creation-panel .section-heading{margin:4px 0 13px}
+.chief-plan-collapsible{padding:13px 17px}
+#toggleChiefPlans{width:100%;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800}
+#chiefPlanContent{padding-top:12px}
+#page-home .scene-heading{display:none}
+#page-home .scene-bottom{display:none}
+#page-home .scene-card{padding:8px}
+#page-home .office-scene{height:183px!important;max-height:183px!important;background-size:cover!important}
+#page-home .mobile-office-grid{display:none!important}
+#page-home .home-todo-card{min-height:167px}
+#page-home .progress-overview{min-height:215px}
+#page-home .home-action-card{min-height:112px}
+#page-assistant .chief-avatar{background:linear-gradient(125deg,#f6faff,#dbe7fb);border-radius:21px;overflow:hidden;box-shadow:none}
+#page-assistant .chief-avatar img{object-fit:contain;width:100%;height:100%}
+#page-assistant .assistant-hero{max-width:930px}
+#page-assistant .assistant-hero-body{grid-template-columns:170px 1fr}
+#page-projects .listing-card,#page-tasks .listing-card{min-height:580px}
+#page-projects .visual-project-list{gap:9px}
+#page-projects .visual-project-row{min-height:70px}
+#page-projects .visual-project-row .project-graphic{font-size:30px}
+#page-data .knowledge-tiles .knowledge-tile{min-height:141px}
+@media(max-width:720px){
+ .sidebar-ceo{display:none}
+ .workspace-toggle{position:fixed;right:8px;top:67px}
+ #page-home .office-scene{height:175px!important;max-height:175px!important}
+ #page-assistant .assistant-hero-body{grid-template-columns:100px 1fr}
+ #page-projects .listing-card,#page-tasks .listing-card{min-height:0}
+}
+
+.mobile-settings-button{display:none;border:1px solid #dae4f3;border-radius:12px;background:#f4f8fc;padding:7px 10px;color:#58728e;font-size:17px}@media(max-width:720px){.mobile-settings-button{display:inline-flex}.top-actions{gap:6px}.topbar .offline-chip{font-size:10px;padding:5px 7px}}
+
+/* V0.7 screenshot findings: remove duplicated top headers and avoid office crop. */
+body:not([data-current-page="home"]) .topbar{display:none!important}
+body:not([data-current-page="home"]) .main-column{padding-top:25px}
+body:not([data-current-page="home"]) #page-projects .listing-card,
+body:not([data-current-page="home"]) #page-tasks .listing-card{min-height:calc(100dvh - 85px)}
+#page-home .office-scene{background-size:contain!important;background-position:center!important;filter:none!important}
+#page-home .office-hotspot .office-position-label{font-size:9px}
+.compact-home-kpis .kpi{min-height:83px;padding:10px 12px;gap:5px}
+#page-home .content-grid{gap:12px}
+#page-home .primary-area,#page-home .secondary-area{gap:10px}
+.nav-notification{min-width:18px!important;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;border-radius:30px;background:#f64c52;color:#fff;font-size:11px!important;padding:2px 5px;line-height:1.2}
+.nav-notification[hidden]{display:none!important}
+#page-assistant>.card:nth-of-type(1){margin-bottom:0;border-bottom:0;border-radius:19px 19px 0 0;box-shadow:none}
+#page-assistant>.card:nth-of-type(2){margin-top:-14px;border-top:0;border-radius:0 0 19px 19px;box-shadow:none}
+#page-assistant>.card:nth-of-type(2)>.section-top{display:none}
+#page-assistant>.card:nth-of-type(2)>.helper{display:none}
+@media(orientation:landscape) and (max-height:550px) and (max-width:1024px){
+ .mobile-settings-button{display:inline-flex}
+}
+
+/* Reference: compact unboxed greeting and unobtrusive notification bell. */
+.topbar{background:transparent!important;box-shadow:none!important;border:0!important;padding:0 4px!important;min-height:68px!important}
+.topbar .eyebrow{display:none}
+.topbar h1{margin:0 0 4px!important}
+.topbar .offline-chip{background:transparent!important;font-size:10px}
+.header-bell{border:0;background:transparent;position:relative;color:#647d9b;font-size:23px;padding:5px 10px;line-height:1}
+.header-bell::first-letter{color:#6484a7}
+.header-bell-count{position:absolute;top:0;right:0;min-width:17px;height:17px;display:grid;place-items:center;border-radius:50%;background:#f04452;color:#fff;font-size:10px;box-shadow:0 2px 6px #d33b4530}
+.header-bell-count[hidden]{display:none}
+#page-home .scene-card{background:linear-gradient(140deg,#fff,#edf3fc)}
+#page-home .scene-card .office-scene{overflow:hidden}
+@media(max-width:720px){.topbar .offline-chip{display:none}.topbar{min-height:62px!important}}
+
+/* Workspace switch is accessible from all pages; office hotspots align with full contained art. */
+.workspace-toggle{position:fixed!important;top:72px!important;right:32px!important;z-index:200!important}
+#page-home .office-people{width:54%;left:50%;transform:translateX(-50%)}
+#page-home .office-position-label{font-size:8px!important;padding:3px 4px!important}
+@media(max-width:720px){#page-home .office-people{width:min(82%,205px)}.workspace-toggle{right:8px!important;top:68px!important}}
+
+/* V0.8: visual reference refinement at the actual 5-page web UI level */
+:root{--skai-blue:#1679ef;--skai-ink:#0c1c38}
+body{background:linear-gradient(135deg,#e4ecfa,#f4f8ff 54%,#e5eefc)}
+.app-shell{max-width:1600px;border:1px solid #d3dff2;border-radius:23px;background:#eef4fd;box-shadow:0 16px 38px #4c67952b}
+.desktop-nav{background:linear-gradient(113deg,#fff,#e7f0fc);border-right:1px solid #d5e1f1}
+.brand{font-size:23px;color:#0c1b37;letter-spacing:-.035em;gap:8px}
+.brand small{font-size:8px;letter-spacing:.11em;color:#7892b7}
+.brand .logo{background:transparent;box-shadow:none;color:#1975df;font-size:33px}
+.navitem{font-size:15px;font-weight:800;color:#1c3557;padding:13px 11px}
+.navitem.active{background:linear-gradient(110deg,#327feb,#1772e6);box-shadow:0 6px 15px #347ac454;color:#fff}
+.navitem.active .skai-icon{color:#fff}
+.navitem:not(.active) .skai-icon{color:#4e6081}
+.sidebar-ceo{margin-top:auto;border-top:0}
+.sidebar-ceo-avatar{border:2px solid white;box-shadow:0 3px 9px #6482a340}
+.main-column{padding:21px 18px 26px}
+.topbar{position:relative;padding:0 5px!important;min-height:70px!important;justify-content:flex-start;gap:20px}
+.topbar h1{font-size:29px;font-weight:860}
+.topbar .subhead{font-weight:600;color:#405a80}
+.header-clock{margin-left:auto;color:#334e74;font-size:12px;font-weight:650;white-space:nowrap}
+.top-actions{gap:8px}
+#page-home .kpi-grid{gap:10px;margin-bottom:11px}
+#page-home .kpi{min-height:85px;padding:10px 13px 11px;box-shadow:0 5px 14px #5576a01d;background:linear-gradient(135deg,#fff,#f0f5fd);border:1px solid #e4ecf6}
+#page-home .kpi span{font-size:13px;font-weight:800;color:#1e3b60}
+#page-home .kpi strong{font-size:28px;font-weight:900;color:#0c1b35}
+#page-home .content-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:10px}
+#page-home .card{border-radius:17px;box-shadow:0 5px 12px #53729b22}
+#page-home .office-scene{height:188px!important;max-height:188px!important}
+#page-home .scene-card{padding:8px}
+#page-home .progress-overview{min-height:211px;padding:13px 15px}
+#page-home .project-bars{gap:5px;margin-top:8px}
+#page-home .project-progress-row{padding:5px 2px;grid-template-columns:minmax(110px,1fr) minmax(70px,1.1fr) 42px}
+#page-home .project-progress-name{font-size:12px;font-weight:800;color:#152c51}
+#page-home .project-progress-track{height:10px}
+#page-home .home-todo-card{padding:11px 14px;min-height:145px}
+#page-home .home-todo-row{padding:5px 4px;font-weight:720}
+#page-home .home-action-card{padding:7px;min-height:102px}
+#page-home .home-shortcuts .outline-btn{min-height:88px;border-radius:14px;background:linear-gradient(135deg,#fff,#eaf2ff)}
+.shortcut-emoji{font-size:32px}
+.sparkle{color:#f6b100}
+.listing-card{padding:17px!important}
+.listing-header h2,.data-hub h2{font-weight:860;color:#091b3b}
+.filter-tab{padding:9px 15px;box-shadow:0 2px 6px #5a729e17}
+.filter-tab.active{background:linear-gradient(110deg,#4aa5fd,#0872ec)}
+.visual-project-row{min-height:70px;padding:9px 13px;border-radius:16px;background:linear-gradient(130deg,#fff,#f1f5fb);box-shadow:0 4px 10px #5172a01c}
+.project-graphic{width:65px;height:56px;border-radius:12px;box-shadow:inset 0 0 0 1px #ffffffa0;background:linear-gradient(125deg,#f5faff,#a7caef)}
+.project-row-main b{font-size:15px;color:#0e2342;font-weight:850}
+.visual-task-row{min-height:57px;border-radius:12px}
+.visual-task-row .task-list-title{font-weight:790}
+.data-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.data-toolbar input{border:1px solid #d7e3f2;border-radius:26px;padding:10px 14px;min-width:180px;background:#fff;color:#213c5b}
+.data-toolbar .primary-btn:disabled{opacity:.65;background:#8dabce;box-shadow:none}
+.knowledge-tiles{gap:11px;margin:14px 0}
+.knowledge-tile{min-height:136px;border-radius:17px;background:linear-gradient(140deg,#fff,#ebf3ff)}
+.knowledge-tile span{font-size:38px}
+.knowledge-tile b{color:#14294a;font-weight:850}
+.assistant-hero{max-width:none!important}
+.assistant-hero-body{grid-template-columns:180px minmax(0,1fr);gap:14px;margin:15px 0}
+.chief-avatar{width:180px;height:180px}
+.assistant-intro{background:linear-gradient(120deg,#fff,#f7faff);min-height:180px;padding:15px 19px;line-height:1.4}
+.assistant-intro b{font-size:19px}
+.assistant-intro p{margin:7px 0 6px}
+.assistant-capabilities{list-style:none;margin:7px 0 0;padding:0;display:grid;gap:4px;font-size:13px;color:#132d51}
+.assistant-capabilities li::before{content:"✓";font-weight:900;color:#16ab50;margin-right:9px}
+#page-assistant .chat-form input{border-radius:13px}
+#page-assistant .chat-form .primary-btn{border-radius:50%;font-size:12px}
+@media(max-width:1100px){
+ .header-clock{display:none}
+ #page-home .content-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:720px){
+ .main-column{padding:14px 12px 88px}
+ #page-home .content-grid{grid-template-columns:1fr}
+ #page-home .office-scene{height:175px!important;max-height:175px!important}
+ .data-toolbar{flex-direction:column;align-items:stretch}
+ .data-toolbar input{width:100%}
+ .assistant-hero-body{grid-template-columns:105px minmax(0,1fr)}
+ .chief-avatar{width:105px;height:145px}
+ .assistant-intro{min-height:145px;padding:11px}
+ .assistant-capabilities{font-size:11px}
+}
+
+/* V0.9 CEO headquarters without the old office illustration. */
+#page-home .content-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:15px}
+#page-home .primary-area,#page-home .secondary-area{display:flex;flex-direction:column;gap:14px}
+#page-home .home-todo-card{min-height:300px;flex:1;padding:20px}
+#page-home .home-todo-row{padding:13px 6px;font-size:14px}
+#page-home .progress-overview{min-height:300px;padding:20px}
+#page-home .project-progress-row{padding:10px 4px}
+#page-home .home-action-card{min-height:140px}
+#page-home .home-shortcuts .outline-btn{min-height:118px}
+.legacy-office-support{display:none}
+.department-hub{min-height:460px}
+.department-hub .employee-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.department-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.project-manage-row{display:flex;gap:9px;align-items:stretch}
+.project-manage-row>.visual-project-row{flex:1;min-width:0}
+.project-manage-row>.danger-outline{align-self:center}
+.danger-outline{border:1px solid #f0bac0;border-radius:12px;padding:9px 13px;background:#fff7f8;color:#ac2435;font-size:12px;font-weight:750;white-space:nowrap}
+.danger-outline:hover{background:#ffeaeb}.danger-outline:disabled{opacity:.45;cursor:default}
+.destructive-help{margin:9px 2px}
+.task-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0;padding:9px 13px;background:#eef5ff;border-radius:14px}
+.select-all-tasks{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:740}
+.select-all-tasks input,.task-select-label input{width:17px;height:17px;accent-color:#287de4;cursor:pointer}
+.task-selected-count{font-size:12px;color:#64809f;margin-left:auto}
+.actionable-task-row{display:grid;grid-template-columns:23px minmax(0,1fr) auto minmax(75px,.55fr) auto;gap:10px;cursor:default}
+.task-row-actions{display:flex;gap:6px;align-items:center}
+.task-row-actions .outline-btn,.task-row-actions .danger-outline{font-size:11px;padding:7px 9px}
+@media(max-width:1100px){#page-home .content-grid{grid-template-columns:1fr 1fr}.actionable-task-row{grid-template-columns:23px minmax(0,1fr) auto}.task-project-name{display:none}.task-row-actions{grid-column:2/4}}
+@media(max-width:720px){#page-home .content-grid{grid-template-columns:1fr}#page-home .home-todo-card{min-height:180px}#page-home .progress-overview{min-height:190px}#page-home .home-shortcuts .outline-btn{min-height:80px}.department-hub .employee-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.project-manage-row{gap:5px}.project-manage-row>.danger-outline{padding:9px 8px}.actionable-task-row{grid-template-columns:23px minmax(0,1fr) auto}.task-row-actions{grid-column:2/4}.task-selected-count{margin-left:0}}
+@media(orientation:landscape) and (max-width:1050px) and (max-height:550px){#page-home .content-grid{grid-template-columns:1fr 1fr}}
+
+/* Seven mobile slots: six primary destinations plus More; prevent overflow. */
+@media(max-width:720px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:0}.mobileitem{min-width:0;font-size:10px;padding-inline:1px}.mobileitem .skai-icon{max-width:19px}.mobile-more-menu{max-width:calc(100vw - 16px)}}
+
+/* V0.10 — HQ data-led layout: aligned, full-height right-side panels */
+#page-home .content-grid{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);
+ align-items:stretch;
+ gap:14px;
+}
+#page-home .primary-area{display:flex;flex-direction:column;min-height:0;gap:10px}
+#page-home .primary-area .home-todo-card{flex:1;min-height:0;display:flex;flex-direction:column}
+#page-home .secondary-area{
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ grid-template-rows:minmax(220px,1.12fr) minmax(150px,.79fr) minmax(106px,.54fr);
+ gap:14px;
+ align-content:stretch;
+ min-width:0;
+}
+#page-home .secondary-area>.card{margin:0;width:100%;min-width:0;min-height:0;height:100%}
+#page-home .progress-overview{display:flex;flex-direction:column;padding:18px 19px;min-height:0}
+#page-home .project-bars{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:6px}
+#page-home .home-action-card{display:flex;align-items:stretch;min-height:0;padding:9px}
+#page-home .home-shortcuts{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:9px}
+#page-home .home-shortcuts .outline-btn{height:100%;min-height:0;display:flex;flex-direction:column;justify-content:center}
+#page-home .home-ai-usage{display:flex;flex-direction:column;justify-content:flex-start;gap:9px;padding:15px 18px;background:linear-gradient(140deg,#fff,#f0f6ff)}
+#page-home .home-ai-usage .section-top{margin:0;align-items:center;gap:10px}
+#page-home .home-ai-usage h2{font-size:15px;font-weight:800;color:#1b3456}
+#page-home .home-ai-caption{font-size:10px;color:#7b91ad;margin:3px 0 0}
+#page-home .home-ai-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:1;align-items:stretch}
+#page-home .home-ai-metric{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0;padding:9px 8px;border:1px solid #e1eaf7;border-radius:12px;background:linear-gradient(135deg,#fff,#edf4ff);text-align:center}
+#page-home .home-ai-metric span{color:#607b9c;font-size:11px;white-space:nowrap}
+#page-home .home-ai-metric strong{font-size:clamp(16px,1.65vw,23px);line-height:1.2;color:#154c91;font-weight:850;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#page-home .home-ai-status{font-size:10px;color:#6c82a0;margin:0;line-height:1.45;min-height:14px}
+@media(max-width:1200px){
+ #page-home .content-grid{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+ #page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-home .secondary-area{grid-template-rows:minmax(225px,1fr) minmax(225px,1fr) minmax(110px,.5fr)}
+}
+@media(max-width:720px){
+ #page-home .content-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ #page-home .primary-area .home-todo-card{min-height:210px}
+ #page-home .secondary-area{grid-template-rows:auto auto auto;gap:12px}
+ #page-home .secondary-area>.card{height:auto}
+ #page-home .progress-overview{min-height:220px}
+ #page-home .home-ai-usage{min-height:188px}
+ #page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-home .home-ai-metric{min-height:68px}
+ #page-home .home-action-card{min-height:112px}
+ #page-home .home-shortcuts .outline-btn{min-height:90px}
+}
+
+/* Keep all three right-side panels inside the common 800px desktop viewport. */
+@media(min-width:1201px){
+ #page-home .secondary-area{gap:11px}
+ #page-home .progress-overview{padding:15px 18px}
+ #page-home .project-bars{gap:3px}
+ #page-home .project-progress-row{padding:5px 2px}
+ #page-home .home-ai-usage{padding:11px 15px;gap:6px}
+ #page-home .home-ai-metric{gap:5px;padding:7px 6px}
+ #page-home .home-action-card{padding:7px}
+ #page-home .home-shortcuts .outline-btn{min-height:0}
+}
+
+@media(min-width:1201px) and (min-height:700px) and (max-height:850px){
+ #page-home .secondary-area{grid-template-rows:224px 164px 100px}
+ #page-home .progress-overview .project-progress-row{padding:3px 2px}
+ #page-home .progress-overview .project-bars{gap:0}
+ #page-home .home-ai-usage .home-ai-metric{padding:5px 5px}
+ #page-home .home-action-card .home-shortcuts .outline-btn{min-height:0;height:100%}
+}
+
+/* V0.11 — unified icon language for red-marked KPI / action icons */
+#page-home .kpi>.skai-icon,
+#page-home .home-todo-card .section-top .text-btn>.skai-icon,
+#page-home .progress-overview .section-top .text-btn>.skai-icon{
+  display:inline-grid;
+  place-items:center;
+  flex:none;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  margin:0;
+  border:1px solid #d4e2f5;
+  background:linear-gradient(140deg,#ffffff 15%,#e8f2ff);
+  box-shadow:0 5px 12px #537ea326;
+  color:#2178dd;
+}
+#page-home .kpi>.skai-icon svg{width:23px;height:23px}
+#page-home .home-todo-card .section-top .text-btn>.skai-icon svg,
+#page-home .progress-overview .section-top .text-btn>.skai-icon svg{width:22px;height:22px}
+#page-home .home-todo-card .section-top .text-btn,
+#page-home .progress-overview .section-top .text-btn{display:inline-flex;align-items:center;gap:7px}
+#page-home .home-todo-card .section-top .text-btn .skai-icon,
+#page-home .progress-overview .section-top .text-btn .skai-icon{margin-right:0}
+@media(max-width:720px) and (orientation:portrait){
+  /* Bigger round icons without enlarging the navigation's total occupied height. */
+  .mobile-nav{
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    padding:5px max(4px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left))!important;
+    border-radius:18px 18px 0 0;
+    gap:0;
+  }
+  .mobile-nav .mobileitem{gap:4px;padding:3px 0 1px;font-size:10px;font-weight:700;min-height:57px}
+  .mobile-nav .mobileitem .skai-icon{
+    max-width:none;
+    min-width:36px;
+    width:clamp(36px,9.7vw,43px);
+    height:clamp(36px,9.7vw,43px);
+    border-radius:50%;
+    background:linear-gradient(140deg,#fff,#e8f2ff);
+    border:1px solid #cfe0f7;
+    color:#2178dd;
+    box-shadow:0 3px 9px #6185ba2a;
+    margin:0;
+  }
+  .mobile-nav .mobileitem .skai-icon svg{width:62%;height:62%}
+  .mobile-nav .mobileitem.active{background:transparent;color:#1168d5}
+  .mobile-nav .mobileitem.active .skai-icon{
+    border-color:#a3c7f9;
+    background:linear-gradient(130deg,#cde3ff,#eef5ff);
+    color:#0567d8;
+    box-shadow:0 3px 11px #2c75d12a;
+  }
+  /* Remove the redundant white gap beneath the mobile content and dock. */
+  .main-column{padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
+  .app-shell{margin-bottom:0}
+}
+
+/* V0.11 Mobile icons / spacing — two screenshots consolidated into real UI. */
+#page-home .kpi[data-jump="projects"] > .skai-icon,
+#page-home .kpi[data-jump="tasks"] > .skai-icon {display:none!important}
+#page-home .section-top .text-btn[data-no-icon] .skai-icon{display:none!important}
+#page-home .section-top .text-btn[data-no-icon]{
+ display:inline-flex;align-items:center;gap:0;white-space:nowrap;
+ padding:5px 7px;border-radius:8px;
+}
+/* Shortcuts use the same vector icon family as the primary navigation, not Unicode glyphs. */
+#page-home .home-shortcuts .outline-btn .shortcut-emoji{
+ display:grid;place-items:center;
+ width:52px;height:52px;min-width:52px;
+ margin:0 auto 6px;border-radius:50%;
+ background:linear-gradient(145deg,#fff 25%,#e8f2ff);
+ border:1px solid #d3e3f7;
+ box-shadow:0 5px 12px #4775b02a;
+ color:#2279e9;
+}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{
+ width:34px;height:34px;
+ padding:5px;border:0;border-radius:0;box-shadow:none;background:transparent;
+ display:grid;place-items:center;
+}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon svg{
+ width:100%;height:100%;
+}
+/* Only in portrait: large true circular nav icons and a compact bottom dock. */
+@media (max-width:720px) and (orientation:portrait) {
+ html,body{min-height:100%;overflow-x:hidden}
+ .app-shell{min-height:100dvh;margin:0;border-bottom:0}
+ .main-column{
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;
+ }
+ .mobile-nav{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  bottom:0;left:0;right:0;
+  gap:0!important;
+  align-items:center;
+  padding:6px max(4px,env(safe-area-inset-right,0px)) calc(3px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))!important;
+  border-radius:17px 17px 0 0!important;
+  background:#fffffff4!important;
+  box-shadow:0 -6px 22px #5e83b51b;
+ }
+ .mobile-nav .mobileitem{
+  display:flex!important;flex-direction:column;justify-content:center;align-items:center;
+  min-width:0!important;min-height:66px!important;
+  padding:2px 0!important;gap:4px!important;
+  background:transparent!important;
+  font-size:10px!important;font-weight:750;
+  letter-spacing:0!important;line-height:1.1;
+  color:#405b80;
+ }
+ .mobile-nav .mobileitem .skai-icon,
+ .mobile-nav .mobileitem .skai-icon:nth-child(1){
+  width:clamp(37px,10vw,47px)!important;
+  height:clamp(37px,10vw,47px)!important;
+  min-width:0;max-width:none!important;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#fff,#eaf3ff)!important;
+  border:1px solid #d7e5f8!important;
+  border-radius:50%!important;
+  box-shadow:0 4px 11px #4775b02b!important;
+  padding:8px!important;color:#1f76de;
+ }
+ .mobile-nav .mobileitem .skai-icon svg{width:100%;height:100%;stroke-width:1.9}
+ .mobile-nav .mobileitem.active .skai-icon{
+  background:linear-gradient(145deg,#d8e9ff,#edf6ff)!important;
+  border-color:#bfdbff!important;
+  color:#106bdd!important;
+ }
+ .mobile-nav .mobileitem.active{color:#135aa7!important}
+ .mobile-nav .mobileitem:hover{background:transparent!important}
+ #page-home .home-shortcuts .outline-btn{padding:8px 2px;min-height:92px;gap:3px;font-size:10px}
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji{
+  width:clamp(36px,10vw,47px);height:clamp(36px,10vw,47px);
+  min-width:0;margin:0 auto 4px;
+ }
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{width:30px;height:30px;padding:4px}
+ .mobile-more-menu:not([hidden]){bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
+}
+
+/* V0.12 — CEO-requested HQ text cleanup and premium compact layout. */
+#page-home #projectLabel,#page-home #taskLabel,#page-home #costLabel,
+#page-home .subtle-source{display:none!important}
+#page-home .home-ai-caption{display:none!important}
+#page-home .home-ai-usage .section-top .text-btn .skai-icon{display:none!important}
+#page-home .home-ai-usage .section-top .text-btn{
+  display:inline-flex;align-items:center;gap:0!important;
+  background:transparent!important;
+  padding:4px 7px!important;white-space:nowrap;
+  box-shadow:none!important;
+}
+.sidebar-ceo{justify-content:space-between}
+.sidebar-ceo .sidebar-ceo-avatar{display:none!important}
+/* CEO crown replaces the former employee portrait in the header. */
+#ceoInfo.avatar-ceo{
+ width:49px!important;height:49px!important;min-width:49px!important;
+ flex:0 0 49px!important;border-radius:50%!important;
+ display:grid!important;place-items:center!important;
+ background:linear-gradient(160deg,#fff,#f4f8ff)!important;
+ border:1px solid #d6e4f4!important;
+ box-shadow:0 5px 14px #5983b333!important;
+ padding:8px!important;color:#e4aa19!important;
+}
+#ceoInfo.avatar-ceo .skai-icon{
+ display:grid!important;place-items:center;
+ width:34px!important;height:34px!important;
+ min-width:0!important;background:transparent!important;
+ border:0!important;box-shadow:none!important;padding:1px!important;
+ color:#e5b02a!important;
+}
+#ceoInfo.avatar-ceo .skai-icon svg{width:100%!important;height:100%!important;stroke-width:2.1}
+/* Date must never escape the header: give it its own flexible bounded cell. */
+.topbar{
+ display:grid!important;grid-template-columns:minmax(170px,1fr) minmax(0,auto) auto;
+ gap:10px!important;align-items:center!important;
+ padding:2px 7px 5px!important;
+ min-width:0;width:100%;box-sizing:border-box;
+}
+.topbar>div:first-child{min-width:0;overflow:hidden}
+.topbar .header-clock{
+ position:relative!important;margin:0!important;
+ display:block!important;align-self:start;justify-self:end;
+ max-width:100%;overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;line-height:1.4;padding:3px 0!important;
+ font-size:clamp(10px,.88vw,12px)!important;
+ transform:translateY(0);
+}
+.topbar .top-actions{display:flex;align-items:center;justify-self:end;min-width:0;gap:8px}
+#page-home .kpi-grid .kpi{display:flex;flex-direction:column;justify-content:center;gap:9px;min-height:0}
+#page-home .kpi-grid .kpi strong{line-height:1.07}
+#page-home .home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#page-home .home-action-card{padding:8px!important;min-height:0!important}
+#page-home .home-shortcuts .outline-btn{
+ border:0!important;background:transparent!important;box-shadow:none!important;
+ border-radius:15px!important;min-height:0!important;
+ padding:5px 2px!important;display:flex!important;flex-direction:column;
+ justify-content:center;align-items:center;gap:5px;font-size:11px;
+ font-weight:800;color:#324c70;height:100%;
+}
+#page-home .home-shortcuts .outline-btn:hover{background:#f2f7ff!important}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji{
+ width:clamp(44px,4.6vw,64px)!important;
+ height:clamp(44px,4.6vw,64px)!important;
+ min-width:0!important;margin:0 auto 2px!important;
+ border-radius:50%!important;
+ background:linear-gradient(145deg,#fff,#eef5ff)!important;
+ border:1px solid #d5e4f7!important;
+ box-shadow:0 5px 14px #4678b32a!important;
+}
+#page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{
+ width:70%!important;height:70%!important;padding:5px!important;
+}
+/* Compact one-screen desktop HQ, while retaining content and scroll inside cards for long lists. */
+@media (min-width:1051px) and (min-height:590px){
+ body[data-current-page="home"]{overflow:hidden}
+ body[data-current-page="home"] .app-shell{
+  margin:8px auto!important;
+  height:calc(100dvh - 16px)!important;min-height:0!important;
+  max-height:calc(100dvh - 16px)!important;
+ }
+ body[data-current-page="home"] .desktop-nav{height:100%!important;min-height:0!important}
+ body[data-current-page="home"] .main-column{
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  padding:10px 16px 13px!important;
+ }
+ body[data-current-page="home"] .topbar{flex:0 0 69px;min-height:0!important;margin-bottom:8px!important}
+ body[data-current-page="home"] main{flex:1;min-height:0;overflow:hidden}
+ #page-home{height:100%!important;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+ #page-home .kpi-grid{flex:0 0 100px;min-height:0;margin-bottom:10px}
+ #page-home .content-grid{flex:1;min-height:0;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)!important}
+ #page-home .primary-area,#page-home .secondary-area{height:100%;min-height:0}
+ #page-home .primary-area .home-todo-card{flex:1;min-height:0!important;overflow:hidden}
+ #page-home #homeTodoList{min-height:0;overflow-y:auto}
+ #page-home .secondary-area{
+  display:grid!important;grid-template-rows:minmax(0,1.15fr) minmax(0,.94fr) minmax(0,.65fr)!important;
+  gap:9px!important;
+ }
+ #page-home .secondary-area>.card{height:100%!important;min-height:0!important;overflow:hidden}
+ #page-home .progress-overview{min-height:0!important;padding:10px 13px!important}
+ #page-home .progress-overview .project-bars{min-height:0;overflow-y:auto;gap:1px}
+ #page-home .progress-overview .project-progress-row{padding:4px 2px!important}
+ #page-home .home-ai-usage{min-height:0!important;padding:10px 13px!important;gap:5px!important}
+ #page-home .home-ai-metrics{min-height:0;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px}
+ #page-home .home-ai-metric{min-height:0!important;padding:5px 3px!important;gap:4px!important}
+ #page-home .home-ai-metric span{font-size:10px}
+ #page-home .home-ai-metric strong{font-size:clamp(14px,1.35vw,21px)!important}
+ #page-home .home-ai-status{font-size:9px;line-height:1.25;min-height:0}
+}
+@media (orientation:landscape) and (max-height:590px) and (min-width:650px){
+ body[data-current-page="home"]{overflow:hidden}
+ body[data-current-page="home"] .app-shell{margin:0!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;overflow:hidden}
+ body[data-current-page="home"] .main-column{
+  height:100%;display:flex;flex-direction:column;min-height:0;
+  overflow:hidden;padding:5px 9px 7px!important;
+ }
+ body[data-current-page="home"] .topbar{display:grid!important;grid-template-columns:minmax(110px,1fr) auto!important;flex:0 0 45px;min-height:0!important;padding:0 3px!important;margin:0 0 5px!important}
+ body[data-current-page="home"] .topbar h1{font-size:19px!important}
+ body[data-current-page="home"] .topbar .subhead{font-size:10px}
+ body[data-current-page="home"] .header-clock{display:none!important}
+ body[data-current-page="home"] .top-actions{grid-column:2}
+ body[data-current-page="home"] .top-actions .avatar-ceo{width:38px!important;height:38px!important;min-width:38px!important;flex-basis:38px!important;padding:4px!important}
+ body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{width:27px!important;height:27px!important}
+ body[data-current-page="home"] main{flex:1;min-height:0;overflow:hidden}
+ #page-home{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+ #page-home .kpi-grid{flex:0 0 65px!important;min-height:0!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px;margin-bottom:5px!important}
+ #page-home .kpi{padding:4px 7px!important;gap:2px!important;min-height:0!important}
+ #page-home .kpi span{font-size:10px!important}
+ #page-home .kpi strong{font-size:19px!important}
+ #page-home .kpi small{display:none}
+ #page-home .content-grid{display:grid;flex:1;min-height:0;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)!important;gap:6px}
+ #page-home .primary-area,#page-home .secondary-area{height:100%;min-height:0;gap:6px!important}
+ #page-home .primary-area .home-todo-card{flex:1;min-height:0!important;padding:8px!important;overflow:hidden}
+ #page-home .primary-area #homeTodoList{min-height:0;overflow-y:auto}
+ #page-home .secondary-area{display:grid!important;grid-template-rows:minmax(0,1fr) minmax(0,.92fr) 70px!important;gap:5px!important}
+ #page-home .secondary-area>.card{min-height:0!important;height:100%!important;overflow:hidden}
+ #page-home .progress-overview{min-height:0!important;padding:6px 9px!important}
+ #page-home .progress-overview h2,#page-home .home-ai-usage h2{font-size:12px!important}
+ #page-home .project-bars{min-height:0;overflow-y:auto;gap:1px}
+ #page-home .project-progress-row{padding:2px!important}
+ #page-home .home-ai-usage{min-height:0!important;padding:5px 8px!important;gap:2px!important}
+ #page-home .home-ai-metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;min-height:0;gap:3px!important}
+ #page-home .home-ai-metric{min-height:0!important;padding:2px!important;gap:1px!important}
+ #page-home .home-ai-metric span{font-size:8px!important}
+ #page-home .home-ai-metric strong{font-size:13px!important}
+ #page-home .home-ai-status{font-size:8px;min-height:0}
+ #page-home .home-action-card{min-height:0!important;padding:2px!important}
+ #page-home .home-shortcuts{gap:3px!important}
+ #page-home .home-shortcuts .outline-btn{min-height:0!important;font-size:9px!important;gap:1px!important}
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji{width:32px!important;height:32px!important;margin:0 auto!important}
+ #page-home .home-shortcuts .outline-btn .shortcut-emoji .skai-icon{padding:3px!important}
+}
+
+/* SKAI V0.13 — headquarters exclusive visual language */
+#page-home .home-todo-card,
+#page-home .progress-overview{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+}
+/* The two header bars share the identical silver-blue gradient and reach the card's upper edge. */
+#page-home .home-todo-card::before,
+#page-home .progress-overview::before{
+ content:"";
+ position:absolute;
+ z-index:0;
+ top:0;left:0;right:0;
+ height:61px;
+ border-radius:inherit;
+ background:linear-gradient(95deg,#e7eef8,#fafbff);
+ pointer-events:none;
+}
+#page-home .home-todo-card>.section-top,
+#page-home .progress-overview>.section-top{
+ position:relative;
+ z-index:1;
+ box-sizing:border-box;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ margin:0 0 12px!important;
+ padding:8px 10px!important;
+ min-height:43px;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+}
+#page-home .home-todo-card>.section-top h2,
+#page-home .progress-overview>.section-top h2{
+ line-height:1.25;
+ margin:0;
+}
+/* A quick action is just its label and a perfectly centered vector icon in one white circle. */
+#page-home .home-shortcuts .outline-btn{
+ align-items:center!important;
+ justify-content:center!important;
+ text-align:center!important;
+ gap:5px!important;
+}
+#page-home .home-shortcuts .outline-btn>.shortcut-emoji{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:none!important;
+ box-sizing:border-box!important;
+ aspect-ratio:1 / 1!important;
+ border-radius:50%!important;
+ padding:0!important;
+ margin:0 auto 4px!important;
+ background:linear-gradient(145deg,#fff 25%,#f5f9ff)!important;
+}
+#page-home .home-shortcuts .outline-btn>.shortcut-emoji>.skai-icon{
+ box-sizing:border-box!important;
+ width:65%!important;
+ height:65%!important;
+ min-width:0!important;
+ padding:0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+}
+#page-home .home-shortcuts .outline-btn>.shortcut-emoji>.skai-icon>svg{
+ width:100%!important;
+ height:100%!important;
+ display:block!important;
+ margin:0!important;
+}
+/* KPI cards and headquarters reports are never displayed by any other functional screen. */
+main > .page:not(.active){display:none!important}
+body:not([data-current-page="home"]) #page-home{display:none!important}
+@media(orientation:landscape) and (min-width:650px) and (max-height:590px){
+ #page-home .home-todo-card::before,
+ #page-home .progress-overview::before{height:40px}
+ #page-home .home-todo-card>.section-top,
+ #page-home .progress-overview>.section-top{
+  min-height:27px!important;
+  padding:2px 4px!important;
+  margin:0 0 5px!important;
+ }
+}
+@media(max-width:720px) and (orientation:portrait){
+ #page-home .home-todo-card::before,
+ #page-home .progress-overview::before{height:65px}
+ #page-home .home-todo-card>.section-top,
+ #page-home .progress-overview>.section-top{margin-bottom:15px!important}
+}
+
+/* V0.14: compact knowledge center, one horizontal row, same circular SVG language as HQ. */
+#page-data .knowledge-tiles{
+ display:grid!important;
+ grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ grid-template-rows:1fr!important;
+ gap:9px!important;
+ width:100%;
+ margin:16px 0 18px!important;
+ align-items:stretch;
+}
+#page-data .knowledge-tiles .knowledge-tile{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:5px!important;
+ min-width:0!important;
+ min-height:117px!important;
+ padding:10px 5px!important;
+ text-align:center;
+ border-radius:14px;
+}
+#page-data .knowledge-tile .knowledge-icon{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:49px!important;
+ height:49px!important;
+ min-width:49px!important;
+ border-radius:50%!important;
+ background:linear-gradient(145deg,#fff 25%,#eef5ff)!important;
+ border:1px solid #d4e3f6!important;
+ box-shadow:0 5px 13px #4678b32a!important;
+ color:#2679dd!important;
+}
+#page-data .knowledge-tile .knowledge-icon .skai-icon{
+ width:30px!important;height:30px!important;display:grid!important;
+ place-items:center!important;padding:3px!important;
+ margin:0!important;border:0!important;box-shadow:none!important;background:transparent!important;
+}
+#page-data .knowledge-tile .knowledge-icon .skai-icon svg{width:100%!important;height:100%!important}
+#page-data .knowledge-tile b{
+ font-size:clamp(11px,1vw,14px)!important;
+ line-height:1.25!important;white-space:nowrap;
+}
+#page-data .knowledge-tile small{font-size:10px!important;line-height:1.3;text-wrap:balance}
+@media(max-width:1000px){
+ #page-data .data-hub{overflow:hidden}
+ #page-data .knowledge-tiles{
+  grid-template-columns:repeat(6,minmax(104px,1fr))!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;
+  padding-bottom:9px!important;
+ }
+ #page-data .knowledge-tile{scroll-snap-align:start}
+}
+@media(max-width:720px){
+ #page-data .knowledge-tiles{grid-template-columns:repeat(6,112px)!important}
+ #page-data .knowledge-tile .knowledge-icon{width:46px!important;height:46px!important;min-width:46px!important}
+}
+
+.project-notes-panel{padding:10px 0;margin-top:8px}.project-notes-panel[hidden],.project-notes-text[hidden]{display:none!important}.project-notes-panel .outline-btn{margin-bottom:10px}.project-notes-text{box-sizing:border-box;width:100%;max-height:440px;overflow-y:auto;overflow-x:hidden;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px 17px;margin:0;border:1px solid #d6e5f7;border-radius:14px;background:#f6f9ff;color:#1e3658;font:inherit;font-size:12px;line-height:1.75;text-align:left}
+
+/* V0.15 task evidence first: detailed brief, AI plan, departmental deliverables and gated acceptance. */
+#page-tasks .task-evidence-panel{padding:14px 17px 18px;margin:-2px 0 14px;border:1px solid #d4e4f6;border-radius:0 0 16px 16px;background:linear-gradient(145deg,#fbfdff,#eef5ff);color:#193557;box-shadow:0 5px 12px #6989ae14;overflow-wrap:anywhere}
+#page-tasks .task-evidence-panel[hidden]{display:none!important}
+#page-tasks .task-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#page-tasks .task-detail-heading h3{margin:0;font-size:16px}
+#page-tasks .task-detail-body{display:grid;gap:9px;margin:11px 0}
+#page-tasks .task-detail-line{display:grid;gap:5px;margin:8px 0}
+#page-tasks .task-detail-line>strong{font-size:12px;color:#45698e}
+#page-tasks .task-detail-line>div{white-space:pre-wrap;font-size:13px;line-height:1.7}
+#page-tasks .task-evidence-warning{color:#9b4b24;background:#fff4e9;border:1px solid #f1d2aa;padding:9px 11px;border-radius:11px;font-size:12px;line-height:1.5;margin:10px 0}
+#page-tasks .task-plan-state{color:#195b9f;font-weight:800}
+#page-tasks .task-step-list{display:grid;gap:10px;margin:15px 0}
+#page-tasks .task-step-list h4{margin:0}
+#page-tasks .task-step-card{padding:10px 12px;border:1px solid #dce8f6;border-radius:12px;background:#fff}
+#page-tasks .task-step-card>strong{font-size:12px}
+#page-tasks .task-result-report{white-space:pre-wrap;overflow-wrap:anywhere;max-height:390px;overflow-y:auto;font:inherit;font-size:13px;line-height:1.8;border:1px solid #d8e7f6;background:#fff;padding:14px;border-radius:12px}
+#page-tasks .task-detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}
+@media(max-width:720px){#page-tasks .task-evidence-panel{padding:12px}#page-tasks .task-detail-actions .primary-btn{width:100%;white-space:normal}}
+
+/* V0.16 Drive document register and CEO file-format preferences */
+.task-drive-deliverables{border-top:1px solid #d7e4f4;margin-top:14px;padding-top:12px;display:grid;gap:10px}
+.task-drive-deliverables h4{margin:0;color:#124274}
+.task-drive-links{display:flex;flex-direction:column;gap:7px}
+.task-drive-file,.project-folder-link{display:inline-block;padding:8px 10px;border:1px solid #d2e4f8;border-radius:9px;background:#fff;color:#1769bf;font-size:12px;overflow-wrap:anywhere;text-decoration:none;line-height:1.5}
+.task-drive-file:hover,.project-folder-link:hover{text-decoration:underline;background:#edf5ff}
+.task-format-choice{display:flex;flex-direction:column;align-items:flex-start;gap:9px;border-radius:12px;background:#f1f7ff;padding:12px}
+.task-format-choice strong{font-size:13px}
+.task-format-inputs{display:flex;gap:15px;flex-wrap:wrap}
+.task-format-option{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:750;cursor:pointer}
+.task-format-option input{width:16px;height:16px;accent-color:#1679ef}
+.project-drive-folder-links{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 12px}
+
+/* Task center: independent create dialog; legacy AI proposal UI remains wired but hidden */
+#chiefPlanPanel{display:none!important}
+.task-create-dialog{width:min(560px,calc(100vw - 24px));max-width:100%;max-height:calc(100dvh - 24px);padding:0;border:1px solid #dce5ee;border-radius:16px;box-shadow:0 24px 80px #10203055;color:#253342;overflow:hidden}
+.task-create-dialog::backdrop{background:rgba(9,19,34,.56)}
+.task-create-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e2e8ef}
+.task-create-header h2{margin:0}
+.task-create-scroll{max-height:calc(100dvh - 105px);overflow-y:auto;overscroll-behavior:contain;padding:16px 20px 20px}
+.task-create-scroll .stack-form{margin:0}
+.task-create-scroll input[type=date]{width:100%;min-width:0}
+.task-create-scroll button[type=submit]{width:100%}
+@media(max-width:600px){.task-create-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.task-create-header{padding:13px 15px}.task-create-scroll{padding:14px 15px;max-height:calc(100dvh - 86px)}}
+
+.task-decision-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}.task-decision-buttons button{width:100%}.task-records{margin-top:16px;border-top:1px solid #dce5ee;padding-top:12px}.task-records h4{margin:0 0 12px}
+
+/* Task detail V3.1: top-right edit, last five decisions and fixed bottom actions */
+#page-tasks .task-evidence-panel{display:flex;flex-direction:column;min-height:270px}
+#page-tasks .task-evidence-panel[hidden]{display:none}
+#page-tasks .task-detail-heading{align-items:flex-start;flex-wrap:nowrap}
+#page-tasks .task-detail-heading-left{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+#page-tasks .task-edit-top{flex-shrink:0;margin-left:auto}
+#page-tasks .task-decision-drafts{display:grid;gap:9px}
+#page-tasks .task-records[hidden]{display:none}
+#page-tasks .task-detail-footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:auto;padding-top:20px}
+#page-tasks .task-detail-footer button{width:100%;min-width:0;white-space:normal}
+
+/* Task details typography and decision contrast */
+#page-tasks .task-detail-body{gap:5px;margin:7px 0}
+#page-tasks .task-detail-line{gap:3px;margin:4px 0}
+#page-tasks .task-detail-line>div{line-height:1.45}
+#page-tasks .task-decision-drafts{gap:6px;margin:8px 0}
+#page-tasks .task-decision-drafts>.task-detail-line{padding:10px 12px;background:#eef4fc;border:1px solid #d3e2f5;border-radius:10px;margin:0}
+#page-tasks .task-detail-footer{padding-top:12px}
+#taskHistoryBody{display:grid;gap:7px}
+#taskHistoryBody .task-detail-line{display:grid;gap:3px;padding:9px 0;border-bottom:1px solid #e4eaf1;font-size:13px}
+#taskHistoryBody .task-detail-line>div{white-space:pre-wrap;line-height:1.45}
+
+/* Fix: iOS Safari native date input must remain inside task edit modal */
+#taskEditDialog,#taskEditDialog .task-create-scroll,#taskEditDialog .stack-form,#taskEditDialog .stack-form label{min-width:0;max-width:100%}
+#taskEditDialog .stack-form label{display:block;overflow:hidden}
+#taskEditDialog input[type="date"]{display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:44px;-webkit-appearance:none;appearance:none;overflow:hidden}
+#taskEditDialog .stack-form input,#taskEditDialog .stack-form textarea{box-sizing:border-box;max-width:100%}
+
+/* Execution history: visually separate decision and content-edit records */
+#taskHistoryBody{gap:14px}
+#taskHistoryBody .task-history-group{display:grid;gap:8px;min-width:0;border:1px solid;border-radius:12px;padding:14px}
+#taskHistoryBody .task-history-group h3{font-size:14px;line-height:1.4;margin:0 0 3px}
+#taskHistoryBody .task-history-decisions{background:#eaf3ff;border-color:#c8ddf6}
+#taskHistoryBody .task-history-edits{background:#f5f3ed;border-color:#e4ddca}
+#taskHistoryBody .task-history-group .task-detail-line{background:#ffffffb8;border:1px solid #ffffffd9;border-radius:8px;padding:9px 10px;margin:0;min-width:0;overflow-wrap:anywhere}
+#taskHistoryBody .task-history-group .helper{margin:0;font-size:12px}
+
+/* CEO final-decision confirmation matches SKAI OS white/blue dialog theme */
+.task-final-confirm-dialog{width:min(420px,calc(100vw - 24px));background:#fff;color:#253342}
+.task-final-confirm-content{padding:18px 20px 20px}
+.task-final-confirm-content p{font-size:14px;line-height:1.6;margin:0 0 20px;color:#40546c}
+.task-final-confirm-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.task-final-confirm-actions button{width:100%;min-width:0;min-height:42px}
+@media(max-width:600px){.task-final-confirm-content{padding:16px 15px}}
+
+/* Task Center: project selector, deadline countdown */
+#page-tasks .listing-actions{display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+#page-tasks .task-project-filter-label{display:grid;gap:4px;flex:1 1 100%;font-size:12px;color:#526987;font-weight:650}
+#page-tasks #taskProjectFilter{display:block;width:100%;max-width:100%;box-sizing:border-box;min-height:39px;background:#fff;color:#243a55}
+#page-tasks .task-remaining-days{font-size:11px;font-weight:700;white-space:nowrap;color:#2769b3;background:#e6f1ff;border-radius:20px;padding:5px 8px;justify-self:start}
+#page-tasks .task-remaining-days.task-deadline-urgent{color:#b84b20;background:#fff0e6}
+#page-tasks .visual-task-row{grid-template-columns:26px minmax(0,1fr) auto minmax(75px,130px) auto}
+@media(max-width:760px){#page-tasks .visual-task-row{grid-template-columns:26px minmax(0,1fr) auto;gap:8px}#page-tasks .task-remaining-days{grid-column:2;grid-row:auto}#page-tasks .task-project-name{grid-column:2;text-align:left}}
+
+/* Place countdown directly below task status at the far right */
+#page-tasks .visual-task-row.actionable-task-row{grid-template-columns:26px minmax(0,1fr) minmax(75px,130px) auto 100px}
+#page-tasks .task-status-column{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:5px;min-width:0;grid-column:5;grid-row:1}
+#page-tasks .task-status-column .task-remaining-days{justify-self:auto;text-align:center}
+#page-tasks .task-row-actions{grid-column:4;grid-row:1}
+@media(max-width:1100px){#page-tasks .visual-task-row.actionable-task-row{grid-template-columns:26px minmax(0,1fr) auto}#page-tasks .task-status-column{grid-column:3;grid-row:1;align-self:start}#page-tasks .task-row-actions{grid-column:2/4;grid-row:2;justify-self:start}#page-tasks .task-project-name{grid-column:2;grid-row:2;display:none}}
+
+/* Compact task cards: title near top border and action buttons immediately below */
+#page-tasks .visual-task-row.actionable-task-row{align-items:start;align-content:start;row-gap:3px;min-height:0;padding-top:8px;padding-bottom:8px}
+#page-tasks .actionable-task-row .task-list-title{align-self:start;line-height:1.35;margin:0;padding:0}
+#page-tasks .actionable-task-row .task-row-actions{align-self:start;margin:0;gap:6px}
+#page-tasks .actionable-task-row .task-row-actions button{padding-top:5px;padding-bottom:5px;line-height:1.3}
+@media(max-width:1100px){#page-tasks .actionable-task-row .task-list-title{grid-column:2;grid-row:1}#page-tasks .actionable-task-row .task-row-actions{grid-column:2/4;grid-row:2;margin-top:0}#page-tasks .actionable-task-row .task-status-column{grid-column:3;grid-row:1/3}}
+
+/* Align task title vertically with the selection checkbox */
+#page-tasks .actionable-task-row .task-list-title{margin-top:3px}
+
+/* Neutral cancel button in task archive/delete/restore confirmation dialog */
+#taskArchiveConfirmDialog .task-confirm-neutral-btn{appearance:none;border:1px solid #d9e0e8;background:#fff;color:#34465d;border-radius:9px;font:inherit;font-weight:600;cursor:pointer;box-shadow:none}
+#taskArchiveConfirmDialog .task-confirm-neutral-btn:hover{background:#f4f6f9;border-color:#cbd4de}
+#taskArchiveConfirmDialog .task-confirm-neutral-btn:focus-visible{outline:2px solid #8b9aaa;outline-offset:2px}
+
+/* Project label immediately after task title */
+#page-tasks .actionable-task-row .task-title-project-group{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;align-items:center;column-gap:7px;row-gap:3px;min-width:0;margin-top:3px}
+#page-tasks .actionable-task-row .task-title-project-group .task-list-title{margin:0;min-width:0;overflow-wrap:anywhere}
+#page-tasks .actionable-task-row .task-project-tag{display:inline-flex;align-items:center;max-width:100%;padding:3px 8px;border-radius:7px;background:#e5f2ff;color:#2864a5;font-size:11px;font-weight:650;line-height:1.35;overflow-wrap:anywhere}
+
+/* Remove border from cancel/no button in task delete and restore confirmation */
+#taskArchiveConfirmDialog #taskArchiveConfirmNo{border:0!important;box-shadow:none!important;background:#fff}
+#taskArchiveConfirmDialog #taskArchiveConfirmNo:hover{border:0!important;background:#f4f6f9}
+
+/* Match task creation button height to task search input */
+#page-tasks #taskSearch,#page-tasks #jumpTaskCreate{height:42px;min-height:42px;box-sizing:border-box}
+#page-tasks #jumpTaskCreate{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;line-height:1.2}
+
+/* Project detail: separate finalized and active task groups */
+#page-projects .project-task-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+#page-projects .project-task-section{border-radius:12px;padding:16px;min-width:0;border:1px solid transparent}
+#page-projects .project-task-final{background:#eaf4ff;border-color:#d1e6fb}
+#page-projects .project-task-active{background:#f4f6fa;border-color:#e0e5ed}
+#page-projects .project-task-section h3{margin:0 0 12px;font-size:16px;color:#263e5b}
+#page-projects .project-task-entries{display:grid;gap:8px}
+#page-projects .project-task-entry{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px;border-radius:8px;background:#fff;color:#263e5b;font-size:13px}
+#page-projects .project-task-entry-title{font-weight:600;overflow-wrap:anywhere;min-width:0}
+#page-projects .project-task-entry-status{font-size:11px;color:#5d718b;white-space:nowrap}
+@media(max-width:700px){#page-projects .project-task-sections{grid-template-columns:1fr}}
+
+/* Project detail task summaries and edit control */
+#page-projects .project-detail-actions{display:flex;align-items:center;gap:10px}
+#page-projects .project-task-entry{text-align:left;width:100%;border:1px solid transparent;cursor:pointer;font-family:inherit}
+#page-projects .project-task-entry:hover{border-color:#a7c8ed;box-shadow:0 2px 8px #244e7d15}
+#page-projects .project-task-entry-info{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;flex:1}
+#page-projects .project-task-decision{font-size:12px;font-weight:400;color:#455b75;white-space:pre-wrap;overflow-wrap:anywhere}
+#page-projects .project-task-duration{font-size:11px;font-weight:600;color:#47729e}
+
+/* Finalized task duration is a right-aligned pill beside the task title */
+#page-projects .project-task-title-line{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0}
+#page-projects .project-task-title-line .project-task-entry-title{flex:1;min-width:0}
+#page-projects .project-task-title-line .project-task-duration{flex-shrink:0;white-space:nowrap;background:#d6e9fc;color:#265c91;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:650}
+/* Remove legacy approval status presentation without altering stored history */
+#page-approvals{display:none!important}
+
+/* Project task statistics below project heading */
+#page-projects .project-task-stats{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:9px 0 13px}
+#page-projects .project-task-stat{display:inline-flex;align-items:center;border-radius:7px;padding:6px 10px;font-size:12px;font-weight:650;background:#e9f1fb;color:#285e91}
+#page-projects .project-task-stat-done{background:#e6f4ee;color:#247455}
+#page-projects .project-task-stat-ongoing{background:#fff0df;color:#946027}
+/* Match the project deadline date field spacing to the project name field */
+#projectForm>label,#projectEditForm>label{display:flex;flex-direction:column;gap:8px;margin:0}
+#projectForm input[type=date],#projectEditForm input[type=date]{width:100%;min-height:42px;box-sizing:border-box;margin:0;font:inherit}
+
+/* Project header: compact spacing and inline explanatory text */
+#page-projects .listing-header{align-items:center;gap:10px;margin-bottom:7px}
+#page-projects .project-listing-heading{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+#page-projects .project-listing-heading h2,#page-projects .project-listing-heading .helper{margin:0}
+#page-projects .filter-tabs{margin-top:4px;margin-bottom:7px;gap:6px}
+#page-projects .filter-tab{padding-top:6px;padding-bottom:6px}
+#page-projects .project-quick-detail .section-top{margin-bottom:4px}
+#page-projects .project-deadline-line{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+#page-projects .project-deadline-line #quickProjectGoal{margin:0}
+#page-projects .project-deadline-remaining{display:inline-flex;align-items:center;padding:5px 10px;border-radius:7px;background:#d6e9fc;color:#265c91;font-size:12px;font-weight:650;white-space:nowrap}
+#page-projects .project-deadline-remaining.is-overdue{background:#ffe6e4;color:#a33e39}
+#page-projects .project-deadline-remaining[hidden]{display:none}
+#page-tasks .task-detail-heading-actions{display:flex;align-items:center;gap:8px}
+@media(max-width:700px){#page-projects .project-listing-heading{gap:5px 9px}}
+
+/* Compact project detail actions so the project title stays on one line */
+#page-projects #projectQuickDetail>.section-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:8px;min-width:0}
+#page-projects #projectQuickDetail #quickProjectName{flex:1;min-width:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-projects #projectQuickDetail .project-detail-actions{display:flex;flex:0 0 auto;align-items:center;gap:5px;white-space:nowrap}
+#page-projects #projectQuickDetail .project-detail-actions button{padding:5px 9px;font-size:12px;line-height:1.25;min-height:28px;width:auto;min-width:0;white-space:nowrap}
+
+/* Consistent left-aligned section title treatment for Projects and Tasks */
+#page-projects .project-listing-heading,#page-tasks .task-listing-heading{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px 12px;min-width:0;margin:0}
+#page-projects .center-heading-label,#page-tasks .center-heading-label{display:inline-flex;align-items:center;justify-content:flex-start;flex:0 0 auto;margin:0;padding:9px 15px;border-radius:10px;background:#e6f1ff;color:#1d568e;font-size:22px;font-weight:800;line-height:1.2;text-align:left}
+#page-projects .project-listing-heading .helper,#page-tasks .task-listing-heading .helper{margin:0;text-align:left}
+#page-projects .listing-header,#page-tasks .listing-header{justify-content:space-between}
+/* Keep the project icon in its own column; never overlap the title */
+#page-projects .visual-project-row{grid-template-columns:65px minmax(0,1.2fr) auto minmax(90px,.8fr) 16px;column-gap:13px;min-width:0}
+#page-projects .visual-project-row .project-graphic{grid-column:1;grid-row:1;width:58px;max-width:100%;height:54px;box-sizing:border-box;flex-shrink:0}
+#page-projects .visual-project-row .project-row-main{grid-column:2;grid-row:1;min-width:0;overflow:hidden}
+#page-projects .visual-project-row .project-row-main b{display:block;overflow-wrap:anywhere}
+@media(max-width:720px){#page-projects .visual-project-row{grid-template-columns:48px minmax(0,1fr) auto 14px;column-gap:10px}#page-projects .visual-project-row .project-graphic{width:44px;height:44px}#page-projects .visual-project-row .project-row-main{grid-column:2;grid-row:1}#page-projects .visual-project-row .project-row-meter{grid-column:2/4;grid-row:2}#page-projects .visual-project-row .status-pill{grid-column:3;grid-row:1}#page-projects .visual-project-row .project-arrow{grid-column:4;grid-row:1}#page-projects .center-heading-label,#page-tasks .center-heading-label{font-size:20px;padding:8px 12px}}
+
+/* Match Projects heading horizontal position with Tasks heading */
+#page-projects .listing-header .project-listing-heading{margin-left:0;padding-left:0;transform:none}
+#page-projects .listing-header .project-listing-heading .center-heading-label{margin-left:0}
+#page-projects .listing-card,#page-tasks .listing-card{box-sizing:border-box}
+#page-projects .listing-header,#page-tasks .listing-header{padding-left:0}
+
+#page-projects .listing-header .project-listing-heading{padding-left:12px}
+@media(max-width:720px){#page-projects .listing-header .project-listing-heading{padding-left:12px}}
+
+/* iOS Safari: prevent auto-zoom when focusing project/task search fields */
+#page-projects #projectSearch,#page-tasks #taskSearch{font-size:16px!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+/* Remove the extra left indentation highlighted in the mobile project header */
+#page-projects .listing-header .project-listing-heading{padding-left:0!important;margin-left:0!important;transform:none!important}
+#page-projects .listing-header .project-listing-heading .center-heading-label{margin-left:0!important}
+
+/* Task list: project name sits on the second line below the task title */
+#page-tasks .task-title-project-group{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0}
+#page-tasks .task-title-project-group .task-list-title{display:block;min-width:0;max-width:100%;overflow-wrap:anywhere}
+#page-tasks .task-title-project-group .task-project-tag{display:inline-flex;align-self:flex-start;max-width:100%;margin:0;white-space:normal;overflow-wrap:anywhere}
+
+/* Equalize left inset of Projects and Tasks headings relative to their card border */
+#page-projects .listing-header .project-listing-heading,#page-tasks .listing-header .task-listing-heading{padding-left:0!important;margin-left:0!important;transform:none!important}
+#page-projects .listing-header .project-listing-heading .center-heading-label,#page-tasks .listing-header .task-listing-heading .center-heading-label{margin-left:0!important}
+
+/* Actual mobile fix: the project header was centering its heading container. */
+@media(max-width:720px){
+ #page-projects .listing-header{align-items:stretch!important}
+ #page-projects .listing-header .project-listing-heading{align-self:flex-start!important;width:100%;box-sizing:border-box;justify-content:flex-start!important}
+}
+
+/* Project progress / delete controls */
+#page-projects .project-manage-actions{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px;flex:0 0 auto}
+#page-projects .project-manage-actions button{min-width:64px;padding:7px 10px;font-size:12px;border-radius:10px}
+#page-projects .project-manage-row>.project-manage-actions{align-self:center}
+/* Project-scoped task category filter and manager */
+#page-tasks .task-category-toolbar{display:flex;align-items:flex-end;justify-content:flex-start;flex-wrap:wrap;gap:9px;margin:4px 0 9px}
+#page-tasks .task-category-toolbar label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#52708f}
+#page-tasks .task-category-toolbar select{min-height:40px;min-width:170px;max-width:260px;border:1px solid #d4e1f2;border-radius:10px;background:#fff;padding:8px 12px;font-size:16px;color:#203b5a}
+#page-tasks .task-category-toolbar button{min-height:40px}
+.task-category-list{display:flex;flex-direction:column;gap:8px;margin:15px 0}
+.task-category-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:11px;background:#e8f2ff;color:#244c7c}
+.task-category-name{font-weight:750;overflow-wrap:anywhere;min-width:0}
+.task-category-controls{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.task-category-controls button{padding:5px 9px;font-size:12px;min-width:30px}
+.task-category-form-actions{display:flex;gap:8px;justify-content:flex-end}
+@media(max-width:720px){#page-projects .project-manage-actions button{min-width:52px;padding:6px 8px;font-size:11px}#page-tasks .task-category-toolbar select{min-width:145px}}
+
+.project-progress-summary{display:flex;flex-direction:column;gap:12px}
+.project-progress-summary h3{margin:0;color:#1d3556}
+.project-progress-category{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:11px;border-radius:11px;background:#f0f6ff}
+.project-progress-category strong{overflow-wrap:anywhere;color:#21496f}
+.project-progress-category span{font-size:12px;font-weight:700;color:#47749e}
+.project-progress-category .project-progress-track{grid-column:1/-1;width:100%;height:9px;border-radius:99px;background:#dbe5f1;overflow:hidden}
+.project-progress-category .project-progress-fill{display:block;height:100%;border-radius:99px;background:#3086e8}
+
+/* Project edit: date input must never exceed modal content width on iOS. */
+#projectEditDialog,#projectEditDialog *{box-sizing:border-box}
+#projectEditDialog{max-width:calc(100vw - 24px);overflow-x:hidden}
+#projectEditForm{min-width:0;max-width:100%;width:100%;overflow-x:hidden}
+#projectEditForm>label{min-width:0;max-width:100%;width:100%}
+#projectEditForm input,#projectEditForm textarea,#projectEditForm input[type=date]{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+#projectEditForm input[type=date]{-webkit-appearance:none;appearance:none;min-height:42px}
+/* Task filter order: project, category + create, search, new task. */
+#page-tasks .listing-actions .task-category-toolbar{display:flex;align-items:flex-end;flex-wrap:nowrap;gap:10px;flex:1 1 100%;width:100%;min-width:0;margin:0}
+#page-tasks .listing-actions .task-category-toolbar .task-project-filter-label{flex:1 1 auto;min-width:0;max-width:none;display:grid;gap:4px;font-size:12px;color:#526987;font-weight:650}
+#page-tasks .listing-actions #taskCategoryFilter{display:block;width:100%;max-width:100%;min-width:0;min-height:39px;box-sizing:border-box;background:#fff;color:#243a55;font-size:16px}
+#page-tasks .listing-actions #manageTaskCategories{flex:0 0 auto;min-height:39px;white-space:nowrap}
+@media(max-width:720px){#page-tasks .listing-actions .task-category-toolbar{gap:8px}#page-tasks .listing-actions #manageTaskCategories{padding-left:11px;padding-right:11px}}
+
+/* Two aligned task filter rows with equal selector and action widths. */
+#page-tasks .listing-actions{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%;min-width:0}
+#page-tasks .listing-actions .task-filter-row,
+#page-tasks .listing-actions .task-filter-row.task-category-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:end;gap:10px;width:100%;max-width:100%;min-width:0;flex:none;margin:0}
+#page-tasks .listing-actions .task-filter-row .task-project-filter-label,
+#page-tasks .listing-actions .task-filter-row.task-category-toolbar .task-project-filter-label{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;min-width:0;width:100%;max-width:none;margin:0}
+#page-tasks .listing-actions #taskProjectFilter,
+#page-tasks .listing-actions #taskCategoryFilter{display:block;width:100%;min-width:0;max-width:100%;height:42px;min-height:42px;box-sizing:border-box;border:1px solid #d4e1f2;border-radius:12px!important;background:#fff;color:#243a55;padding:8px 12px;font-size:16px;-webkit-appearance:auto;appearance:auto}
+#page-tasks .listing-actions .task-filter-action,
+#page-tasks .listing-actions #manageTaskCategories,
+#page-tasks .listing-actions #jumpTaskCreate{display:inline-flex;justify-content:center;align-items:center;width:112px;min-width:0;max-width:112px;height:42px;min-height:42px;box-sizing:border-box;margin:0;padding:8px 7px;border-radius:10px;font-size:13px;white-space:nowrap}
+#page-tasks .listing-actions #taskSearch{width:100%;max-width:100%;min-width:0;box-sizing:border-box;font-size:16px}
+@media(max-width:380px){#page-tasks .listing-actions .task-filter-row,#page-tasks .listing-actions .task-filter-row.task-category-toolbar{grid-template-columns:minmax(0,1fr) 100px;gap:7px}#page-tasks .listing-actions .task-filter-action,#page-tasks .listing-actions #manageTaskCategories,#page-tasks .listing-actions #jumpTaskCreate{width:100px;max-width:100px;font-size:12px}}
+
+/* Category manager: Save and Cancel share the available width equally. */
+#taskCategoryDialog .task-category-form-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;box-sizing:border-box}
+#taskCategoryDialog .task-category-form-actions>button{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;max-width:none;box-sizing:border-box;min-height:42px;margin:0}
+
+/* Task creation action: text only, suppress legacy/decorative icons. */
+#page-tasks #jumpTaskCreate::before,
+#page-tasks #jumpTaskCreate::after,
+#page-tasks #jumpTaskCreate svg,
+#page-tasks #jumpTaskCreate img,
+#page-tasks #jumpTaskCreate i,
+#page-tasks #jumpTaskCreate .icon{display:none!important;content:none!important}
+#page-tasks #jumpTaskCreate{gap:0!important;background-image:linear-gradient(100deg,#4297fc,#1970df)}
+
+/* Project avatar chooser, consistent in create/edit forms and mobile layouts. */
+.project-avatar-editor{display:flex;flex-direction:column;align-items:flex-start;gap:9px;position:relative;min-width:0}
+.project-avatar-label{font-size:13px;font-weight:750;color:#526987}
+.project-avatar-picker{display:flex;align-items:center;justify-content:center;width:84px;height:84px;min-width:84px;padding:0;border:2px dashed #9cbbe4;border-radius:20px;background:#f0f6ff;color:#2e7bd5;font-size:34px;font-weight:400;overflow:hidden;cursor:pointer}
+.project-avatar-picker img,.project-graphic .project-avatar-image{width:100%;height:100%;display:block;object-fit:cover}
+.project-avatar-options{display:flex;gap:8px;flex-wrap:wrap;max-width:100%}
+.project-avatar-options[hidden]{display:none!important}
+.project-avatar-options button{border:1px solid #c7d8ee;background:#fff;color:#2b5487;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.project-avatar-hint{margin:0;font-size:12px}
+.project-graphic{overflow:hidden}
+
+/* Hide native avatar file fields regardless of generic form input styles. */
+#projectForm input[data-avatar-file],
+#projectEditForm input[data-avatar-file]{display:none!important}
+#projectForm .project-avatar-hint,
+#projectEditForm .project-avatar-hint{display:none!important}
+/* Task project/category filters must share identical typography. */
+#page-tasks .listing-actions #taskProjectFilter,
+#page-tasks .listing-actions #taskCategoryFilter{font-family:inherit!important;font-size:16px!important;font-weight:600!important;line-height:1.35!important;letter-spacing:0!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+/* Avatar actions beside the image tile: vertical, always visible. */
+.project-avatar-controls{display:flex;align-items:center;gap:12px;width:100%;min-width:0}
+.project-avatar-controls .project-avatar-options{display:flex!important;flex-direction:column;align-items:stretch;justify-content:center;gap:9px;flex:0 0 auto;margin:0}
+.project-avatar-controls .project-avatar-options button{min-width:100px;min-height:38px;text-align:center}
+
+/* Consistent X close control in project editor. */
+#projectEditDialog .project-edit-close{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;min-width:36px;padding:0;border:1px solid #d6e2f0;border-radius:50%;background:#f7faff;color:#526987;font-family:Arial,sans-serif;font-size:26px;font-weight:400;line-height:1;cursor:pointer}
+#projectEditDialog .project-edit-close:hover{background:#eaf2ff}
+
+/* All modal X controls: standalone X without circular border or ring. */
+dialog button.icon-close,
+dialog button.project-edit-close,
+#projectEditDialog .project-edit-close{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline:none;color:#526987}
+dialog button.icon-close:hover,
+dialog button.project-edit-close:hover{background:transparent!important;color:#2563eb}
+dialog button.icon-close:focus-visible,
+dialog button.project-edit-close:focus-visible{outline:2px solid #2563eb!important;outline-offset:2px;border-radius:4px!important}
+
+/* SKAI OS approved headquarters dashboard header: logo left, date over icon row. */
+.home-skai-brand{display:none}
+body[data-current-page="home"] .topbar{
+ position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ align-items:center!important;column-gap:10px!important;min-height:138px!important;height:auto!important;
+ padding:14px 10px 24px!important;margin-bottom:14px!important;overflow:visible!important;
+ background:linear-gradient(170deg,#f9fcff 0%,#edf6ff 65%,#d8eaff 100%)!important;
+ border-radius:24px!important;
+}
+body[data-current-page="home"] .topbar::after{
+ content:"";pointer-events:none;position:absolute;left:0;right:0;bottom:3px;height:23px;
+ border-bottom:2px solid rgba(255,255,255,.95);border-radius:0 0 60% 35%;
+}
+body[data-current-page="home"] .topbar .topbar-title{display:none!important}
+body[data-current-page="home"] .home-skai-brand{display:flex!important;grid-column:1;grid-row:1;align-items:center;min-width:0;width:100%;max-width:240px}
+body[data-current-page="home"] .home-skai-brand svg{display:block;width:100%;height:auto;max-height:120px;filter:drop-shadow(0 3px 6px rgba(45,130,210,.12))}
+body[data-current-page="home"] .header-clock{display:block!important;position:absolute!important;top:12px;right:10px;white-space:nowrap;color:#193b75;font-size:12px!important;font-weight:750;line-height:1.4}
+body[data-current-page="home"] .top-actions{grid-column:2!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;margin-top:30px!important;flex-wrap:nowrap!important;max-width:none!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:42px!important;height:42px!important;min-width:42px!important;flex:0 0 42px!important;
+ padding:7px!important;margin:0!important;border:1px solid #d0e2fb!important;
+ border-radius:50%!important;background:linear-gradient(140deg,#fff,#edf5ff)!important;
+ color:#2273d6!important;box-shadow:0 5px 13px rgba(55,120,195,.15)!important;
+}
+body[data-current-page="home"] .top-actions .mobile-settings-button{font-size:24px!important;line-height:1}
+body[data-current-page="home"] .top-actions .header-bell svg{width:24px;height:24px}
+body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{width:27px!important;height:27px!important}
+body[data-current-page="home"] .top-actions .offline-chip{display:none!important}
+body[data-current-page="home"] .header-bell-count{top:-3px;right:-2px}
+@media(max-width:480px){
+ body[data-current-page="home"] .topbar{min-height:118px!important;padding:12px 6px 19px!important;column-gap:4px!important}
+ body[data-current-page="home"] .home-skai-brand{max-width:175px}
+ body[data-current-page="home"] .header-clock{top:9px;right:6px;font-size:11px!important}
+ body[data-current-page="home"] .top-actions{gap:5px!important;margin-top:26px!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button,
+ body[data-current-page="home"] .top-actions .header-bell,
+ body[data-current-page="home"] .top-actions .avatar-ceo{width:36px!important;height:36px!important;min-width:36px!important;flex-basis:36px!important;padding:5px!important}
+}
+
+/* Headquarters hero alignment: full-width integrated wave, no inset header card. */
+body[data-current-page="home"] .topbar{
+ isolation:isolate!important;min-height:158px!important;
+ padding:20px 16px 32px!important;margin:0 0 15px!important;
+ background:linear-gradient(130deg,#f5faff 0%,#e5f2ff 62%,#d2e9ff 100%)!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+body[data-current-page="home"] .topbar::before{
+ content:"";position:absolute;z-index:-1;inset:0;
+ background:radial-gradient(ellipse at 12% 2%,rgba(255,255,255,.96),transparent 56%),
+ radial-gradient(ellipse at 88% 93%,rgba(78,171,255,.19),transparent 56%);
+ pointer-events:none;
+}
+body[data-current-page="home"] .topbar::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ left:-8%;right:-8%;bottom:9px;height:46px;
+ border-bottom:3px solid rgba(255,255,255,.9)!important;
+ border-radius:0 0 52% 55%!important;transform:rotate(-2deg);
+}
+body[data-current-page="home"] .home-skai-brand{max-width:240px!important;z-index:1}
+body[data-current-page="home"] .home-skai-brand svg{max-height:122px!important;filter:drop-shadow(0 2px 3px rgba(22,112,212,.12))}
+body[data-current-page="home"] .home-skai-brand::after{
+ content:"";position:absolute;left:49%;top:28%;height:44%;width:1px;
+ background:#3789e8;opacity:.75;
+}
+body[data-current-page="home"] .top-actions{z-index:1;gap:8px!important;margin-top:35px!important}
+body[data-current-page="home"] .header-clock{z-index:1;top:24px!important;right:16px!important;font-size:13px!important;color:#183b78!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ border:1px solid #c9dff8!important;background:linear-gradient(145deg,#fff,#eff6ff)!important;
+ box-shadow:0 6px 17px rgba(59,135,215,.17)!important;color:#176cdb!important;
+}
+body[data-current-page="home"] .top-actions .mobile-settings-button{font-family:Arial,sans-serif!important;font-size:0!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button::before{content:"⚙";font-size:25px;font-family:Arial,sans-serif;line-height:1}
+body[data-current-page="home"] .top-actions .avatar-ceo{color:#176cdb!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{color:#176cdb!important}
+@media(max-width:480px){
+ body[data-current-page="home"] .topbar{min-height:140px!important;padding:17px 10px 28px!important;column-gap:5px!important}
+ body[data-current-page="home"] .home-skai-brand{max-width:min(48vw,205px)!important}
+ body[data-current-page="home"] .home-skai-brand::after{left:50%;top:30%;height:40%}
+ body[data-current-page="home"] .header-clock{top:15px!important;right:8px!important;font-size:11px!important}
+ body[data-current-page="home"] .top-actions{margin-top:34px!important;gap:6px!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button,
+ body[data-current-page="home"] .top-actions .header-bell,
+ body[data-current-page="home"] .top-actions .avatar-ceo{width:37px!important;height:37px!important;min-width:37px!important;flex-basis:37px!important}
+}
+
+/* Final SKAI OS dashboard brand + consistent line icon treatment. */
+body[data-current-page="home"] .home-skai-brand{max-width:250px!important}
+body[data-current-page="home"] .home-skai-brand svg{width:100%!important;height:auto!important;max-height:none!important}
+body[data-current-page="home"] .home-skai-brand::after{display:none!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button{font-size:0!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button::before{display:none!important;content:none!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+body[data-current-page="home"] .top-actions .header-bell svg,
+body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{display:block!important;width:24px!important;height:24px!important;color:#1478df!important;stroke:#1478df!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .skai-icon{display:none!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{display:block!important}
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{border:1px solid rgba(255,255,255,.98)!important;background:linear-gradient(150deg,#fff,#e5f2ff)!important;box-shadow:0 4px 14px rgba(48,121,203,.17)!important}
+@media(max-width:480px){
+ body[data-current-page="home"] .home-skai-brand{max-width:min(48vw,220px)!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+ body[data-current-page="home"] .top-actions .header-bell svg,
+ body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{width:22px!important;height:22px!important}
+}
+
+/* CEO-approved header: replace crown with account outline, enlarge all three controls. */
+body[data-current-page="home"] .top-actions .mobile-settings-button,
+body[data-current-page="home"] .top-actions .header-bell,
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ width:52px!important;height:52px!important;min-width:52px!important;flex:0 0 52px!important;
+ border-radius:50%!important;background:linear-gradient(145deg,#fff 10%,#e8f4ff 100%)!important;
+ border:1.5px solid #fff!important;box-shadow:0 5px 15px rgba(43,117,201,.19)!important;
+}
+body[data-current-page="home"] .top-actions .avatar-ceo{
+ font-size:0!important;background-image:linear-gradient(145deg,#fff 10%,#e8f4ff 100%)!important;
+}
+body[data-current-page="home"] .top-actions .avatar-ceo::before,
+body[data-current-page="home"] .top-actions .avatar-ceo::after{content:none!important;display:none!important}
+body[data-current-page="home"] .top-actions .avatar-ceo > :not(.header-account-icon){display:none!important}
+body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{
+ display:block!important;position:relative!important;width:30px!important;height:30px!important;
+ flex:0 0 30px!important;stroke:#1676df!important;fill:none!important;
+}
+body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+body[data-current-page="home"] .top-actions .header-bell svg{width:30px!important;height:30px!important}
+@media(max-width:480px){
+ body[data-current-page="home"] .top-actions{gap:7px!important}
+ body[data-current-page="home"] .top-actions .mobile-settings-button,
+ body[data-current-page="home"] .top-actions .header-bell,
+ body[data-current-page="home"] .top-actions .avatar-ceo{
+  width:45px!important;height:45px!important;min-width:45px!important;flex:0 0 45px!important;
+ }
+ body[data-current-page="home"] .top-actions .mobile-settings-button svg,
+ body[data-current-page="home"] .top-actions .header-bell svg,
+ body[data-current-page="home"] .top-actions .avatar-ceo .header-account-icon{
+  width:27px!important;height:27px!important;
+ }
+}
+
+/* Assistant heading uses the same title badge and inline subtitle as Project Center. */
+#page-assistant .assistant-listing-heading{
+ display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;
+ gap:8px 12px;min-width:0;margin:0 0 16px;
+}
+#page-assistant .assistant-listing-heading .center-heading-label{
+ display:inline-flex;align-items:center;justify-content:flex-start;flex:0 0 auto;
+ margin:0;padding:9px 15px;border-radius:10px;background:#e6f1ff;
+ color:#1d568e;font-size:22px;font-weight:800;line-height:1.2;text-align:left;
+}
+#page-assistant .assistant-listing-heading .helper{margin:0;text-align:left}
+@media(max-width:720px){
+ #page-assistant .assistant-listing-heading .center-heading-label{font-size:20px;padding:8px 12px}
+}
+
+/* AI assistant hero: selected 3D female avatar, no introductory cards or shortcuts. */
+#page-assistant .assistant-hero .assistant-portrait-wrap{width:100%;display:flex;justify-content:center;align-items:center;padding:4px 0 8px}
+#page-assistant .assistant-hero .assistant-portrait{display:block;width:min(100%,320px);height:auto;aspect-ratio:1;object-fit:cover;border-radius:22px;box-shadow:0 12px 30px rgba(14,75,148,.15)}
+@media(max-width:480px){#page-assistant .assistant-hero .assistant-portrait{width:min(100%,280px)}}
+
+/* Headquarters priority: four round controls -> assistant chat -> today's tasks. */
+#page-home .compact-home-kpis{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin:10px 0 16px!important}
+#page-home .compact-home-kpis .kpi{
+ display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+ width:100%!important;aspect-ratio:1!important;min-width:0!important;min-height:0!important;
+ padding:8px 4px!important;border-radius:50%!important;text-align:center!important;
+ background:linear-gradient(150deg,#fff,#e9f4ff)!important;border:1.5px solid #fff!important;
+ box-shadow:0 5px 15px rgba(54,126,205,.17)!important;
+}
+#page-home .compact-home-kpis .kpi span{font-size:clamp(9px,2.5vw,14px)!important;line-height:1.25!important;white-space:normal!important}
+#page-home .compact-home-kpis .kpi strong{font-size:clamp(16px,4.5vw,30px)!important;line-height:1.25!important;margin-top:4px!important}
+#page-home .compact-home-kpis .kpi small{display:none!important}
+#page-home .home-assistant-card{
+ display:grid!important;grid-template-columns:minmax(0,36%) minmax(0,1fr);gap:12px;
+ align-items:stretch;padding:12px!important;margin:0 0 16px!important;
+ background:linear-gradient(130deg,#e2f0ff,#f7fbff)!important;
+ overflow:hidden;
+}
+#page-home .home-assistant-portrait{min-width:0;min-height:210px;border-radius:17px;overflow:hidden;background:linear-gradient(155deg,#14478b,#72b8fc)}
+#page-home .home-assistant-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+#page-home .home-assistant-chat{min-width:0;display:flex;flex-direction:column;gap:8px}
+#page-home .home-assistant-chat>.card{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;margin:0!important}
+#page-home .home-assistant-chat .assistant-listing-heading{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:0!important}
+#page-home .home-assistant-chat .center-heading-label{font-size:18px;padding:7px 10px;background:#d9ebff;border-radius:10px;color:#195a9b}
+#page-home .home-assistant-chat .assistant-listing-heading .helper{margin:0;font-size:12px}
+#page-home .home-assistant-chat .section-top,#page-home .home-assistant-chat .chat-preview,#page-home .home-assistant-chat .card>.helper{display:none!important}
+#page-home .home-assistant-chat .chat-history{min-height:60px;max-height:180px;overflow:auto}
+#page-home .home-assistant-chat .chat-form{display:flex!important;gap:7px;flex-wrap:wrap}
+#page-home .home-assistant-chat .chat-form input{min-width:0;flex:1 1 100%;width:100%;border-radius:13px}
+#page-home .home-assistant-chat .chat-form button{margin-left:auto}
+#page-home .home-todo-card{margin-top:0}
+@media(max-width:480px){
+ #page-home .compact-home-kpis{gap:6px!important}
+ #page-home .compact-home-kpis .kpi{padding:5px 2px!important}
+ #page-home .home-assistant-card{grid-template-columns:minmax(0,37%) minmax(0,1fr);gap:9px;padding:9px!important}
+ #page-home .home-assistant-portrait{min-height:190px}
+ #page-home .home-assistant-chat .center-heading-label{font-size:15px;padding:6px 8px}
+ #page-home .home-assistant-chat .assistant-listing-heading .helper{font-size:10px}
+ #page-home .home-assistant-chat .chat-form input{font-size:14px}
+}
+
+/* Assistant portrait is an accessible photo picker button. */
+.assistant-avatar-picker{position:relative;display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:pointer;overflow:hidden;border-radius:inherit}
+.assistant-avatar-picker img{display:block;width:100%!important;height:100%!important;object-fit:cover;object-position:center top}
+.assistant-avatar-picker:focus-visible{outline:3px solid #258af1;outline-offset:-3px}
+.assistant-avatar-edit{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);padding:6px 11px;border-radius:999px;background:rgba(8,48,94,.77);color:white;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none}
+#page-assistant .assistant-page-avatar-picker{width:min(100%,320px);height:auto;aspect-ratio:1;border-radius:22px;box-shadow:0 12px 30px rgba(14,75,148,.15)}
+@media(max-width:480px){#page-assistant .assistant-page-avatar-picker{width:min(100%,280px)}}
+
+/* Headquarters: quick actions follow assistant and precede today's tasks. */
+#page-home>.home-action-card{margin:0 0 16px!important;width:100%;box-sizing:border-box}
+#page-home>.home-action-card .home-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:start;gap:8px}
+#page-home>.home-action-card .home-shortcuts>button{min-width:0}
+@media(max-width:480px){#page-home>.home-action-card{padding:12px 8px!important}#page-home>.home-action-card .home-shortcuts{gap:5px}}
+
+/* GPT-powered conversation lives exclusively in the assistant section. */
+#page-assistant .assistant-gpt-chat{margin-top:14px;padding:14px}
+#page-assistant .assistant-gpt-chat>.card{border:0;box-shadow:none;background:transparent;padding:0;margin:0}
+#page-assistant .assistant-gpt-chat .chat-history{display:flex;flex-direction:column;gap:10px;min-height:170px;max-height:min(52vh,520px);overflow-y:auto;padding:12px;border:1px solid #dce7f5;border-radius:16px;background:#f7faff}
+#page-assistant .assistant-gpt-chat .chat-bubble{max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere}
+#page-assistant .assistant-gpt-chat .chat-form{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
+#page-assistant .assistant-gpt-chat #chatText{flex:1;min-width:0;min-height:85px;resize:vertical;box-sizing:border-box;border:1px solid #cfdef0;border-radius:14px;padding:12px;font:inherit;background:#fff;color:#18334f}
+#page-assistant .assistant-gpt-chat .chat-form button{min-height:44px}
+@media(max-width:480px){#page-assistant .assistant-gpt-chat{padding:10px}#page-assistant .assistant-gpt-chat .chat-form{gap:7px}#page-assistant .assistant-gpt-chat .chat-form button{padding:11px 13px}}
+
+/* Compact ChatGPT-style send control; no introductory block above the conversation. */
+#page-assistant .assistant-gpt-chat .assistant-send-btn{width:46px;height:46px;min-width:46px;min-height:46px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#1976df;color:#fff;flex:0 0 46px;box-shadow:0 3px 10px rgba(24,101,204,.18)}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg{display:block;width:22px;height:22px}
+#page-assistant .assistant-gpt-chat .assistant-send-btn:disabled{opacity:.55}
+
+/* CEO account modal and simplified mobile navigation */
+#loginDialog .dialog-top{display:flex;align-items:center;justify-content:space-between}
+#loginDialog #closeLoginDialog{display:inline-flex;align-items:center;justify-content:center;font-size:28px;line-height:1;border:0;background:transparent;color:#4a678a;min-width:42px;min-height:42px;box-shadow:none}
+#mobileMore,#mobileMoreMenu{display:none!important}
+
+/* Unified circular X close buttons across all system dialogs. */
+dialog .icon-close,dialog #closeLoginDialog,dialog button[id^="cancel"][class~="icon-close"],.modal .icon-close{
+  width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  padding:0!important;border-radius:50%!important;border:1px solid #d6e3f4!important;
+  background:linear-gradient(145deg,#fff,#edf5ff)!important;color:#527da9!important;
+  font-size:25px!important;font-weight:500!important;line-height:1!important;
+  box-shadow:0 3px 10px rgba(47,96,157,.09)!important;flex-shrink:0!important;
+}
+dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!important}
+
+/* CEO overview: portrait left, three vertical KPI cards right */
+#page-home .home-ceo-overview{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;align-items:stretch;margin-bottom:16px}
+#page-home .home-ceo-avatar{min-width:0;min-height:230px;border-radius:18px;background:linear-gradient(145deg,#dceaff,#a8c8ef);border:1px solid #d6e4f5;box-shadow:0 5px 18px rgba(40,92,155,.09)}
+#page-home .home-ceo-avatar img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+#page-home .home-ceo-overview .compact-home-kpis{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;margin:0!important;min-width:0}
+#page-home .home-ceo-overview .compact-home-kpis .kpi{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;padding:10px 14px!important}
+#page-home .home-ceo-overview .compact-home-kpis .kpi strong{font-size:clamp(20px,5vw,30px)!important}
+#page-home .home-ai-metrics{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#page-home .home-ai-cost{cursor:pointer;font:inherit}
+#page-home .home-ai-cost small{display:none}
+@media(max-width:720px){#page-home .home-ceo-overview{grid-template-columns:minmax(0,40%) minmax(0,1fr);gap:9px}#page-home .home-ceo-avatar{min-height:225px}#page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-home .home-ai-cost{grid-column:span 2}}
+
+
+/* Assistant portrait and relocated CEO KPIs: keep portrait dimensions unchanged. */
+#page-assistant .assistant-overview-layout{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;align-items:center;justify-content:start;margin:16px 0}
+#page-assistant .assistant-overview-layout .assistant-portrait-wrap{width:100%;padding:0;justify-content:flex-start}
+#page-assistant .assistant-side-kpis{min-width:0;display:flex;align-items:center;justify-content:center}
+#page-assistant .assistant-side-kpis .compact-home-kpis{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(3,minmax(0,1fr));gap:10px;width:100%;margin:0}
+#page-assistant .assistant-side-kpis .kpi{min-width:0;width:100%;text-align:center;align-items:center;justify-content:center;border-radius:999px;aspect-ratio:auto;min-height:82px;padding:10px 8px}
+#page-assistant .assistant-side-kpis .kpi strong{font-size:clamp(18px,2.8vw,27px)}
+#page-assistant .assistant-side-kpis .kpi span{font-size:12px}
+#page-assistant .assistant-side-kpis .kpi small{font-size:10px}
+@media(max-width:600px){
+ #page-assistant .assistant-overview-layout{grid-template-columns:minmax(0,1fr) minmax(0,42%);gap:9px}
+ #page-assistant .assistant-page-avatar-picker{width:min(100%,280px)}
+ #page-assistant .assistant-side-kpis .compact-home-kpis{gap:7px}
+ #page-assistant .assistant-side-kpis .kpi{min-height:68px;padding:7px 5px}
+ #page-assistant .assistant-side-kpis .kpi span{font-size:10px}
+ #page-assistant .assistant-side-kpis .kpi strong{font-size:19px}
+ #page-assistant .assistant-side-kpis .kpi small{font-size:9px}
+}
+
+
+/* One-screen assistant workspace: compact portrait, KPI stack, and scrollable chat. */
+#page-assistant{min-height:0}
+#page-assistant .assistant-hero{padding:12px 16px!important}
+#page-assistant .assistant-hero .assistant-listing-heading{margin:0 0 4px!important}
+#page-assistant .assistant-hero .assistant-listing-heading h2{font-size:20px}
+#page-assistant .assistant-hero .assistant-listing-heading .helper{margin:2px 0 0}
+#page-assistant .assistant-overview-layout{grid-template-columns:minmax(0,160px) minmax(0,1fr);gap:14px;margin:6px 0!important;align-items:center}
+#page-assistant .assistant-overview-layout .assistant-portrait-wrap{width:100%;padding:0}
+#page-assistant .assistant-page-avatar-picker{width:100%!important;max-width:160px;aspect-ratio:1}
+#page-assistant .assistant-side-kpis .compact-home-kpis{gap:5px}
+#page-assistant .assistant-side-kpis .kpi{min-height:43px;padding:4px 8px}
+#page-assistant .assistant-side-kpis .kpi strong{font-size:18px}
+#page-assistant .assistant-side-kpis .kpi small{display:none}
+#page-assistant .assistant-gpt-chat{margin-top:8px;padding:10px}
+#page-assistant .assistant-gpt-chat .chat-history{min-height:110px;height:clamp(110px,calc(100dvh - 455px),570px);max-height:none;overflow-y:auto;overscroll-behavior:contain}
+#page-assistant .assistant-gpt-chat #chatText{min-height:56px;max-height:100px}
+@media(max-width:600px){
+ #page-assistant .assistant-hero{padding:9px 10px!important}
+ #page-assistant .assistant-hero .assistant-listing-heading h2{font-size:17px}
+ #page-assistant .assistant-hero .assistant-listing-heading .helper{font-size:11px}
+ #page-assistant .assistant-overview-layout{grid-template-columns:minmax(0,130px) minmax(0,1fr);gap:9px;margin:4px 0!important}
+ #page-assistant .assistant-page-avatar-picker{max-width:130px}
+ #page-assistant .assistant-side-kpis .compact-home-kpis{gap:4px}
+ #page-assistant .assistant-side-kpis .kpi{min-height:37px;padding:3px 5px}
+ #page-assistant .assistant-side-kpis .kpi span{font-size:10px}
+ #page-assistant .assistant-side-kpis .kpi strong{font-size:16px}
+ #page-assistant .assistant-gpt-chat{margin-top:6px;padding:7px}
+ #page-assistant .assistant-gpt-chat .chat-history{height:clamp(110px,calc(100dvh - 425px),570px);padding:8px}
+ #page-assistant .assistant-gpt-chat #chatText{min-height:48px}
+}
+@media(max-width:380px){#page-assistant .assistant-overview-layout{grid-template-columns:110px minmax(0,1fr)}#page-assistant .assistant-page-avatar-picker{max-width:110px}}
+
+
+/* CEO secure-access actions: consistent widths, alignment and spacing. */
+.login-dialog #loginForm{display:flex;flex-direction:column;gap:12px}
+.login-dialog #loginForm[hidden]{display:none!important}
+.login-dialog #loginForm .primary-btn,
+.login-dialog #faceIdLogin,
+.login-dialog #faceIdRegister,
+.login-dialog #ceoLogout{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;margin:0!important;padding:10px 14px;text-align:center;border-radius:14px}
+.login-dialog #faceIdLogin[hidden],
+.login-dialog #faceIdRegister[hidden],
+.login-dialog #ceoLogout[hidden]{display:none!important}
+.login-dialog #faceIdLogin,
+.login-dialog #faceIdRegister,
+.login-dialog #ceoLogout{margin-top:10px!important}
+.login-dialog #loginForm + #faceIdLogin:not([hidden]),
+.login-dialog #loginForm + #faceIdLogin[hidden] + #faceIdRegister:not([hidden]){margin-top:12px!important}
+.login-dialog #passkeyHint{margin-top:12px}
+@media(max-width:600px){
+ .login-dialog #loginForm .primary-btn,
+ .login-dialog #faceIdLogin,
+ .login-dialog #faceIdRegister,
+ .login-dialog #ceoLogout{width:100%;min-height:50px;font-size:15px}
+}
+
+/* Assistant dual-mode controls */
+#page-assistant .assistant-mode-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#page-assistant .assistant-mode-bar label{font-size:12px;font-weight:700}
+#page-assistant .assistant-mode-bar select{max-width:100%;min-height:38px;border:1px solid #d8e2ee;border-radius:10px;background:#fff;color:#243c52;padding:6px 10px}
+#page-assistant .assistant-mode-bar small{font-size:11px;color:#637c92}
+@media(max-width:600px){#page-assistant .assistant-mode-bar{gap:5px;margin-bottom:6px}#page-assistant .assistant-mode-bar small{flex-basis:100%}}
+
+/* Assistant: one-screen fixed header, independently scrollable reply, compact composer. */
+#page-assistant{height:calc(100dvh - 190px);min-height:320px;display:flex!important;flex-direction:column;overflow:hidden;gap:0}
+#page-assistant .assistant-hero{flex:0 0 auto;position:relative;z-index:2;margin:0!important}
+#page-assistant .assistant-gpt-chat{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin-top:5px!important;padding:6px!important;overflow:hidden}
+#page-assistant .assistant-gpt-chat>.card{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#page-assistant .assistant-gpt-chat .assistant-mode-bar{flex:0 0 auto;margin:0 0 5px!important}
+#page-assistant .assistant-gpt-chat .chat-history{flex:1 1 0;min-height:0!important;height:auto!important;max-height:none!important;overflow-y:auto;overscroll-behavior:contain}
+#page-assistant .assistant-gpt-chat .chat-form{flex:0 0 auto;margin-top:6px!important;align-items:center!important;gap:7px!important}
+#page-assistant .assistant-gpt-chat #chatText{height:46px!important;min-height:46px!important;max-height:76px!important;padding:10px 12px!important;resize:none;font-size:16px!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn{border-radius:50%!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex:0 0 44px!important;background:#1976df!important;color:#fff!important;border:0!important;padding:0!important}
+#page-assistant .assistant-gpt-chat .assistant-voice-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;flex:0 0 44px;border-radius:50%;border:1px solid #cfdef0;background:#fff;color:#1976df;padding:0}
+#page-assistant .assistant-gpt-chat .assistant-voice-btn.is-listening{background:#dbeaff;color:#0c57b6;box-shadow:0 0 0 3px #b6d6ff}
+@media(max-width:600px){
+ #page-assistant{height:calc(100dvh - 176px);min-height:260px}
+ #page-assistant .assistant-hero{padding:7px 9px!important}
+ #page-assistant .assistant-overview-layout{margin:3px 0!important}
+ #page-assistant .assistant-side-kpis .kpi{min-height:0!important;padding:4px 6px!important}
+ #page-assistant .assistant-gpt-chat #chatText{height:42px!important;min-height:42px!important}
+ #page-assistant .assistant-gpt-chat .assistant-send-btn,#page-assistant .assistant-gpt-chat .assistant-voice-btn{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;flex-basis:40px!important}
+}
+
+/* Assistant composer refinements: match system iconography and use free space above bottom tabs. */
+#page-assistant .assistant-gpt-chat .assistant-send-btn{background:#1976df!important;background-image:none!important;color:#fff!important;border:1px solid #1976df!important;box-shadow:0 3px 10px rgba(24,101,204,.18)!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn::before,
+#page-assistant .assistant-gpt-chat .assistant-send-btn::after{content:none!important;display:none!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg{display:block!important;width:21px!important;height:21px!important;stroke:#fff!important;fill:none!important}
+@media(max-width:600px){
+ #page-assistant{height:calc(100dvh - 112px)!important;max-height:calc(100dvh - 112px)!important}
+ #page-assistant .assistant-gpt-chat{margin-bottom:3px!important}
+ #page-assistant .assistant-gpt-chat .chat-form{margin-bottom:0!important}
+}
+@media(min-width:601px){#page-assistant{height:calc(100dvh - 140px)!important}}
+
+/* CEO-approved assistant send: identical outline visual language to voice control. */
+#page-assistant .assistant-gpt-chat .assistant-send-btn{
+ appearance:none!important;background:#fff!important;background-image:none!important;
+ border:1px solid #cfdef0!important;border-radius:50%!important;
+ box-shadow:none!important;color:#1976df!important;display:inline-flex!important;
+ align-items:center!important;justify-content:center!important;overflow:hidden!important;
+ font-size:0!important;line-height:1!important;
+}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg{
+ display:block!important;width:22px!important;height:22px!important;
+ fill:none!important;stroke:#1976df!important;stroke-width:2.3!important;
+ position:static!important;transform:none!important;filter:none!important;
+}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg *{stroke:#1976df!important;fill:none!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn:active{background:#eaf4ff!important}
+.notification-dialog{box-sizing:border-box;width:min(92vw,520px);max-height:min(80dvh,760px);border:1px solid #d9e6f6;border-radius:24px;background:#fff;padding:22px;box-shadow:0 20px 65px rgba(32,73,122,.2);color:#2a455e}
+.notification-dialog::backdrop{background:rgba(31,54,80,.42);backdrop-filter:blur(4px)}
+.notification-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.notification-dialog-header h2{margin:0;font-size:22px}
+.notification-dialog-close{width:42px;height:42px;min-width:42px;display:grid;place-items:center;border:1px solid #d3e4f8;border-radius:50%;background:#f5faff;color:#4677ac;font-size:28px;line-height:1}
+.notification-dialog-list{max-height:55dvh;overflow-y:auto;overscroll-behavior:contain;margin-top:12px}
+@media(max-width:600px){.notification-dialog{padding:18px;width:calc(100vw - 28px);max-height:78dvh}}
+
+/* Navigation isolation: never render inactive feature pages, including assistant.
+   This overrides the earlier assistant display:flex!important rule. */
+.page:not(.active),.page[hidden]{display:none!important}
+#page-assistant.page.active{display:flex!important}
+
+/* Critical: ID-specific inactive rule overrides #page-assistant display:flex!important. */
+#page-assistant:not(.active),#page-assistant[hidden]{display:none!important;visibility:hidden!important}
+#page-assistant.active:not([hidden]){display:flex!important;visibility:visible!important}
+
+/* Single-layer composer send button: same geometry and visual treatment as voice button. */
+#page-assistant .assistant-gpt-chat .assistant-send-btn{
+ box-sizing:border-box!important;appearance:none!important;
+ width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;
+ flex:0 0 46px!important;margin:0!important;padding:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ border:1px solid #cfdef0!important;border-radius:50%!important;
+ background:#fff!important;background-image:none!important;box-shadow:none!important;
+ color:#1976df!important;overflow:hidden!important;position:relative!important;
+}
+#page-assistant .assistant-gpt-chat .assistant-send-btn::before,
+#page-assistant .assistant-gpt-chat .assistant-send-btn::after{content:none!important;display:none!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg{
+ display:block!important;position:static!important;width:22px!important;height:22px!important;
+ margin:0!important;padding:0!important;transform:none!important;filter:none!important;
+ stroke:#1976df!important;fill:none!important;flex:none!important;
+}
+@media(max-width:600px){
+ #page-assistant .assistant-gpt-chat .assistant-send-btn{
+ width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;flex-basis:40px!important;
+ }
+}
+
+/* Completely new isolated submit control, independent of old assistant-send-btn styles. */
+#page-assistant #chatPreviewForm button.skai-chat-submit-new{
+ all:unset!important;box-sizing:border-box!important;display:flex!important;
+ width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;
+ flex:0 0 40px!important;align-items:center!important;justify-content:center!important;
+ border:1px solid #cfdef0!important;border-radius:999px!important;
+ background:#fff!important;color:#1976df!important;cursor:pointer!important;
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+}
+#page-assistant #chatPreviewForm button.skai-chat-submit-new::before,
+#page-assistant #chatPreviewForm button.skai-chat-submit-new::after{content:none!important;display:none!important}
+#page-assistant #chatPreviewForm button.skai-chat-submit-new svg{
+ all:unset!important;display:block!important;width:22px!important;height:22px!important;
+ fill:none!important;stroke:#1976df!important;stroke-width:2.3!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none!important;
+}
+#page-assistant #chatPreviewForm button.skai-chat-submit-new:disabled{opacity:.5!important;cursor:not-allowed!important}

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f2f6fc">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.jpg?v=20261108">
+<link rel="icon" type="image/jpeg" href="./apple-touch-icon.jpg?v=20261108">
+<meta name="color-scheme" content="light">
+<title>SKAI · CEO 指揮中心</title>
+<link rel="stylesheet" href="./styles.css">
+<script type="module" src="./app.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="desktop-nav" aria-label="主要選單">
+    <a class="brand" href="#home"><span class="logo">▥</span><span>SKAI OS <small>AI COMPANY OS</small></span></a>
+    <nav class="nav-list">
+      <button class="navitem active" data-page="home"><span>⌂</span> 總部</button>
+      
+      <button class="navitem" data-page="assistant"><span>✦</span> 智能助理</button>
+      <button class="navitem" data-page="employees"><span>♙</span> 部門</button>
+      <button class="navitem" data-page="projects"><span>▦</span> 專案</button>
+      <button class="navitem" data-page="tasks"><span>☷</span> 任務 <span id="taskNavBadge" class="nav-notification" hidden></span></button>
+      <button class="navitem" data-page="data"><span>▤</span> 資料</button>
+      
+
+    </nav>
+    <div class="nav-footer">SKAI V0.7 <span>連線確認中</span><br>僅顯示已驗證資料</div><div class="sidebar-ceo"><strong>CEO</strong><button id="openSettings" type="button" class="sidebar-settings" aria-label="開啟工作區設定">⚙</button></div>
+  </aside>
+  <div class="main-column">
+    <header class="topbar">
+      <div class="topbar-title"><span class="eyebrow">SKAI / AI COMPANY OS</span><h1 id="pageTitle">早安，CEO</h1><p class="subhead" id="pageSubtitle">SKAI OS｜個人企業智慧管理中心</p></div><div class="home-skai-brand" aria-label="SKAI OS"><svg viewBox="0 0 560 300" role="img" aria-label="SKAI OS 藍色科技標誌"><defs><linearGradient id="skaiMetal" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0576e5"/><stop offset=".27" stop-color="#17b9fa"/><stop offset=".55" stop-color="#0b82e5"/><stop offset=".79" stop-color="#32cbff"/><stop offset="1" stop-color="#0472e0"/></linearGradient><linearGradient id="skaiOrbit" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#5ed9fc"/><stop offset=".5" stop-color="#068deb"/><stop offset="1" stop-color="#18aaf9"/></linearGradient><radialGradient id="skaiGlint"><stop offset="0" stop-color="#fff"/><stop offset=".22" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><path d="M78 220 C29 270 75 298 160 269 C225 248 277 220 303 204 C240 248 144 299 86 290 C42 284 44 253 78 220 Z" fill="url(#skaiOrbit)" opacity=".85"/><path d="M182 98 C286 39 452 0 496 26 C537 52 474 127 413 165 C467 116 506 59 481 44 C443 20 306 50 182 98 Z" fill="url(#skaiOrbit)"/><path d="M30 129 Q30 103 62 103 H174 L154 126 H71 Q61 126 61 135 Q61 143 73 143 H132 Q179 143 179 180 Q179 214 135 214 H20 L46 188 H130 Q147 188 147 180 Q147 170 130 170 H73 Q30 170 30 145 Z" fill="url(#skaiMetal)"/><path d="M187 103 H218 V153 L276 103 H319 L250 158 L320 214 H276 L218 167 V214 H187 Z" fill="url(#skaiMetal)"/><path d="M319 214 L388 103 H410 L482 214 H443 L398 142 L365 192 H421 L436 214 Z" fill="url(#skaiMetal)"/><path d="M489 103 H521 V214 H489 Z" fill="url(#skaiMetal)"/><text x="261" y="263" fill="#087fe1" font-size="31" font-family="Arial,sans-serif" font-weight="750" letter-spacing="13">SKAI OS</text><g opacity=".95"><circle cx="490" cy="102" r="36" fill="url(#skaiGlint)"/><circle cx="80" cy="211" r="26" fill="url(#skaiGlint)"/><circle cx="331" cy="212" r="26" fill="url(#skaiGlint)"/></g></svg></div> <time id="todayClock" class="header-clock"></time>
+      <div class="top-actions"><button class="mobile-settings-button" id="openSettingsMobile" type="button" aria-label="切換工作區"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2.2" fill="#fff"/><circle cx="16" cy="12" r="2.2" fill="#fff"/><circle cx="11" cy="18" r="2.2" fill="#fff"/></svg></button><button class="header-bell" id="openNotificationDialog" type="button" aria-label="查看通知"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="header-bell-count" id="headerNotificationCount" hidden></span></button><span class="offline-chip" id="connectionStatus"><span class="status-dot"></span>檢查連線中</span><button class="avatar-ceo" id="ceoInfo" aria-label="查看 CEO 狀態"><svg class="header-account-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M4.5 21v-2.2a7.5 7.5 0 0 1 15 0V21"/></svg></button></div>
+    </header>
+    <main>
+      <section class="page active" id="page-home">
+        <section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji" aria-hidden="true"></span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji" aria-hidden="true"></span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji" aria-hidden="true"></span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji" aria-hidden="true"></span>查看報表</button></div></section>
+        <div class="content-grid">
+          <div class="primary-area">
+            <section class="card home-todo-card"><div class="section-top"><h2><span class="sparkle">✦</span> 今日重點</h2><button class="text-btn" data-no-icon data-jump="tasks">查看任務</button></div><div class="data-list" id="homeTodoList"><p class="helper">登入後讀取待辦任務。</p></div></section>
+            <p class="helper subtle-source" id="companyDataSource">連線確認中</p>
+
+          </div>
+          <aside class="secondary-area">
+            <section class="card progress-overview"><div class="section-top"><h2>專案進度總覽</h2><button class="text-btn" data-no-icon data-jump="projects">查看全部 ›</button></div>
+               <div id="homeProjectBars" class="project-bars"><p class="helper">登入後讀取專案進度。</p></div><div id="projectSnapshot" class="visually-hidden" aria-live="polite"></div>
+            </section>
+            <section class="card home-ai-usage" aria-labelledby="homeAiUsageTitle">
+              <div class="section-top">
+                <div><h2 id="homeAiUsageTitle">Token流量</h2></div>
+                <button class="text-btn" data-no-icon data-jump="department-tech">查看設定</button>
+              </div>
+              <div class="home-ai-metrics">
+                <div class="home-ai-metric"><span>API 呼叫</span><strong id="homeAiCalls">—</strong></div>
+                <div class="home-ai-metric"><span>輸入 Tokens</span><strong id="homeAiInputTokens">—</strong></div>
+                <div class="home-ai-metric"><span>輸出 Tokens</span><strong id="homeAiOutputTokens">—</strong></div>
+                <div class="home-ai-metric"><span>總 Tokens</span><strong id="homeAiTotalTokens">—</strong></div><button type="button" class="home-ai-metric home-ai-cost" data-jump="department-finance"><span>本月算力成本</span><strong id="statAiCost">—</strong><small id="costLabel" hidden></small></button>
+              </div>
+              <p id="homeAiStatus" class="home-ai-status" role="status">登入後讀取 AI API 使用資料。</p>
+            </section>
+            
+            <div id="todayHighlights" class="visually-hidden" aria-live="polite"></div>
+            
+          </aside>
+        </div>
+      </section>
+      <section class="page" id="page-assistant"><section class="card assistant-hero"><div class="project-listing-heading assistant-listing-heading"><h2 class="center-heading-label">智能助理</h2><p class="helper">專屬的執行助理</p></div><div class="assistant-overview-layout"><div class="assistant-portrait-wrap"><button type="button" class="assistant-avatar-picker assistant-page-avatar-picker" aria-label="從相簿更換智能助理圖片" title="從相簿更換圖片"><img class="assistant-portrait" src="data:image/jpeg;base64,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" alt="SKAI OS 女性 3D 智能助理形象" loading="lazy"><span class="assistant-avatar-edit">更換圖片</span></button></div><div class="assistant-side-kpis"><div class="kpi-grid compact-home-kpis">
+          <button class="kpi" data-jump="projects"><span>進行中專案</span><strong id="statProjects">—</strong><small id="projectLabel" hidden></small></button>
+          <button class="kpi" data-jump="tasks"><span>待辦任務</span><strong id="statTasks">—</strong><small id="taskLabel" hidden></small></button>
+          <button class="kpi" data-jump="tasks"><span>本週完成率</span><strong id="statWeekly">—</strong><small id="weeklyLabel">依已保存任務計算</small></button>
+          
+          <span id="statApprovals" hidden>—</span><span id="approvalLabel" hidden>等待連線</span>
+</div></div></div></section>            
+<section class="card assistant-gpt-chat"><section class="card">
+              <div class="assistant-mode-bar"><label for="assistantMode">助理模式</label><select id="assistantMode" aria-label="助理運作模式"><option value="auto">自動判斷｜優先免費</option><option value="free">僅免費指令｜0 Tokens</option><option value="ai">GPT 智能模式｜先確認費用</option></select></div><span id="chatRoleName" hidden>AI 幕僚長</span><div id="chatHistory" class="chat-history" aria-live="polite"></div>
+              <form id="chatPreviewForm" class="chat-form"><textarea id="chatText" rows="2" maxlength="4000" placeholder="輸入指令，優先使用零 Token 功能…" aria-label="輸入對話訊息"></textarea><button type="button" id="assistantVoiceBtn" class="assistant-voice-btn" aria-label="語音辨識輸入" title="語音辨識輸入"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"/></svg></button><button class="skai-chat-submit-new" type="submit" aria-label="傳送訊息" title="傳送訊息"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>
+            </section></section>
+</section>
+      <section class="page" id="page-data"><section class="card data-hub"><div class="section-top"><div><h2>資料中心</h2><p class="helper">集中管理文件、設計、報表與知識庫</p></div><span class="quiet-pill">SKAI 知識索引</span></div><section class="drive-connect-panel" aria-label="Google Drive 授權設定">
+ <div class="section-top"><div><h3>Google Drive｜安全授權</h3><p id="driveOAuthStatus" class="helper">登入 CEO 後查詢授權狀態。</p></div><span id="driveOAuthBadge" class="quiet-pill">檢查中</span></div>
+ <div class="actions"><button id="driveOAuthConnect" type="button" class="primary-btn" disabled>連接 Google Drive</button><button id="driveOAuthDisconnect" type="button" class="outline-btn" hidden>中斷連線</button></div>
+ <p class="helper">連接時會跳轉 Google 官方登入畫面。Google 授權不等於已能使用全部舊資料夾，還需要確認既有資料夾授權。</p>
+ </section><div class="data-toolbar"><input id="dataQuickSearch" type="search" placeholder="⌕ 搜尋資料…" aria-label="搜尋資料"><button class="primary-btn" type="button" disabled title="尚未完成雲端檔案上傳">＋ 上傳檔案（尚未開通）</button></div><div class="knowledge-tiles" aria-label="資料中心六大分類">
+<button class="knowledge-tile" data-jump="projects"><span class="knowledge-icon" aria-hidden="true"></span><b>企業提案</b><small>前往專案</small></button>
+<button class="knowledge-tile" data-jump="data"><span class="knowledge-icon" aria-hidden="true"></span><b>設計素材</b><small>待串接檔案</small></button>
+<button class="knowledge-tile" data-jump="data"><span class="knowledge-icon" aria-hidden="true"></span><b>合約文件</b><small>待串接檔案</small></button>
+<button class="knowledge-tile" data-jump="department-finance"><span class="knowledge-icon" aria-hidden="true"></span><b>財務報表</b><small>查看 AI 成本</small></button>
+<button class="knowledge-tile" data-jump="data"><span class="knowledge-icon" aria-hidden="true"></span><b>SOP／流程</b><small>待串接檔案</small></button>
+<button class="knowledge-tile" data-jump="data"><span class="knowledge-icon" aria-hidden="true"></span><b>知識庫</b><small>搜尋資料</small></button>
+</div><p class="helper">目前搜尋已保存的專案與任務。尚未連接文件上傳與雲端儲存，分類卡片不代表已有檔案。</p><label class="data-search-label" for="dataSearch">搜尋專案或任務</label><input id="dataSearch" class="data-search" type="search" placeholder="輸入名稱、目標或任務內容"><div class="data-list" id="dataResults"><p class="helper">登入後可搜尋已保存紀錄。</p></div></section></section>
+      <section class="page" id="page-employees"><div class="card department-hub"><div class="section-top"><div><h2>部門中心</h2><p class="helper">集中管理所有虛擬部門及主管。</p></div><span class="quiet-pill">AI 部門</span></div><div class="employee-grid" id="employeeGrid"></div></div><div class="legacy-office-support" aria-hidden="true"><div id="officeScene"><div id="officePeople"></div></div><div id="mobileOfficeGrid"></div></div></section>
+      <section class="page" id="page-projects"><div class="card listing-card"><div class="listing-header"><div class="project-listing-heading"><h2 class="center-heading-label">專案中心</h2><p class="helper">管理所有專案、進度與里程碑</p></div><div class="listing-actions"><input id="projectSearch" class="listing-search" type="search" placeholder="⌕ 搜尋專案…" aria-label="搜尋專案"><button class="primary-btn" id="jumpProjectCreate" type="button">＋ 新增專案</button></div></div><div class="filter-tabs" id="projectFilters"><button class="filter-tab active" data-project-filter="all">全部</button><button class="filter-tab" data-project-filter="planning">規劃中</button><button class="filter-tab" data-project-filter="closed">已完成</button><button class="filter-tab" data-project-filter="archived">已封存</button></div><div id="projectCards" class="visual-project-list"><p class="helper">登入後讀取專案。</p></div><section id="projectQuickDetail" class="project-quick-detail" hidden><div class="section-top"><h3 id="quickProjectName">專案詳情</h3><div class="project-detail-actions"><button id="editQuickProject" type="button" class="outline-btn">編輯</button><button id="closeQuickDetail" type="button" class="outline-btn">收起</button></div></div><div id="quickProjectTaskStats" class="project-task-stats" aria-label="專案任務統計"></div><div class="project-deadline-line"><p id="quickProjectGoal" class="helper"></p><span id="quickProjectRemaining" class="project-deadline-remaining" hidden></span></div><div id="quickProjectDriveFolders" class="project-drive-folder-links" aria-label="專案對應部門資料夾"></div><div id="quickProjectNotesPanel" class="project-notes-panel" hidden><button id="toggleProjectNotes" type="button" class="outline-btn" aria-expanded="false">查看完整方案</button><pre id="quickProjectNotes" class="project-notes-text" hidden></pre></div><div class="project-task-sections"><section class="project-task-section project-task-final"><h3>已定案</h3><div class="project-task-entries" id="quickProjectFinalTasks"></div></section><section class="project-task-section project-task-active"><h3>進行中任務</h3><div class="project-task-entries" id="quickProjectActiveTasks"></div></section></div></section><dialog id="projectEditDialog" class="task-create-dialog" aria-labelledby="projectEditHeading"><div class="task-create-header"><h2 id="projectEditHeading">編輯專案</h2><button type="button" id="closeProjectEdit" class="text-btn project-edit-close" aria-label="關閉編輯專案視窗" data-no-icon>×</button></div><form id="projectEditForm" class="stack-form" style="padding:18px"><input type="hidden" name="id"><div class="project-avatar-editor" data-avatar-editor="edit"><span class="project-avatar-label">專案頭像</span><div class="project-avatar-controls"><button type="button" class="project-avatar-picker" aria-label="選擇專案頭像">＋</button><div class="project-avatar-options"><button type="button" data-avatar-action="upload">新增圖片</button><button type="button" data-avatar-action="design">部門設計</button></div></div><input type="file" accept="image/*" data-avatar-file="upload" hidden><p class="helper project-avatar-hint">點擊加號選擇圖片來源</p></div><label>專案名稱<input name="name" maxlength="120" required></label><label>專案期限<input type="date" name="deadline"></label><label>專案目標<textarea name="goal" maxlength="8000"></textarea></label><button type="submit" class="primary-btn">儲存變更</button></form></dialog><div id="projectCreatePanel" class="creation-panel" hidden><div class="section-heading"><h2>建立專案</h2><button type="button" id="closeProjectCreate" class="text-btn">收合</button></div>
+<form id="projectForm" class="stack-form"><div class="project-avatar-editor" data-avatar-editor="create"><span class="project-avatar-label">專案頭像</span><div class="project-avatar-controls"><button type="button" class="project-avatar-picker" aria-label="選擇專案頭像">＋</button><div class="project-avatar-options"><button type="button" data-avatar-action="upload">新增圖片</button><button type="button" data-avatar-action="design">部門設計</button></div></div><input type="file" accept="image/*" data-avatar-file="upload" hidden><p class="helper project-avatar-hint">點擊加號選擇圖片來源</p></div><label>專案名稱<input name="name" maxlength="120" required placeholder="例如：埔里潮流盆栽咖啡"></label><label>專案期限<input type="date" name="deadline" aria-label="專案期限"></label><label>確認後的目標<textarea name="goal" maxlength="8000" placeholder="填入與幕僚長討論後確認的目標"></textarea></label><button class="primary-btn" type="submit">CEO 建立專案</button></form>
+<div class="actions" id="localBackupTools"><button type="button" class="outline-btn" id="exportWorkspace">匯出本機資料</button><label class="outline-btn" for="importWorkspace">匯入本機備份</label><input type="file" id="importWorkspace" accept=".json,application/json" hidden></div><div class="section-heading"><h2>已建立專案</h2><button class="text-btn" data-refresh="projects">重新整理</button></div><div id="projectList" class="data-list"><p class="helper">等待連線…</p></div></div></div></section>
+      <section class="page" id="page-tasks">
+ <div class="card listing-card"><div class="listing-header"><div class="task-listing-heading"><h2 class="center-heading-label">任務中心</h2><p class="helper">管理與追蹤所有任務執行進度</p></div><div class="listing-actions"><div class="task-filter-row"><label class="task-project-filter-label">選擇專案<select id="taskProjectFilter" class="listing-search" aria-label="選擇專案篩選任務"><option value="">全部專案</option></select></label><button class="primary-btn task-filter-action" id="jumpTaskCreate" type="button" data-no-icon>新增任務</button></div><div class="task-filter-row task-category-toolbar"><label class="task-project-filter-label">任務類別<select id="taskCategoryFilter" class="listing-search"><option value="">全部類別</option></select></label><button type="button" class="primary-btn task-filter-action" id="manageTaskCategories">新增類別</button></div><input id="taskSearch" class="listing-search" type="search" placeholder="⌕ 搜尋任務…" aria-label="搜尋任務"></div></div><div class="filter-tabs" id="taskFilters"><button class="filter-tab active" data-task-filter="all">全部</button><button class="filter-tab" data-task-filter="today">待處理</button><button class="filter-tab" data-task-filter="in_progress">執行中</button><button class="filter-tab" data-task-filter="done">已完成</button><button class="filter-tab" data-task-filter="archived">已封存</button></div><div class="task-toolbar"><label class="select-all-tasks"><input type="checkbox" id="selectAllTasks"> 全選目前顯示任務</label><span id="selectedTaskCount" class="task-selected-count">已選 0 項</span><button id="bulkDeleteTasks" class="danger-outline" type="button" disabled>刪除已選任務</button></div><div id="taskCards" class="visual-task-list"><p class="helper">登入後讀取任務。</p></div></div></div>
+<dialog id="projectProgressDialog" class="task-create-dialog" aria-labelledby="projectProgressHeading"><div class="task-create-header"><h2 id="projectProgressHeading">專案進度</h2><button type="button" id="closeProjectProgress" class="icon-close" aria-label="關閉">×</button></div><div class="task-create-scroll"><div id="projectProgressContent" class="project-progress-summary"></div></div></dialog><dialog id="taskCategoryDialog" class="task-create-dialog" aria-labelledby="taskCategoryHeading"><div class="task-create-header"><h2 id="taskCategoryHeading">任務類別管理</h2><button type="button" id="closeTaskCategories" class="icon-close" aria-label="關閉">×</button></div><div class="task-create-scroll"><p id="taskCategoryProjectName" class="helper"></p><form id="taskCategoryForm" class="stack-form"><label>新增類別名稱<input id="taskCategoryName" maxlength="80" required placeholder="例如：選址、裝潢、產品定案"></label><div class="task-category-form-actions"><button type="submit" class="primary-btn">存檔</button><button type="button" class="outline-btn" id="cancelTaskCategory">取消</button></div></form><div id="taskCategoryList" class="task-category-list"></div></div></dialog><dialog id="taskCreatePanel" class="task-create-dialog" aria-labelledby="taskCreateTitle"><div class="task-create-header"><h2 id="taskCreateTitle">新增任務</h2><button type="button" id="closeTaskCreate" class="icon-close" aria-label="關閉新增任務">×</button></div><div class="task-create-scroll"><form id="taskForm" class="stack-form"><label>所屬專案<select name="project_id" id="taskProject" required><option value="">先選專案</option></select></label><label>選擇類別<select name="category_id" id="taskCreateCategory"><option value="">未分類</option></select></label><label>任務名稱<input name="title" maxlength="160" required></label><label>完成期限<input type="date" name="due_date" required></label><label>目標、要求與限制<textarea name="brief" maxlength="7900" placeholder="請說明成果要求、預算或優先事項"></textarea></label><button type="submit" class="primary-btn">新增任務</button></form></div></dialog>
+<div hidden aria-hidden="true"><div class="section-heading"><h2>任務清單</h2></div><div class="data-list" id="taskList"></div></div>
+ <div class="card chief-plan-collapsible" id="chiefPlanPanel" hidden aria-hidden="true"><button type="button" class="text-btn" id="toggleChiefPlans">工作分配／AI 幕僚長提案 <span id="chiefPlanToggleIcon">展開</span></button><div id="chiefPlanContent" hidden>
+  <div class="section-top"><h2>幕僚戰略部｜任務分配提案</h2><button class="text-btn" data-refresh="chief-plans">重新整理</button></div>
+  <p class="helper">任務建立後自動請幕僚長規劃。若因 AI 預算或連線問題未成功，可選擇任務重試；每次生成或修訂會產生真實 AI API 用量。</p>
+  <form id="orchestrationForm" class="stack-form"><label>尚未建立提案的 CEO 任務<select id="orchestrationTask" name="task_id" required><option value="">選擇任務</option></select></label><button type="submit" class="outline-btn">重新請幕僚長規劃</button></form>
+  <div class="section-heading"><h2>工作分配、時間與成本</h2></div><div id="orchestrationList" class="data-list"><p class="helper">等待後端連線…</p></div></div>
+ </div>
+</section>
+<section class="page" id="page-approvals"><div class="card"><div class="section-top"><h2>CEO 待審批</h2><button class="text-btn" data-refresh="approvals">重新整理</button></div><p class="helper">此頁保留既有待審批紀錄。新任務由 CEO 直接交辦幕僚長，分工方案可在「任務」頁審核或修訂。</p><div class="data-list" id="approvalList"><p class="helper">等待連線…</p></div></div></section>
+      <dialog id="notificationDialog" class="notification-dialog" aria-labelledby="notificationDialogHeading"><div class="notification-dialog-header"><h2 id="notificationDialogHeading">通知管理</h2><button type="button" id="closeNotificationDialog" class="notification-dialog-close" aria-label="關閉通知管理">×</button></div><p class="helper">SKAI OS 公司內部通知</p><button type="button" class="text-btn" id="refreshNotificationDialog">重新整理</button><div class="data-list notification-dialog-list" id="notificationList"><p class="helper">等待連線…</p></div></dialog>
+      <section class="page" id="page-department-tech">
+        <div class="card">
+          <div class="section-top"><h2>資訊技術部｜AI API 與 Token 使用管理</h2><span class="quiet-pill">資訊技術部 · 技術監控</span></div>
+          <p class="helper">由資訊技術部統計 AI API 呼叫次數、成功與失敗次數、輸入及輸出 Token，並監控警示門檻。資料為 SKAI 雲端後端已紀錄的使用量。</p>
+          <div class="department-stats">
+            <div class="department-stat"><span>今日 API 呼叫</span><strong id="techCallCount">—</strong></div>
+            <div class="department-stat"><span>輸入 Tokens</span><strong id="techInputTokens">—</strong></div>
+            <div class="department-stat"><span>輸出 Tokens</span><strong id="techOutputTokens">—</strong></div>
+            <div class="department-stat"><span>今日總 Tokens</span><strong id="techTotalTokens">—</strong></div>
+          </div>
+          <p class="helper" id="techUsageDetails">登入後讀取資訊技術部 AI API 使用狀態。</p>
+          <form id="aiControlForm" class="stack-form">
+            <h3>資訊技術部｜API 與 Token 控管設定</h3>
+            <label class="ai-switch"><input type="checkbox" id="aiControlEnabled" name="ai_enabled" checked> CEO 授權啟用 AI 呼叫</label>
+            <label>每日 AI API 呼叫上限<input type="number" id="aiControlLimit" name="daily_call_limit" min="1" max="50" step="1" value="50" required></label>
+            <p class="helper" id="aiControlCeiling">部署環境呼叫安全上限由系統決定。</p>
+            <label>每日 Token 警示門檻<input type="number" id="aiTokenWarning" name="daily_token_warning" min="1000" max="10000000" step="1000" value="100000" required></label>
+            <p class="helper">Token 警示僅產生 SKAI 內部通知，並非 Token 硬性停止額度。設定變更需 CEO 登入。</p>
+            <button class="primary-btn" type="submit">CEO 儲存資訊技術部 AI 設定</button>
+          </form>
+          <p id="aiControlFeedback" class="helper" role="status"></p>
+        </div>
+      </section>
+      <section class="page" id="page-department-finance">
+        <div class="card">
+          <div class="section-top"><h2>財務部｜AI 美元成本控管</h2><span class="quiet-pill">財務部 · 成本預算</span></div>
+          <p class="helper">由財務部統計 AI API 美元成本估算、每日與每月預算占用。實際預算上限仍由 CEO 核准調整。</p>
+          <div class="department-stats">
+            <div class="department-stat"><span>今日美元成本估算</span><strong id="financeDailyUsd">—</strong></div>
+            <div class="department-stat"><span>本月美元成本估算</span><strong id="financeMonthlyUsd">—</strong></div>
+          </div>
+          <p id="financeBudgetUsage" class="helper">登入後讀取財務部 AI 美元使用紀錄。</p>
+          <p id="financePending" class="helper">待核實金額會保留預算占用。</p>
+          <form id="aiFinanceForm" class="stack-form">
+            <h3>財務部｜美元預算控管設定</h3>
+            <label>每日美元預算上限（USD）<input type="number" id="aiDailyUsd" name="daily_budget_usd" min="0.01" max="1000" step="0.01" value="1.00" required></label>
+            <label>每月美元預算上限（USD）<input type="number" id="aiMonthlyUsd" name="monthly_budget_usd" min="0.01" max="10000" step="0.01" value="10.00" required></label>
+            <p id="aiCostDetails" class="helper">費用按已設定模型價格及 Token 用量估算，並非 OpenAI 官方帳單；預算採呼叫前檢查。</p>
+            <button class="primary-btn" type="submit">CEO 儲存財務部美元預算</button>
+          </form>
+          <p id="aiFinanceFeedback" class="helper" role="status"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<nav class="mobile-nav" aria-label="手機底部導覽">
+  <button class="mobileitem active" data-page="home"><span>⌂</span>總部</button>
+  <button class="mobileitem" data-page="assistant"><span>✦</span>助理</button>
+  <button class="mobileitem" data-page="employees"><span>♙</span>部門</button>
+  <button class="mobileitem" data-page="projects"><span>▦</span>專案</button>
+  <button class="mobileitem" data-page="tasks"><span>☷</span>任務</button>
+  <button class="mobileitem" data-page="data"><span>▤</span>資料</button>
+  <button class="mobileitem" id="mobileMore" type="button" hidden aria-expanded="false" aria-controls="mobileMoreMenu"><span>☰</span>更多</button>
+</nav>
+<div class="mobile-more-menu" id="mobileMoreMenu" hidden>
+  
+  <button class="mobile-more-link" data-page="approvals"><span>✓</span> CEO 待審批</button>
+  
+  <button class="mobile-more-link" data-page="department-tech"><span>⌘</span> 資訊技術部 · Tokens</button>
+  <button class="mobile-more-link" data-page="department-finance"><span>◆</span> 財務部 · USD</button>
+</div>
+<dialog id="taskHistoryDialog" class="task-create-dialog" aria-labelledby="taskHistoryHeading"><div class="task-create-header"><h2 id="taskHistoryHeading">執行記錄</h2><button id="closeTaskHistory" class="icon-close" type="button" aria-label="關閉執行記錄">×</button></div><div class="task-create-scroll" id="taskHistoryBody"></div></dialog>
+<dialog id="taskEditDialog" class="task-create-dialog" aria-labelledby="taskEditHeading"><div class="task-create-header"><h2 id="taskEditHeading">編輯任務</h2><button id="closeTaskEdit" class="icon-close" type="button" aria-label="關閉編輯">×</button></div><div class="task-create-scroll"><form id="taskEditForm" class="stack-form"><input type="hidden" name="id" id="taskEditId"><label>選擇類別<select name="category_id" id="taskEditCategory"><option value="">未分類</option></select></label><label>任務名稱<input name="title" id="taskEditTitle" maxlength="160" required></label><label>完成期限<input type="date" name="due_date" id="taskEditDeadline"></label><label>工作內容<textarea name="brief" id="taskEditBrief" maxlength="7900"></textarea></label><button type="submit" class="primary-btn">儲存編輯</button></form></div></dialog>
+<dialog id="taskArchiveConfirmDialog" class="task-create-dialog task-final-confirm-dialog" aria-labelledby="taskArchiveConfirmHeading"><div class="task-create-header"><h2 id="taskArchiveConfirmHeading">工作任務確認</h2></div><div class="task-final-confirm-content"><p id="taskArchiveConfirmMessage"></p><div class="task-final-confirm-actions"><button type="button" class="task-confirm-neutral-btn" id="taskArchiveConfirmNo">取消</button><button type="button" class="primary-btn" id="taskArchiveConfirmYes">確認</button></div></div></dialog>
+<dialog id="taskReopenDialog" class="task-create-dialog task-final-confirm-dialog" aria-labelledby="taskReopenHeading"><input type="hidden" id="taskReopenId"><div class="task-create-header"><h2 id="taskReopenHeading">方案重議</h2></div><div class="task-final-confirm-content"><p>是否重新決策？</p><div class="task-final-confirm-actions"><button type="button" class="outline-btn" id="taskReopenCancel">取消</button><button type="button" class="primary-btn" id="taskReopenConfirm">確定</button></div></div></dialog>
+<dialog id="taskFinalConfirmDialog" class="task-create-dialog task-final-confirm-dialog" aria-labelledby="taskFinalConfirmHeading" aria-describedby="taskFinalConfirmDescription"><div class="task-create-header"><h2 id="taskFinalConfirmHeading">確認最終決策</h2></div><div class="task-final-confirm-content"><p id="taskFinalConfirmDescription">確定要將此決策正式定案嗎？確認後，任務將歸類為「已完成」。</p><div class="task-final-confirm-actions"><button type="button" class="outline-btn" data-final-cancel>取消</button><button type="button" class="primary-btn" data-final-confirm>確認決定</button></div></div></dialog>
+<dialog id="taskDecisionDialog" class="task-create-dialog" aria-labelledby="taskDecisionHeading"><div class="task-create-header"><h2 id="taskDecisionHeading">決策</h2><button id="closeTaskDecision" class="icon-close" type="button" aria-label="關閉決策">×</button></div><div class="task-create-scroll"><form id="taskDecisionForm" class="stack-form"><input type="hidden" id="taskDecisionId"><label>決策內容<textarea id="taskDecisionContent" maxlength="6000" rows="7" required placeholder="輸入此任務的決定動作"></textarea></label><div class="task-decision-buttons"><button type="button" class="outline-btn" data-decision-action="save">儲存</button><button type="button" class="primary-btn" data-decision-action="decide">決定</button></div></form></div></dialog>
+<dialog id="employeeDialog" class="employee-dialog" aria-labelledby="employeeTitle">
+  <div class="dialog-top"><span class="overline">SKAI / EMPLOYEE</span><button id="closeEmployee" class="icon-close" aria-label="關閉員工資訊">×</button></div>
+  <div class="dialog-identity"><span id="employeeFace" class="large-face"></span><div><h2 id="employeeTitle"></h2><p id="employeeCode"></p></div></div>
+  <p id="employeeDescription" class="dialog-description"></p>
+  <div class="dialog-status"><span>目前任務</span><b>未連線</b></div>
+  <div class="dialog-status"><span>EPS 績效</span><b>—</b></div>
+  <button class="primary-btn dialog-action" id="employeeChat">與這位主管對話</button>
+  <p class="helper">登入後可與專屬 AI 主管進行對話；不會自動執行外部操作。</p>
+</dialog>
+<dialog id="loginDialog" class="employee-dialog login-dialog" aria-labelledby="loginTitle"><div class="dialog-top"><span class="overline">SECURE ACCESS</span><button id="closeLoginDialog" class="icon-close" type="button" aria-label="關閉登入視窗">×</button></div><h2 id="loginTitle">CEO 安全登入</h2><p class="helper">使用部署環境設定的 CEO 密碼登入。密碼不會儲存在瀏覽器或公開程式碼中。</p><form id="loginForm" class="stack-form"><label>CEO 密碼<input id="ceoPassword" name="password" type="password" autocomplete="current-password" minlength="16" required></label><button class="primary-btn" type="submit">登入指揮中心</button></form><button id="faceIdLogin" type="button" class="outline-btn" hidden>使用 Face ID 登入</button><button id="faceIdRegister" type="button" class="outline-btn" hidden>設定 Face ID 登入</button><button id="ceoLogout" type="button" class="outline-btn" hidden>登出 CEO</button><p id="passkeyHint" class="helper">首次使用請先以密碼登入，再設定 Face ID。原密碼登入將持續保留。</p><p id="loginError" class="helper" role="alert"></p><p class="helper">請使用 SKAI 雲端環境的 CEO 密碼登入；尚未登入時僅能預覽畫面。</p></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="workspace-toggle" id="workspaceToggle" hidden><button class="text-btn mode-toggle" id="useLocal" type="button">本機模式</button><button class="text-btn mode-toggle" id="useCloud" type="button">雲端模式</button></div>
+<input id="assistantAvatarFile" type="file" accept="image/*" aria-label="選擇智能助理圖片" hidden>
+</body>
+</html>
