@@ -2066,3 +2066,15 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
  #page-assistant .assistant-gpt-chat #chatText{height:42px!important;min-height:42px!important}
  #page-assistant .assistant-gpt-chat .assistant-send-btn,#page-assistant .assistant-gpt-chat .assistant-voice-btn{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;flex-basis:40px!important}
 }
+
+/* Assistant composer refinements: match system iconography and use free space above bottom tabs. */
+#page-assistant .assistant-gpt-chat .assistant-send-btn{background:#1976df!important;background-image:none!important;color:#fff!important;border:1px solid #1976df!important;box-shadow:0 3px 10px rgba(24,101,204,.18)!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn::before,
+#page-assistant .assistant-gpt-chat .assistant-send-btn::after{content:none!important;display:none!important}
+#page-assistant .assistant-gpt-chat .assistant-send-btn svg{display:block!important;width:21px!important;height:21px!important;stroke:#fff!important;fill:none!important}
+@media(max-width:600px){
+ #page-assistant{height:calc(100dvh - 112px)!important;max-height:calc(100dvh - 112px)!important}
+ #page-assistant .assistant-gpt-chat{margin-bottom:3px!important}
+ #page-assistant .assistant-gpt-chat .chat-form{margin-bottom:0!important}
+}
+@media(min-width:601px){#page-assistant{height:calc(100dvh - 140px)!important}}
