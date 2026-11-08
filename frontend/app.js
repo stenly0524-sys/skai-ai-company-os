@@ -1201,7 +1201,7 @@ async function chooseChat(role){
  const history=$('chatHistory');history.replaceChildren();
  const requestId=++chatHistoryRequest;
  if(workspaceMode()==='local'){
-  history.append(el('p','helper','本機工作區不提供 AI 對話，請切換到已部署的後端。'));
+  history.append(el('p','helper','AI 對話功能已停用；目前採本機專案與任務管理。'));
   return;
  }
  if(!isSignedIn){
@@ -1396,6 +1396,6 @@ updateTaipeiClock();setInterval(updateTaipeiClock,60000);
 
 const initialHash=location.hash.slice(1);
 const initialPage=initialHash==='orchestrations'?'tasks':initialHash==='ai-controls'?'department-finance':initialHash;
-if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','assistant','data'].includes(initialPage))showPage(initialPage);
+if(['home','employees','projects','tasks','approvals','notifications','department-tech','department-finance','data'].includes(initialPage))showPage(initialPage);
 else document.body.dataset.currentPage='home';
 startSession();
