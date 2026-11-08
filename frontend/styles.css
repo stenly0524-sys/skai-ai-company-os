@@ -1949,3 +1949,15 @@ dialog .icon-close,dialog #closeLoginDialog,dialog button[id^="cancel"][class~="
   box-shadow:0 3px 10px rgba(47,96,157,.09)!important;flex-shrink:0!important;
 }
 dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!important}
+
+/* CEO overview: portrait left, three vertical KPI cards right */
+#page-home .home-ceo-overview{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;align-items:stretch;margin-bottom:16px}
+#page-home .home-ceo-avatar{min-width:0;min-height:230px;border-radius:18px;background:linear-gradient(145deg,#dceaff,#a8c8ef);border:1px solid #d6e4f5;box-shadow:0 5px 18px rgba(40,92,155,.09)}
+#page-home .home-ceo-avatar img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+#page-home .home-ceo-overview .compact-home-kpis{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;margin:0!important;min-width:0}
+#page-home .home-ceo-overview .compact-home-kpis .kpi{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;padding:10px 14px!important}
+#page-home .home-ceo-overview .compact-home-kpis .kpi strong{font-size:clamp(20px,5vw,30px)!important}
+#page-home .home-ai-metrics{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#page-home .home-ai-cost{cursor:pointer;font:inherit}
+#page-home .home-ai-cost small{display:none}
+@media(max-width:720px){#page-home .home-ceo-overview{grid-template-columns:minmax(0,40%) minmax(0,1fr);gap:9px}#page-home .home-ceo-avatar{min-height:225px}#page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-home .home-ai-cost{grid-column:span 2}}
