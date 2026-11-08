@@ -3,9 +3,9 @@
 import { localCompany } from './storage.js';
 const MODE_KEY='skai_v05_workspace_mode';
 let csrfToken=null;
-export function workspaceMode(){return sessionStorage.getItem(MODE_KEY)==='local'?'local':'cloud';}
+export function workspaceMode(){return 'local';}
 export function useLocalWorkspace(){sessionStorage.setItem(MODE_KEY,'local');csrfToken=null;}
-export function useCloudWorkspace(){sessionStorage.removeItem(MODE_KEY);}
+export function useCloudWorkspace(){sessionStorage.setItem(MODE_KEY,'local');}
 export function setCsrfToken(token){csrfToken=token||null;}
 export function hasCsrfToken(){return Boolean(csrfToken);}
 function localRequest(path,method,body){
