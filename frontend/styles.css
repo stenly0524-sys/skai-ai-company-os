@@ -2221,3 +2221,10 @@ html body #taskCreatePanel .icon-close {
  padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
  font:500 25px/1 Arial,sans-serif!important;box-sizing:border-box!important;
 }
+
+/* Align Task Center page start and heading with Project Center on mobile. */
+body[data-current-page="tasks"] .main-column{padding-top:25px!important;}
+body[data-current-page="tasks"] #page-tasks{margin-top:0!important;padding-top:0!important;transform:none!important;position:relative;top:auto!important;align-self:start;}
+body[data-current-page="tasks"] #page-tasks>.listing-card{margin-top:0!important;}
+body[data-current-page="tasks"] #page-tasks .listing-header{align-items:stretch!important;gap:10px;margin-bottom:7px;}
+body[data-current-page="tasks"] #page-tasks .task-listing-heading{align-self:flex-start!important;width:100%;box-sizing:border-box;justify-content:flex-start!important;}
