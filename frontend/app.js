@@ -1217,6 +1217,29 @@ $('employeeChat').addEventListener('click',()=>{
  if(workspaceMode()==='local')showToast('目前是本機模式，AI 對話需連接雲端後端。');
  else if(!isSignedIn)showToast('請先登入，才能與 '+currentEmployee.name+' 對話');
 });
+// Speech-to-text is performed by the browser; it does not call the SKAI AI API.
+{
+ const voiceButton=$('assistantVoiceBtn');
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ let recognizer=null;
+ if(!Recognition){
+  voiceButton.title='此瀏覽器不支援語音辨識';
+  voiceButton.addEventListener('click',()=>showToast('此瀏覽器不支援語音辨識，請使用 iPhone Safari 或鍵盤語音輸入。'));
+ }else{
+  voiceButton.addEventListener('click',()=>{
+   if(recognizer){recognizer.stop();return;}
+   const instance=new Recognition();
+   recognizer=instance;instance.lang='zh-TW';instance.interimResults=false;instance.continuous=false;
+   instance.onresult=e=>{
+    const spoken=Array.from(e.results).map(r=>r[0]?.transcript||'').join('').trim();
+    if(spoken){const field=$('chatText');field.value=(field.value.trim()?field.value.trim()+' ':'')+spoken;field.focus();}
+   };
+   instance.onerror=e=>showToast('語音辨識未完成：'+(e.error||'請重試'));
+   instance.onend=()=>{if(recognizer===instance)recognizer=null;voiceButton.classList.remove('is-listening');voiceButton.setAttribute('aria-label','語音辨識輸入');};
+   try{instance.start();voiceButton.classList.add('is-listening');voiceButton.setAttribute('aria-label','停止語音辨識');}catch(e){recognizer=null;showToast('無法啟動語音辨識：'+e.message);}
+  });
+ }
+}
 $('chatPreviewForm').addEventListener('submit',async event=>{
  event.preventDefault();if(!isSignedIn)return openLogin();
  const input=$('chatText'),content=input.value.trim();if(!content)return;
