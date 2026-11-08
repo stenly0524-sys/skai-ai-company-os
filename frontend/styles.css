@@ -2014,3 +2014,27 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
  #page-assistant .assistant-gpt-chat #chatText{min-height:48px}
 }
 @media(max-width:380px){#page-assistant .assistant-overview-layout{grid-template-columns:110px minmax(0,1fr)}#page-assistant .assistant-page-avatar-picker{max-width:110px}}
+
+
+/* CEO secure-access actions: consistent widths, alignment and spacing. */
+.login-dialog #loginForm{display:flex;flex-direction:column;gap:12px}
+.login-dialog #loginForm[hidden]{display:none!important}
+.login-dialog #loginForm .primary-btn,
+.login-dialog #faceIdLogin,
+.login-dialog #faceIdRegister,
+.login-dialog #ceoLogout{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;margin:0!important;padding:10px 14px;text-align:center;border-radius:14px}
+.login-dialog #faceIdLogin[hidden],
+.login-dialog #faceIdRegister[hidden],
+.login-dialog #ceoLogout[hidden]{display:none!important}
+.login-dialog #faceIdLogin,
+.login-dialog #faceIdRegister,
+.login-dialog #ceoLogout{margin-top:10px!important}
+.login-dialog #loginForm + #faceIdLogin:not([hidden]),
+.login-dialog #loginForm + #faceIdLogin[hidden] + #faceIdRegister:not([hidden]){margin-top:12px!important}
+.login-dialog #passkeyHint{margin-top:12px}
+@media(max-width:600px){
+ .login-dialog #loginForm .primary-btn,
+ .login-dialog #faceIdLogin,
+ .login-dialog #faceIdRegister,
+ .login-dialog #ceoLogout{width:100%;min-height:50px;font-size:15px}
+}
