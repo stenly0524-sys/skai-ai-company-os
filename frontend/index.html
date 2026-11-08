@@ -33,13 +33,13 @@
     </header>
     <main>
       <section class="page active" id="page-home">
-        <div class="kpi-grid compact-home-kpis">
+        <div class="home-ceo-overview"><button type="button" class="home-ceo-avatar assistant-avatar-picker" aria-label="更換助理圖片"><img id="homeAssistantPortrait" alt="智能助理圖像"></button><div class="kpi-grid compact-home-kpis">
           <button class="kpi" data-jump="projects"><span>進行中專案</span><strong id="statProjects">—</strong><small id="projectLabel" hidden></small></button>
           <button class="kpi" data-jump="tasks"><span>待辦任務</span><strong id="statTasks">—</strong><small id="taskLabel" hidden></small></button>
           <button class="kpi" data-jump="tasks"><span>本週完成率</span><strong id="statWeekly">—</strong><small id="weeklyLabel">依已保存任務計算</small></button>
-          <button class="kpi" data-jump="department-finance"><span>本月算力成本</span><strong id="statAiCost">—</strong><small id="costLabel" hidden></small></button>
+          
           <span id="statApprovals" hidden>—</span><span id="approvalLabel" hidden>等待連線</span>
-        </div><section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji" aria-hidden="true"></span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji" aria-hidden="true"></span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji" aria-hidden="true"></span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji" aria-hidden="true"></span>查看報表</button></div></section>
+</div>        </div><section class="card home-action-card"><div class="home-shortcuts"><button class="outline-btn" data-jump="tasks" data-open="task"><span class="shortcut-emoji" aria-hidden="true"></span>新增任務</button><button class="outline-btn" data-jump="projects" data-open="project"><span class="shortcut-emoji" aria-hidden="true"></span>新增專案</button><button class="outline-btn" data-jump="data"><span class="shortcut-emoji" aria-hidden="true"></span>搜尋資料</button><button class="outline-btn" data-jump="department-finance"><span class="shortcut-emoji" aria-hidden="true"></span>查看報表</button></div></section>
         <div class="content-grid">
           <div class="primary-area">
             <section class="card home-todo-card"><div class="section-top"><h2><span class="sparkle">✦</span> 今日重點</h2><button class="text-btn" data-no-icon data-jump="tasks">查看任務</button></div><div class="data-list" id="homeTodoList"><p class="helper">登入後讀取待辦任務。</p></div></section>
@@ -59,7 +59,7 @@
                 <div class="home-ai-metric"><span>API 呼叫</span><strong id="homeAiCalls">—</strong></div>
                 <div class="home-ai-metric"><span>輸入 Tokens</span><strong id="homeAiInputTokens">—</strong></div>
                 <div class="home-ai-metric"><span>輸出 Tokens</span><strong id="homeAiOutputTokens">—</strong></div>
-                <div class="home-ai-metric"><span>總 Tokens</span><strong id="homeAiTotalTokens">—</strong></div>
+                <div class="home-ai-metric"><span>總 Tokens</span><strong id="homeAiTotalTokens">—</strong></div><button type="button" class="home-ai-metric home-ai-cost" data-jump="department-finance"><span>本月算力成本</span><strong id="statAiCost">—</strong><small id="costLabel" hidden></small></button>
               </div>
               <p id="homeAiStatus" class="home-ai-status" role="status">登入後讀取 AI API 使用資料。</p>
             </section>
