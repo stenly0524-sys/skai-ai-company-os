@@ -86,14 +86,60 @@ async function startSession(){
   setConnection(false);
  }
 }
+
+const b64urlToBytes=(value)=>Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-value.length%4)%4)),x=>x.charCodeAt(0));
+const bytesToB64url=(value)=>btoa(String.fromCharCode(...new Uint8Array(value))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');
+async function updatePasskeyControls(){
+ const available=Boolean(window.PublicKeyCredential&&navigator.credentials&&window.isSecureContext);
+ $('faceIdLogin').hidden=!available||isSignedIn;
+ $('faceIdRegister').hidden=!available||!isSignedIn;
+ if(!available){$('passkeyHint').textContent='此瀏覽器不支援安全通行密鑰，請使用 iPhone Safari 與原密碼登入。';return;}
+ if(!isSignedIn){
+  try{const status=await api('/session/passkey/status');$('faceIdLogin').hidden=!status.enabled;}
+  catch{$('faceIdLogin').hidden=true;}
+ }
+}
+function credentialForServer(credential){
+ const response=credential.response;
+ const base={id:credential.id,rawId:bytesToB64url(credential.rawId),type:credential.type,clientExtensionResults:credential.getClientExtensionResults()};
+ if(response.attestationObject)return {...base,response:{clientDataJSON:bytesToB64url(response.clientDataJSON),attestationObject:bytesToB64url(response.attestationObject),transports:response.getTransports?.()||[]}};
+ return {...base,response:{clientDataJSON:bytesToB64url(response.clientDataJSON),authenticatorData:bytesToB64url(response.authenticatorData),signature:bytesToB64url(response.signature),userHandle:response.userHandle?bytesToB64url(response.userHandle):undefined}};
+}
+$('faceIdRegister').addEventListener('click',async()=>{
+ const btn=$('faceIdRegister');btn.disabled=true;$('loginError').textContent='';
+ try{
+  const {options,requestId}=await api('/session/passkey/register/options',{method:'POST',body:{}});
+  const publicKey={...options,challenge:b64urlToBytes(options.challenge),user:{...options.user,id:b64urlToBytes(options.user.id)},excludeCredentials:(options.excludeCredentials||[]).map(x=>({...x,id:b64urlToBytes(x.id)}))};
+  const credential=await navigator.credentials.create({publicKey});
+  if(!credential)return;
+  await api('/session/passkey/register',{method:'POST',body:{requestId,response:credentialForServer(credential)}});
+  $('loginDialog').close();showToast('Face ID 通行密鑰設定成功');
+ }catch(e){$('loginError').textContent='Face ID 設定失敗：'+e.message;}
+ finally{btn.disabled=false;updatePasskeyControls();}
+});
+$('faceIdLogin').addEventListener('click',async()=>{
+ const btn=$('faceIdLogin');btn.disabled=true;$('loginError').textContent='';
+ try{
+  const {options,requestId}=await api('/session/passkey/options',{method:'POST',body:{}});
+  const publicKey={...options,challenge:b64urlToBytes(options.challenge),allowCredentials:(options.allowCredentials||[]).map(x=>({...x,id:b64urlToBytes(x.id)}))};
+  const credential=await navigator.credentials.get({publicKey});
+  if(!credential)return;
+  const data=await api('/session/passkey/login',{method:'POST',body:{requestId,response:credentialForServer(credential)}});
+  setCsrfToken(data.csrf_token);setConnection(true);$('loginDialog').close();
+  showToast('Face ID 登入成功');await refreshAll();await chooseChat(currentEmployee);
+ }catch(e){$('loginError').textContent='Face ID 登入失敗：'+e.message;}
+ finally{btn.disabled=false;updatePasskeyControls();}
+});
+
 function openLogin(){
  if($('loginDialog').open)return;
  $('loginError').textContent='';
  $('loginDialog').showModal();
+ updatePasskeyControls();
 }
 $('ceoInfo').addEventListener('click',()=>{
  if(workspaceMode()==='local')showToast('目前使用本機工作區，資料只在這台裝置保存。');
- else if(isSignedIn)showToast('已登入 CEO 測試帳號；請在正式版本再啟用帳號管理。');
+ else if(isSignedIn)openLogin();
  else openLogin();
 });
 $('loginForm').addEventListener('submit',async event=>{
@@ -104,7 +150,7 @@ $('loginForm').addEventListener('submit',async event=>{
   const data=await api('/session/login',{method:'POST',body:{password}});
   setCsrfToken(data.csrf_token);setConnection(true);
   $('ceoPassword').value='';$('loginDialog').close();
-  showToast('CEO 已登入測試環境');
+  showToast('CEO 已登入測試環境，可點擊右上角帳號設定 Face ID');
   await refreshAll();
   await chooseChat(currentEmployee);
  }catch(e){$('loginError').textContent='登入失敗：'+e.message;}
