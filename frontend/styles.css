@@ -2159,3 +2159,12 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 #page-projects #projectEditForm > label { min-width:0; max-width:100%; box-sizing:border-box; }
 #page-projects #projectForm input[type="date"],
 #page-projects #projectEditForm input[type="date"] { display:block; width:100%; max-width:100%; min-width:0; box-sizing:border-box; -webkit-appearance:none; appearance:none; }
+
+/* Task modal submit: remove duplicate decorative icons; retain label and click action. */
+#taskCreatePanel #taskForm button[type="submit"] .skai-icon,
+#taskCreatePanel #taskForm button[type="submit"] svg,
+#taskCreatePanel #taskForm button[type="submit"] img,
+#taskCreatePanel #taskForm button[type="submit"] i,
+#taskCreatePanel #taskForm button[type="submit"]::before,
+#taskCreatePanel #taskForm button[type="submit"]::after { display:none!important; content:none!important; }
+#taskCreatePanel #taskForm button[type="submit"] { gap:0!important; }
