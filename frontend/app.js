@@ -1225,9 +1225,23 @@ $('chatPreviewForm').addEventListener('submit',async event=>{
  history.append(el('p','chat-bubble user-bubble',content));input.value='';button.disabled=true;
  const waiting=el('p','chat-bubble ai-bubble','AI 思考中…');history.append(waiting);
  try{
-  const data=await api('/chat',{method:'POST',body:{role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined}});
+  const mode=$('assistantMode').value;
+  const payload={role_id:role,message:content,conversation_id:roleConversations.get(role)||undefined,mode};
+  let data;
+  if(mode==='ai'){
+   waiting.textContent='等待 CEO 確認…';
+   if(!window.confirm('此訊息將呼叫 GPT API，消耗 Tokens 並產生實際費用；是否繼續？')){waiting.textContent='已取消付費呼叫（0 Tokens）。';return;}
+   data=await api('/chat',{method:'POST',body:{...payload,confirm_ai:true}});
+  }else{
+   data=await api('/chat',{method:'POST',body:payload});
+   if(data.requires_ai_confirmation){
+    waiting.textContent='等待 CEO 確認…';
+    if(!window.confirm('免費指令無法完成。改由 GPT 處理將消耗 Tokens 並產生費用；是否同意？')){waiting.textContent='已取消付費呼叫（0 Tokens）。';return;}
+    data=await api('/chat',{method:'POST',body:{...payload,mode:'ai',confirm_ai:true}});
+   }
+  }
   if(data.conversation_id)roleConversations.set(role,data.conversation_id);
-  if(requestId===chatHistoryRequest)waiting.textContent=data.reply;
+  if(requestId===chatHistoryRequest)waiting.textContent=(data.mode==='free'?'[免費｜0 Tokens] ':'')+data.reply;
  }catch(e){if(requestId===chatHistoryRequest)waiting.textContent='未完成：'+e.message+'。請確認後端和 API 配置。';}
  finally{button.disabled=false;}
 });
