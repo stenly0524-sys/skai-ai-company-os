@@ -2168,3 +2168,12 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 #taskCreatePanel #taskForm button[type="submit"]::before,
 #taskCreatePanel #taskForm button[type="submit"]::after { display:none!important; content:none!important; }
 #taskCreatePanel #taskForm button[type="submit"] { gap:0!important; }
+
+/* Project creation is a scrollable modal, matching the existing task dialog. */
+#projectCreatePanel.project-create-dialog { width:min(94vw,560px); max-width:560px; max-height:88dvh; padding:0; box-sizing:border-box; overflow:hidden; }
+#projectCreatePanel.project-create-dialog .task-create-scroll { max-height:88dvh; overflow-y:auto; padding:20px; box-sizing:border-box; }
+#projectCreatePanel.project-create-dialog .section-heading { display:flex; align-items:center; justify-content:space-between; margin:0 0 16px; }
+#projectCreatePanel.project-create-dialog #projectForm { width:100%; min-width:0; }
+#projectCreatePanel.project-create-dialog #projectForm input,
+#projectCreatePanel.project-create-dialog #projectForm textarea { max-width:100%; min-width:0; box-sizing:border-box; }
+@media(max-width:480px){#projectCreatePanel.project-create-dialog{width:calc(100vw - 24px);max-height:calc(100dvh - 40px)}#projectCreatePanel.project-create-dialog .task-create-scroll{max-height:calc(100dvh - 40px);padding:16px}}
