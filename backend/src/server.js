@@ -460,6 +460,31 @@ async function buildAssistantWorkspaceContext(projectId){
  const tasks=taskQuery.rows.map(t=>({id:t.id,project_id:t.project_id,title:t.title,brief:String(t.brief||'').slice(0,450),status:t.status,assigned_role:t.assigned_role}));
  return {as_of:new Date().toISOString(),scope:projectId?'selected_project':'recent_projects',projects,tasks,limits:'最多20個專案與100項近期任務；未列出不代表不存在'};
 }
+// Deterministic, read-only commands. Never call an AI provider or mutate records.
+async function freeAssistantReply(message){
+ const q=String(message||'').trim().replace(/[\s，。！？?!]/g,'');
+ const taskWords=/(任務|待辦|工作項目)/;
+ const projectWords=/(專案|項目)/;
+ const countWords=/(多少|幾個|數量|統計|總數|有幾)/;
+ if(/^(幫我)?(列出|顯示|查詢|查看|有哪些)(目前|所有|最近)?(的)?(專案|項目)(清單|列表)?$/.test(q)){
+  const result=await db.query('SELECT name,status FROM projects ORDER BY created_at DESC LIMIT 20');
+  return '目前專案（最多20筆）：\n'+(result.rows.length?result.rows.map((p,i)=>(i+1)+'. '+p.name+'（'+p.status+'）').join('\n'):'尚無專案');
+ }
+ if(projectWords.test(q)&&countWords.test(q)&&!taskWords.test(q)){
+  const result=await db.query("SELECT COUNT(*)::int AS count FROM projects WHERE status!='closed'");
+  return '目前未結案專案：'+result.rows[0].count+' 個。';
+ }
+ if(taskWords.test(q)&&/(未完成|待辦|進行中|逾期|今天|今日|清單|列表|列出|查看|查詢|顯示)/.test(q)){
+  const result=await db.query("SELECT title,status FROM tasks WHERE status NOT IN ('completed','cancelled') ORDER BY created_at DESC LIMIT 20");
+  return '未完成任務（最多20筆；不代表全部）：\n'+(result.rows.length?result.rows.map((t,i)=>(i+1)+'. '+t.title+'（'+t.status+'）').join('\n'):'目前沒有未完成任務');
+ }
+ if(taskWords.test(q)&&countWords.test(q)){
+  const result=await db.query("SELECT COUNT(*)::int AS count FROM tasks WHERE status NOT IN ('completed','cancelled')");
+  return '目前未完成任務：'+result.rows[0].count+' 項。';
+ }
+ if(/^(你好|嗨|哈囉|hello|hi)$/i.test(q))return '您好，我是 SKAI OS 智能助理。免費模式支援查詢專案清單、專案數量、未完成任務清單與數量。';
+ return null;
+}
 app.post('/api/chat',async(req,res)=>{
  const role=txt(req.body?.role_id,32)||'chief_of_staff',prompt=txt(req.body?.message,4000);
  const conversationId=req.body?.conversation_id||null,projectId=req.body?.project_id||null;
