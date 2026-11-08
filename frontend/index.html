@@ -73,8 +73,8 @@
           <span id="statApprovals" hidden>—</span><span id="approvalLabel" hidden>等待連線</span>
 </div></div></div></section>            
 <section class="card assistant-gpt-chat"><section class="card">
-              <span id="chatRoleName" hidden>AI 幕僚長</span><div id="chatHistory" class="chat-history" aria-live="polite"></div>
-              <form id="chatPreviewForm" class="chat-form"><textarea id="chatText" rows="3" maxlength="4000" placeholder="輸入訊息，與 GPT 智能助理對話…" aria-label="輸入對話訊息"></textarea><button class="primary-btn assistant-send-btn" type="submit" aria-label="傳送訊息" title="傳送訊息"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button></form>
+              <div class="assistant-mode-bar"><label for="assistantMode">助理模式</label><select id="assistantMode" aria-label="助理運作模式"><option value="auto">自動判斷｜優先免費</option><option value="free">僅免費指令｜0 Tokens</option><option value="ai">GPT 智能模式｜先確認費用</option></select><small>需要 GPT 時會先詢問，未確認不呼叫 API。</small></div><span id="chatRoleName" hidden>AI 幕僚長</span><div id="chatHistory" class="chat-history" aria-live="polite"></div>
+              <form id="chatPreviewForm" class="chat-form"><textarea id="chatText" rows="3" maxlength="4000" placeholder="輸入指令，優先使用零 Token 功能…" aria-label="輸入對話訊息"></textarea><button class="primary-btn assistant-send-btn" type="submit" aria-label="傳送訊息" title="傳送訊息"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button></form>
             </section></section>
 </section>
       <section class="page" id="page-data"><section class="card data-hub"><div class="section-top"><div><h2>資料中心</h2><p class="helper">集中管理文件、設計、報表與知識庫</p></div><span class="quiet-pill">SKAI 知識索引</span></div><section class="drive-connect-panel" aria-label="Google Drive 授權設定">
