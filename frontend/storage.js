@@ -1,7 +1,7 @@
 // Standalone, device-local company workspace. Never stores passwords, tokens or API secrets.
 import { STORAGE_KEY, STORAGE_VERSION } from './data.js';
 const id=()=>typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
-const empty=()=>({version:STORAGE_VERSION,projects:[],tasks:[],approvals:[],notifications:[],shared:''});
+const empty=()=>({version:STORAGE_VERSION,projects:[],tasks:[],approvals:[],notifications:[],categories:[],shared:''});
 function assertWorkspace(v){
  if(!v||typeof v!=='object'||v.version!==STORAGE_VERSION||
  !Array.isArray(v.projects)||!Array.isArray(v.tasks)||!Array.isArray(v.approvals)||!Array.isArray(v.notifications))throw Error('本機資料格式不相容');
@@ -34,9 +34,8 @@ export const localCompany={
   if(typeof title!=='string'||!title.trim()||title.length>160)throw Error('請輸入有效的任務名稱');
   return change(s=>{
    if(!s.projects.some(p=>p.id===project_id))throw Error('請先選擇專案');
-   const task={id:id(),project_id,title:title.trim(),brief:String(brief).slice(0,8000),status:'proposed',assigned_role:'chief_of_staff',created_at:new Date().toISOString()};
-   const approval={id:id(),task_id:task.id,project_id,title:task.title,status:'pending',created_at:task.created_at};
-   s.tasks.unshift(task);s.approvals.unshift(approval);return {task,approval};
+   const task={id:id(),project_id,category_id:arguments[0]?.category_id||'',title:title.trim(),brief:String(brief).slice(0,8000),status:'approved',assigned_role:'ceo',created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+   s.tasks.unshift(task);return {task};
   });
  },
  decide(approvalId,decision){
@@ -69,14 +68,17 @@ export const localCompany={
   });
  },
  transitionTask(taskId,status){
-  const allowed={approved:['in_progress'],in_progress:['review'],review:['done'],paused:['in_progress']};
+  const allowed={approved:['in_progress','done'],in_progress:['review','done','paused'],review:['done','in_progress'],paused:['in_progress','done'],done:['in_progress']};
   return change(st=>{
    const task=st.tasks.find(t=>t.id===taskId);if(!task)throw Error('找不到任務');
    if(!allowed[task.status]?.includes(status))throw Error('任務狀態不允許此操作');
-   if(['in_progress','review','done'].includes(status))throw Error('本機模式無 AI 執行成果，不能直接標記執行或驗收完成');
    task.status=status;task.updated_at=new Date().toISOString();return task;
   });
  },
+ categories:(projectId)=>readLocal().categories?.filter(c=>c.project_id===projectId)||[],
+ saveCategories(projectId,items){return change(s=>{s.categories=(s.categories||[]).filter(c=>c.project_id!==projectId).concat(items.map((c,i)=>({id:c.id||id(),name:String(c.name||'').slice(0,80),project_id:projectId,sort_order:i})));return s.categories.filter(c=>c.project_id===projectId);});},
+ updateProject(projectId,body){return change(s=>{const p=s.projects.find(x=>x.id===projectId);if(!p)throw Error('找不到專案');Object.assign(p,body,{updated_at:new Date().toISOString()});return p;});},
+ updateTask(taskId,body){return change(s=>{const t=s.tasks.find(x=>x.id===taskId);if(!t)throw Error('找不到任務');Object.assign(t,body,{updated_at:new Date().toISOString()});return t;});},
  exportJson:()=>JSON.stringify({exported_at:new Date().toISOString(),...readLocal()},null,2),
  importJson(text){
   const incoming=assertWorkspace(JSON.parse(text));
