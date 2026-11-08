@@ -1961,3 +1961,23 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
 #page-home .home-ai-cost{cursor:pointer;font:inherit}
 #page-home .home-ai-cost small{display:none}
 @media(max-width:720px){#page-home .home-ceo-overview{grid-template-columns:minmax(0,40%) minmax(0,1fr);gap:9px}#page-home .home-ceo-avatar{min-height:225px}#page-home .home-ai-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-home .home-ai-cost{grid-column:span 2}}
+
+
+/* Assistant portrait and relocated CEO KPIs: keep portrait dimensions unchanged. */
+#page-assistant .assistant-overview-layout{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;align-items:center;justify-content:start;margin:16px 0}
+#page-assistant .assistant-overview-layout .assistant-portrait-wrap{width:100%;padding:0;justify-content:flex-start}
+#page-assistant .assistant-side-kpis{min-width:0;display:flex;align-items:center;justify-content:center}
+#page-assistant .assistant-side-kpis .compact-home-kpis{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(3,minmax(0,1fr));gap:10px;width:100%;margin:0}
+#page-assistant .assistant-side-kpis .kpi{min-width:0;width:100%;text-align:center;align-items:center;justify-content:center;border-radius:999px;aspect-ratio:auto;min-height:82px;padding:10px 8px}
+#page-assistant .assistant-side-kpis .kpi strong{font-size:clamp(18px,2.8vw,27px)}
+#page-assistant .assistant-side-kpis .kpi span{font-size:12px}
+#page-assistant .assistant-side-kpis .kpi small{font-size:10px}
+@media(max-width:600px){
+ #page-assistant .assistant-overview-layout{grid-template-columns:minmax(0,1fr) minmax(0,42%);gap:9px}
+ #page-assistant .assistant-page-avatar-picker{width:min(100%,280px)}
+ #page-assistant .assistant-side-kpis .compact-home-kpis{gap:7px}
+ #page-assistant .assistant-side-kpis .kpi{min-height:68px;padding:7px 5px}
+ #page-assistant .assistant-side-kpis .kpi span{font-size:10px}
+ #page-assistant .assistant-side-kpis .kpi strong{font-size:19px}
+ #page-assistant .assistant-side-kpis .kpi small{font-size:9px}
+}
