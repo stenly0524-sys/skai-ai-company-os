@@ -2106,3 +2106,7 @@ dialog .icon-close:hover,dialog #closeLoginDialog:hover{background:#e4f0ff!impor
    This overrides the earlier assistant display:flex!important rule. */
 .page:not(.active),.page[hidden]{display:none!important}
 #page-assistant.page.active{display:flex!important}
+
+/* Critical: ID-specific inactive rule overrides #page-assistant display:flex!important. */
+#page-assistant:not(.active),#page-assistant[hidden]{display:none!important;visibility:hidden!important}
+#page-assistant.active:not([hidden]){display:flex!important;visibility:visible!important}
