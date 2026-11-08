@@ -377,9 +377,18 @@ async function loadApprovals(){
   return listItem(a.title,'待 CEO 決策 · '+new Date(a.created_at).toLocaleString('zh-TW'),actions);
  });
 }
+function updateNotificationBadge(notifications){
+ const bell=$('headerNotificationCount');
+ if(!bell)return;
+ const unread=notifications.filter(n=>n.status!=='read').length;
+ bell.hidden=unread===0;
+ bell.textContent=unread>99?'99+':String(unread);
+}
 async function loadNotifications(){
  const data=await api('/operations/notifications');
- renderList($('notificationList'),data.notifications||[],'目前沒有內部通知。',n=>
+ const notifications=data.notifications||[];
+ updateNotificationBadge(notifications);
+ renderList($('notificationList'),notifications,'目前沒有內部通知。',n=>
   listItem(n.title,n.body,el('span','quiet-pill',n.status==='read'?'已讀':n.severity==='warning'?'需注意':'未讀')));
 }
 async function loadDashboard(){
@@ -387,9 +396,10 @@ async function loadDashboard(){
  const data=result.counts||{};
  for(const [id,key] of [['statProjects','projects'],['statApprovals','pending']])$(id).textContent=String(data[key]??'—');
  $('projectLabel').textContent='';$('taskLabel').textContent='';$('approvalLabel').textContent='已保存審批';
- const badge=$('taskNavBadge'),bell=$('headerNotificationCount');const n=Number(data.pending)||0;
+ const badge=$('taskNavBadge');const n=Number(data.pending)||0;
  if(badge){badge.hidden=n<=0;badge.textContent=n>99?'99+':String(n);}
- if(bell){bell.hidden=n<=0;bell.textContent=n>99?'99+':String(n);}
+ // Notification count must reflect notification_events, not pending approvals.
+ await loadNotifications();
  $('companyDataSource').textContent='';
  const highlights=$('todayHighlights');
  highlights.replaceChildren(el('p','',String(data.pending??'—')+' 項待審批'),el('small','','使用已保存資料，非模擬數字'));
