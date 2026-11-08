@@ -2222,30 +2222,38 @@ html body #taskCreatePanel .icon-close {
  font:500 25px/1 Arial,sans-serif!important;box-sizing:border-box!important;
 }
 
-/* Align Task Center page start and heading with Project Center on mobile. */
-body[data-current-page="tasks"] .main-column{padding-top:25px!important;}
-body[data-current-page="tasks"] #page-tasks{margin-top:0!important;padding-top:0!important;transform:none!important;position:relative;top:auto!important;align-self:start;}
-body[data-current-page="tasks"] #page-tasks>.listing-card{margin-top:0!important;}
-body[data-current-page="tasks"] #page-tasks .listing-header{align-items:stretch!important;gap:10px;margin-bottom:7px;}
-body[data-current-page="tasks"] #page-tasks .task-listing-heading{align-self:flex-start!important;width:100%;box-sizing:border-box;justify-content:flex-start!important;}
-
-/* Task Center mobile: eliminate unused headquarters header space. */
-@media(max-width:720px){
- body[data-current-page="tasks"] .topbar{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;}
- body[data-current-page="tasks"] .main-column{padding-top:0!important;margin-top:0!important;min-height:0!important;height:auto!important;}
- body[data-current-page="tasks"] .main-column>main{padding-top:0!important;margin-top:0!important;min-height:0!important;}
- body[data-current-page="tasks"] #page-tasks{margin:0!important;padding:0!important;top:0!important;}
- body[data-current-page="tasks"] #page-tasks>.listing-card{margin-top:0!important;}
-}
 /* iOS Safari native date input must shrink inside task modal. */
 #taskCreatePanel,#taskCreatePanel .task-create-scroll,#taskCreatePanel #taskForm,#taskCreatePanel #taskForm>label{min-width:0;max-width:100%;box-sizing:border-box;}
 #taskCreatePanel #taskForm input[type="date"]{display:block;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;-webkit-appearance:none;appearance:none;}
 
 
-/* Task Center mobile: remove excess top reserve without clipping the heading. */
-@media (max-width:720px) and (orientation:portrait){
- body[data-current-page="tasks"] .topbar{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;}
- body[data-current-page="tasks"] .main-column{padding-top:8px!important;margin-top:0!important;}
- body[data-current-page="tasks"] .main-column>main{margin-top:0!important;padding-top:0!important;}
- body[data-current-page="tasks"] #page-tasks.page.active{margin-top:0!important;top:auto!important;transform:none!important;}
+
+/* Projects and Tasks use one identical mobile page-frame position. */
+@media (max-width:720px){
+ body[data-current-page="projects"] .main-column,
+ body[data-current-page="tasks"] .main-column{
+   padding-top:25px!important;
+   margin-top:0!important;
+ }
+ body[data-current-page="projects"] .topbar,
+ body[data-current-page="tasks"] .topbar{
+   display:none!important;
+ }
+ body[data-current-page="projects"] .main-column>main,
+ body[data-current-page="tasks"] .main-column>main{
+   margin:0!important;
+   padding:0!important;
+ }
+ body[data-current-page="projects"] #page-projects.page.active,
+ body[data-current-page="tasks"] #page-tasks.page.active{
+   margin:0!important;
+   padding:0!important;
+   top:auto!important;
+   transform:none!important;
+   position:relative!important;
+ }
+ body[data-current-page="projects"] #page-projects>.listing-card,
+ body[data-current-page="tasks"] #page-tasks>.listing-card{
+   margin-top:0!important;
+ }
 }
